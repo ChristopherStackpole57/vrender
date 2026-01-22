@@ -136,10 +136,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md" />
-    <None Include="Documentation\RenderLayer\instance.md">
-      <SubType>
-      </SubType>
-    </None>
     <None Include="Documentation\roadmap.md">
       <SubType>
       </SubType>

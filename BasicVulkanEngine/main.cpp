@@ -10,11 +10,10 @@
 
 int main()
 {
-	std::cout << "Hello, LinkedIn" << std::endl;
-
 	vrender::render::InstanceConfig config;
 	config.extensions = std::vector<std::string>{
-	
+		"VK_KHR_surface",
+		"VK_KHR_win32_surface"
 	};
 	vrender::render::Instance instance(config);
 

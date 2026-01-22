@@ -2,6 +2,7 @@
 #define RENDER_INSTANCE_H
 
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
 #include <vulkan/vulkan.h>

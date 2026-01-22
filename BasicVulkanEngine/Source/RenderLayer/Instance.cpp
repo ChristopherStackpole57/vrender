@@ -42,6 +42,15 @@ vrender::render::Instance::Instance(const vrender::render::InstanceConfig& confi
 		// In this case, creating the VkInstance has failed and the engine must clearly reflect that. For now that is done with a runtime_error.
 		throw std::runtime_error("ERROR: Vulkan Instance Creation Failed");
 	}
+	else
+	{
+		std::cout << "[Render] Vulkan Instance Created" << std::endl;
+		std::cout << "[Render] Extensions Enabled: " << std::endl;
+		for (const std::string& extension : config.extensions)
+		{
+			std::cout << " - " << extension << std::endl;
+		}
+	}
 }
 vrender::render::Instance::~Instance()
 {

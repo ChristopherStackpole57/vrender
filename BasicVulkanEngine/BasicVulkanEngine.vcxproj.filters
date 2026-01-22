@@ -37,6 +37,5 @@
     <None Include="..\README.md" />
     <None Include="Documentation\style_guide.md" />
     <None Include="Documentation\roadmap.md" />
-    <None Include="Documentation\RenderLayer\instance.md" />
   </ItemGroup>
 </Project>
