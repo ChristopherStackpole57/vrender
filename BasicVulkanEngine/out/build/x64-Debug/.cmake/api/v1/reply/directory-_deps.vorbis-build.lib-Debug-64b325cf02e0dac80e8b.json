@@ -1,0 +1,118 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"out/build/x64-Debug/_deps/vorbis-src/lib/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 117,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 129,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 145,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"external/sfml-3.0/lib/vorbisd.lib"
+			],
+			"targetId" : "vorbis::@692b0ee2b61df6760d20",
+			"targetIndex" : 15,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"external/sfml-3.0/lib/vorbisencd.lib"
+			],
+			"targetId" : "vorbisenc::@692b0ee2b61df6760d20",
+			"targetIndex" : 16,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"external/sfml-3.0/lib/vorbisfiled.lib"
+			],
+			"targetId" : "vorbisfile::@692b0ee2b61df6760d20",
+			"targetIndex" : 17,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/Vorbis",
+			"exportName" : "VorbisTargets",
+			"exportTargets" : 
+			[
+				{
+					"id" : "vorbis::@692b0ee2b61df6760d20",
+					"index" : 15
+				},
+				{
+					"id" : "vorbisenc::@692b0ee2b61df6760d20",
+					"index" : 16
+				},
+				{
+					"id" : "vorbisfile::@692b0ee2b61df6760d20",
+					"index" : 17
+				}
+			],
+			"paths" : 
+			[
+				"_deps/vorbis-build/lib/CMakeFiles/Export/cc38caa321284793c52f43683a3b76fc/VorbisTargets.cmake"
+			],
+			"type" : "export"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib/cmake/Vorbis",
+			"paths" : 
+			[
+				"out/build/x64-Debug/_deps/vorbis-build/VorbisConfig.cmake",
+				"out/build/x64-Debug/_deps/vorbis-build/VorbisConfigVersion.cmake"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "_deps/vorbis-build/lib",
+		"source" : "out/build/x64-Debug/_deps/vorbis-src/lib"
+	}
+}

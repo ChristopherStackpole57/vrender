@@ -26,9 +26,6 @@ namespace vrender
 			std::string engine_name = "BasicVulkanEngine";
 			uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
 			uint32_t api_version = VK_API_VERSION_1_2;
-
-			// Misc Configuration
-			std::shared_ptr<vrender::platform::WindowSurfaceProvider> surface_provider = nullptr;
 		};
 	};
 };

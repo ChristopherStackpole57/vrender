@@ -1,0 +1,3 @@
+C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/ogg-subbuild/CMakeFiles/ogg-populate.dir
+C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/ogg-subbuild/CMakeFiles/edit_cache.dir
+C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/ogg-subbuild/CMakeFiles/rebuild_cache.dir

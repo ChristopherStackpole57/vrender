@@ -29,7 +29,7 @@ any non technical people can understand what is happening.
 #### A Rough Outline of this Week's Schedule:
 Week 1:
 - [x] Project Setup
-- [] Window Creation
+- [x] Window Creation
 - [x] Basic Validation and Debugging
 - [x] Instance
 - [] PhysicalDevice

@@ -38,19 +38,6 @@ vrender::render::Instance::Instance(const vrender::render::InstanceConfig& confi
 	}
 	check_layer_list_support(config.layers);
 
-	// Check there is a valid surface provider and then add in the extensions
-	if (config.surface_provider == nullptr)
-	{
-		// There is not a valid surface provider
-		throw std::runtime_error("ERROR: Vulkan Instance Create Not Provided Valid VkSurfaceKHR Provider");
-	}
-	std::vector<std::string> surface_provider_extensions = config.surface_provider->get_required_instance_extensions();
-	extensions.insert(
-		std::end(extensions),
-		std::begin(surface_provider_extensions),
-		std::end(surface_provider_extensions)
-	);
-
 	// Before creating the Vulkan instance create info, validate that the requested extensions exist.
 	check_extension_list_support(extensions);
 
@@ -142,18 +129,9 @@ vrender::render::Instance::Instance(const vrender::render::InstanceConfig& confi
 			throw std::runtime_error("ERROR: Vulkan Failed to Create Debug Messenger");
 		}
 	}
-
-	// Create and bind a VkSurfaceKHR to use as a render target
-	this->surface = config.surface_provider->create_surface(this->instance);
-	std::cout << "[RENDER] Vulkan Render Surface Created" << std::endl;
 }
 vrender::render::Instance::~Instance()
 {
-	if (this->surface != VK_NULL_HANDLE)
-	{
-		vkDestroySurfaceKHR(this->instance, this->surface, nullptr);
-	}
-
 	if (this->debug_messenger != VK_NULL_HANDLE)
 	{
 		// There is a stored Debug Messenger that must be destroyed

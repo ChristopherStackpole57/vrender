@@ -18,6 +18,7 @@ namespace vrender
 		{
 		public:
 			// Lifecycle Management
+			Instance() {};
 			Instance(const vrender::render::InstanceConfig& config);
 			~Instance();
 			
@@ -32,7 +33,6 @@ namespace vrender
 			VkInstance instance = VK_NULL_HANDLE;
 			VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
 			DebugDiagnostics debug_diagnostics;
-			VkSurfaceKHR surface = VK_NULL_HANDLE;
 
 			// Utility Methods
 			void check_layer_list_support(const std::vector<std::string>& layers);
