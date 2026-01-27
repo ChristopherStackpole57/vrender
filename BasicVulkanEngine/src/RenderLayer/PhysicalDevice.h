@@ -23,6 +23,8 @@ namespace vrender
 			const VkPhysicalDevice get_physical_device() const;
 			const std::vector<VkQueueFamilyProperties>& get_queue_families() const;
 			const std::vector<VkExtensionProperties>& get_extensions() const;
+			const std::vector<const char*> get_raw_extension_names() const;
+			const std::vector<std::string> get_extension_names() const;
 			const VkPhysicalDeviceFeatures2& get_features() const;
 			VkDeviceSize get_max_device_local_heap_size() const;
 

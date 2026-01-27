@@ -73,6 +73,27 @@ const std::vector<VkExtensionProperties>& vrender::render::PhysicalDevice::get_e
 {
 	return this->extension_properties;
 }
+const std::vector<const char*> vrender::render::PhysicalDevice::get_raw_extension_names() const
+{
+	std::vector<const char*> names;
+	for (const VkExtensionProperties& extension : this->extension_properties)
+	{
+		const char* name = extension.extensionName;
+		names.push_back(name);
+	}
+
+	return names;
+}
+const std::vector<std::string> vrender::render::PhysicalDevice::get_extension_names() const
+{
+	std::vector<std::string> names;
+	for (const VkExtensionProperties& extension : this->extension_properties)
+	{
+		names.push_back(std::string(extension.extensionName));
+	}
+
+	return names;
+}
 const VkPhysicalDeviceFeatures2& vrender::render::PhysicalDevice::get_features() const
 {
 	return this->features;

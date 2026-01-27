@@ -9,9 +9,11 @@
 #include <RenderLayer/InstanceConfiguration.h>
 #include <RenderLayer/Instance.h>
 #include <RenderLayer/PhysicalDevice.h>
+#include <RenderLayer/LogicalDevice.h>
 
-#include <RenderLayer/Utility/SelectPhysicalDevice.h>
 #include <RenderLayer/Utility/PhysicalDeviceEnumeration.h>
+#include <RenderLayer/Utility/QueueSelection.h>
+#include <RenderLayer/Utility/SelectPhysicalDevice.h>
 
 namespace vrender
 {

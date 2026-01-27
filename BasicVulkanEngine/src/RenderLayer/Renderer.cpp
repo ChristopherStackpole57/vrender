@@ -26,7 +26,7 @@ vrender::render::Renderer::Renderer(
 {
 	// Create and bind a VkSurfaceKHR to use as a render target
 	this->surface = surface_provider.create_surface(this->instance.get_handle());
-	std::cout << "[RENDER] Vulkan Render Surface Created" << std::endl;
+	std::cout << "[Render] Vulkan Render Surface Created" << std::endl;
 
 	// Query the instance for physical devices and choose the best one
 	std::vector<vrender::render::PhysicalDevice> physical_devices = vrender::render::utility::physical_device::enumerate_physical_devices(this->instance);
@@ -34,7 +34,17 @@ vrender::render::Renderer::Renderer(
 		physical_devices,
 		vrender::render::utility::physical_device::PhysicalDeviceSelectionParameters{}
 	);
-	std::cout << "[RENDER] Vulkan Renderer Chose Ideal Physical Device: " << std::endl << "\t" << best_device.get_name() << std::endl;
+	std::cout << "[Render] Vulkan Renderer Chose Ideal Physical Device: " << std::endl << "\t" << best_device.get_name() << std::endl;
+
+	// Use the physical device to create a logical device
+	vrender::render::LogicalDevice logical_device(
+		best_device,
+		vrender::render::utility::queue::select_queue_families(
+			best_device,
+			this->surface
+		)
+	);
+	std::cout << "[Render] Vulkan Renderer Created Logical Device From Physical Device" << std::endl;
 }
 vrender::render::Renderer::~Renderer()
 {
