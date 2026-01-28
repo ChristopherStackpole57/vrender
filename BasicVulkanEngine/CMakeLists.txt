@@ -84,5 +84,11 @@ target_include_directories(vrender PUBLIC
 	src/PlatformLayer/WindowBackends/
 )
 
-add_executable(vrender_test main.cpp "src/RenderLayer/Renderer.cpp" "src/RenderLayer/PhysicalDevice.cpp" "src/RenderLayer/LogicalDevice.cpp" "src/RenderLayer/Utility/PhysicalDeviceEnumeration.cpp" "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" "src/RenderLayer/Utility/QueueSelection.cpp")
+add_executable(vrender_test main.cpp 
+"src/RenderLayer/Renderer.cpp" 
+"src/RenderLayer/PhysicalDevice.cpp" 
+"src/RenderLayer/LogicalDevice.cpp" 
+"src/RenderLayer/Utility/PhysicalDeviceEnumeration.cpp" 
+"src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
+"src/RenderLayer/Utility/QueueSelection.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)

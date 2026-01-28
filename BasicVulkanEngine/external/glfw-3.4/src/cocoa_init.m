@@ -160,7 +160,6 @@ static void createMenuBar(void)
                           action:@selector(arrangeInFront:)
                    keyEquivalent:@""];
 
-    // TODO: Make this appear at the bottom of the menu (for consistency)
     [windowMenu addItem:[NSMenuItem separatorItem]];
     [[windowMenu addItemWithTitle:@"Enter Full Screen"
                            action:@selector(toggleFullScreen:)

@@ -30,9 +30,14 @@ vrender::render::Renderer::Renderer(
 
 	// Query the instance for physical devices and choose the best one
 	std::vector<vrender::render::PhysicalDevice> physical_devices = vrender::render::utility::physical_device::enumerate_physical_devices(this->instance);
+	vrender::render::utility::physical_device::SurfaceRequirements surface_requirements{
+		.surface = this->surface
+	};
 	vrender::render::PhysicalDevice best_device = vrender::render::utility::physical_device::select_physical_device(
 		physical_devices,
-		vrender::render::utility::physical_device::PhysicalDeviceSelectionParameters{}
+		vrender::render::utility::physical_device::PhysicalDeviceSelectionParameters{
+			.surface{surface_requirements}
+		}
 	);
 	std::cout << "[Render] Vulkan Renderer Chose Ideal Physical Device: " << std::endl << "\t" << best_device.get_name() << std::endl;
 

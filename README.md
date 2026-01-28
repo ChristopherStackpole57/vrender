@@ -32,8 +32,8 @@ Week 1:
 - [x] Window Creation
 - [x] Basic Validation and Debugging
 - [x] Instance
-- [] PhysicalDevice
-- [] LogicalDevice
+- [x] PhysicalDevice
+- [x] LogicalDevice
 
 For a complete picture, view the full roadmap here:
 [Full Roadmap](BasicVulkanEngine/Documentation/roadmap.md)

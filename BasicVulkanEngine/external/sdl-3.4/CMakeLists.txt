@@ -907,9 +907,6 @@ if(SDL_ASSEMBLY)
   endif()
 
   if(USE_GCC OR USE_CLANG)
-    # TODO: Those all seem to be quite GCC specific - needs to be
-    # reworked for better compiler support
-
     if(SDL_ALTIVEC)
       cmake_push_check_state()
       string(APPEND CMAKE_REQUIRED_FLAGS " -maltivec")
@@ -1039,7 +1036,6 @@ if(MSVC)
   endif()
 endif()
 
-# TODO: Can't deactivate on FreeBSD? w/o LIBC, SDL_stdinc.h can't define anything.
 if(SDL_LIBC)
   set(available_headers)
   set(HAVE_LIBC TRUE)
@@ -2462,14 +2458,6 @@ elseif(WINDOWS)
   endif()
 
 elseif(APPLE)
-  # TODO: rework this all for proper macOS, iOS and Darwin support
-
-  # !!! FIXME: all the `if(IOS OR TVOS OR VISIONOS)` checks should get merged into one variable, so we're ready for the next platform (or just WatchOS).
-
-  # We always need these libs on macOS at the moment.
-  # !!! FIXME: we need Carbon for some very old API calls in
-  # !!! FIXME:  src/video/cocoa/SDL_cocoakeyboard.c, but we should figure out
-  # !!! FIXME:  how to dump those.
   if(MACOS)
     set(SDL_FRAMEWORK_COCOA 1)
     set(SDL_FRAMEWORK_CARBON 1)
@@ -2613,7 +2601,6 @@ elseif(APPLE)
   sdl_glob_sources("${SDL3_SOURCE_DIR}/src/filesystem/cocoa/*.m")
   set(HAVE_SDL_FILESYSTEM TRUE)
 
-  # TODO: SDL_STORAGE_ICLOUD
   set(SDL_STORAGE_GENERIC 1)
   sdl_glob_sources("${SDL3_SOURCE_DIR}/src/storage/generic/*.c")
   if(MACOS)
@@ -2834,7 +2821,6 @@ elseif(HAIKU)
     set(HAVE_SDL_VIDEO TRUE)
 
     if(SDL_OPENGL)
-      # TODO: Use FIND_PACKAGE(OpenGL) instead
       set(SDL_VIDEO_OPENGL 1)
       set(SDL_VIDEO_OPENGL_HAIKU 1)
       set(SDL_VIDEO_RENDER_OGL 1)

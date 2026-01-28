@@ -8,12 +8,12 @@ This roadmap is intentionaly fluid and will be subject to revision and change as
 - [x] Window Creation
 - [x] Basic Validation and Debugging
 - [x] Instance
-- [] PhysicalDevice
-- [] LogicalDevice
+- [x] PhysicalDevice
+- [x] LogicalDevice
 
 #### Week 2:
-- [] Queue
-- [] Strong Feature/Extension Filtering and Selection
+- [x] Queue
+- [x] Strong Feature/Extension Filtering and Selection
 - [] Engine Allocators
 
 #### More weeks to come! (as I get a more concrete idea of where I am at)

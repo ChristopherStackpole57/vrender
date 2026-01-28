@@ -498,21 +498,21 @@
 				{
 					"directoryIndex" : 3,
 					"id" : "SDL3-static::@586c448c7e31db39515a",
-					"jsonFile" : "target-SDL3-static-Debug-35fd147ed59cabbdc3ad.json",
+					"jsonFile" : "target-SDL3-static-Debug-9ccd56a246d3f23fd424.json",
 					"name" : "SDL3-static",
 					"projectIndex" : 2
 				},
 				{
 					"directoryIndex" : 3,
 					"id" : "SDL3_test::@586c448c7e31db39515a",
-					"jsonFile" : "target-SDL3_test-Debug-73933d399ed881de6967.json",
+					"jsonFile" : "target-SDL3_test-Debug-dc9ddd077731732c9b09.json",
 					"name" : "SDL3_test",
 					"projectIndex" : 2
 				},
 				{
 					"directoryIndex" : 3,
 					"id" : "SDL_uclibc::@586c448c7e31db39515a",
-					"jsonFile" : "target-SDL_uclibc-Debug-04704a9127b141203948.json",
+					"jsonFile" : "target-SDL_uclibc-Debug-3046cf13a51878f81714.json",
 					"name" : "SDL_uclibc",
 					"projectIndex" : 2
 				},
@@ -540,7 +540,7 @@
 				{
 					"directoryIndex" : 12,
 					"id" : "sfml-audio::@6ab3819bf0ab3630a2ae",
-					"jsonFile" : "target-sfml-audio-Debug-b36ea2efad08986adb8d.json",
+					"jsonFile" : "target-sfml-audio-Debug-a91b00f31e6849136233.json",
 					"name" : "sfml-audio",
 					"projectIndex" : 3
 				},
@@ -624,7 +624,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "vrender_test::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-vrender_test-Debug-c6deed008ac05f6d12c7.json",
+					"jsonFile" : "target-vrender_test-Debug-835008c53194d869374e.json",
 					"name" : "vrender_test",
 					"projectIndex" : 0
 				}
