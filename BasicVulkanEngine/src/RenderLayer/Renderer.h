@@ -10,32 +10,32 @@
 #include <RenderLayer/Instance.h>
 #include <RenderLayer/PhysicalDevice.h>
 #include <RenderLayer/LogicalDevice.h>
+#include <RenderLayer/Swapchain.h>
 
 #include <RenderLayer/Utility/PhysicalDeviceEnumeration.h>
+#include <RenderLayer/Utility/QuerySwapchainSupport.h>
 #include <RenderLayer/Utility/QueueSelection.h>
 #include <RenderLayer/Utility/SelectPhysicalDevice.h>
 
-namespace vrender
+namespace vrender::render
 {
-	namespace render
+	class Renderer
 	{
-		class Renderer
-		{
-		public:
-			// Lifetime Control
-			Renderer(
-				const vrender::platform::WindowSurfaceProvider& surface_provider_ptr, 
-				const vrender::render::InstanceConfig& instance_config
-			);
-			~Renderer();
+	public:
+		// Lifetime Control
+		Renderer(
+			const vrender::platform::WindowProvider& window_provider,
+			const vrender::platform::WindowSurfaceProvider& surface_provider, 
+			const vrender::render::InstanceConfig& instance_config
+		);
+		~Renderer();
 
-			// Public API
-			void step(const vrender::platform::WindowProvider& window);
-		private:
-			vrender::render::Instance instance;
-			VkSurfaceKHR surface;
-		};
-	}
+		// Public API
+		void step(const vrender::platform::WindowProvider& window);
+	private:
+		vrender::render::Instance instance;
+		VkSurfaceKHR surface;
+	};
 }
 
 #endif

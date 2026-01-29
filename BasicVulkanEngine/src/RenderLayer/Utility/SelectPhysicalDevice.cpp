@@ -3,7 +3,7 @@
 #include <iostream>
 
 // Selection Utilities
-bool satisfies_queue_requirements(
+static bool satisfies_queue_requirements(
 	const vrender::render::PhysicalDevice& device,
 	const vrender::render::utility::physical_device::QueueRequirements& requirements
 )
@@ -17,7 +17,7 @@ bool satisfies_queue_requirements(
 	}
 	return false;
 }
-bool satisfies_extension_requirements(
+static bool satisfies_extension_requirements(
 	const vrender::render::PhysicalDevice& device,
 	const vrender::render::utility::physical_device::ExtensionRequirements& requirements
 )
@@ -43,7 +43,7 @@ bool satisfies_extension_requirements(
 
 	return true;
 }
-bool satisfies_feature_requirements(
+static bool satisfies_feature_requirements(
 	const vrender::render::PhysicalDevice& device,
 	const vrender::render::utility::physical_device::FeatureRequirements& requirements
 )
@@ -66,7 +66,7 @@ bool satisfies_feature_requirements(
 
 	return true;
 }
-bool satisfies_surface_requirements(
+static bool satisfies_surface_requirements(
 	const vrender::render::PhysicalDevice& device,
 	std::optional<vrender::render::utility::physical_device::SurfaceRequirements>& requirements
 )
@@ -100,7 +100,7 @@ bool satisfies_surface_requirements(
 
 	return false;
 }
-bool satisfies_memory_requirements(
+static bool satisfies_memory_requirements(
 	const vrender::render::PhysicalDevice& device,
 	const vrender::render::utility::physical_device::MemoryRequirements requirements
 )

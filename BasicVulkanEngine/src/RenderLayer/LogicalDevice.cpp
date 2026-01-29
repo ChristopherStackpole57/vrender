@@ -39,7 +39,7 @@ vrender::render::LogicalDevice::LogicalDevice(
 		queue_create_infos.emplace_back(queue_create_info);
 	}
 
-	// How do we know that these extension names are valid?
+	// TODO: Verify all extension names are valid
 	this->enabled_extensions = physical_device.get_extension_names();
 	const std::vector<const char*> extension_names = physical_device.get_raw_extension_names();
 	const VkPhysicalDeviceFeatures2& device_features = physical_device.get_features();

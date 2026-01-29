@@ -10,42 +10,39 @@
 #include "DebugDiagnostics.h"
 #include "InstanceConfiguration.h"
 
-namespace vrender
+namespace vrender::render
 {
-	namespace render
+	class Instance
 	{
-		class Instance
-		{
-		public:
-			// Lifecycle Management
-			Instance() {};
-			Instance(const vrender::render::InstanceConfig& config);
-			~Instance();
-			
-			// Remove the Copy Constructor
-			Instance(const Instance&) = delete;
-			Instance& operator=(const Instance&) = delete;
+	public:
+		// Lifecycle Management
+		Instance() {};
+		Instance(const vrender::render::InstanceConfig& config);
+		~Instance();
 
-			// API Accessibility
-			VkInstance get_handle() const;
-			std::vector<VkPhysicalDevice> query_physical_devices() const;
-		private:
-			VkInstance instance = VK_NULL_HANDLE;
-			VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
-			DebugDiagnostics debug_diagnostics;
+		// Remove the Copy Constructor
+		Instance(const Instance&) = delete;
+		Instance& operator=(const Instance&) = delete;
 
-			// Utility Methods
-			void check_layer_list_support(const std::vector<std::string>& layers);
-			void check_extension_list_support(const std::vector<std::string>& extensions);
-		
-			static VkBool32 VKAPI_CALL debug_messenger_callback(
-				VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
-				VkDebugUtilsMessageSeverityFlagsEXT message_type,
-				const VkDebugUtilsMessengerCallbackDataEXT* callback_data_ptr,
-				void* user_data_ptr
-			);
-		};
+		// API Accessibility
+		VkInstance get_handle() const;
+		std::vector<VkPhysicalDevice> query_physical_devices() const;
+	private:
+		VkInstance instance = VK_NULL_HANDLE;
+		VkDebugUtilsMessengerEXT debug_messenger = VK_NULL_HANDLE;
+		DebugDiagnostics debug_diagnostics;
+
+		// Utility Methods
+		void check_layer_list_support(const std::vector<std::string>& layers);
+		void check_extension_list_support(const std::vector<std::string>& extensions);
+
+		static VkBool32 VKAPI_CALL debug_messenger_callback(
+			VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
+			VkDebugUtilsMessageSeverityFlagsEXT message_type,
+			const VkDebugUtilsMessengerCallbackDataEXT* callback_data_ptr,
+			void* user_data_ptr
+		);
 	};
-};
+}
 
 #endif

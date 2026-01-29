@@ -1,0 +1,777 @@
+{
+	"archive" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "/machine:x64",
+				"role" : "flags"
+			}
+		]
+	},
+	"artifacts" : 
+	[
+		{
+			"path" : "external/sfml-3.0/lib/sfml-audio-s-d.lib"
+		}
+	],
+	"backtrace" : 2,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"sfml_add_library",
+			"install",
+			"target_link_libraries",
+			"target_compile_options",
+			"set_target_warnings",
+			"target_compile_definitions",
+			"target_include_directories",
+			"target_compile_features"
+		],
+		"files" : 
+		[
+			"external/sfml-3.0/cmake/Macros.cmake",
+			"external/sfml-3.0/src/SFML/Audio/CMakeLists.txt",
+			"external/sfml-3.0/cmake/CompilerWarnings.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 165,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 74,
+				"parent" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 234,
+				"parent" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 182,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 87,
+				"parent" : 1
+			},
+			{
+				"command" : 4,
+				"file" : 2,
+				"line" : 10,
+				"parent" : 5
+			},
+			{
+				"command" : 6,
+				"file" : 1,
+				"line" : 170,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 1,
+				"line" : 173,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 1,
+				"line" : 176,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 1,
+				"line" : 179,
+				"parent" : 0
+			},
+			{
+				"command" : 6,
+				"file" : 0,
+				"line" : 286,
+				"parent" : 1
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 85,
+				"parent" : 5
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 86,
+				"parent" : 5
+			},
+			{
+				"command" : 7,
+				"file" : 0,
+				"line" : 274,
+				"parent" : 1
+			},
+			{
+				"command" : 7,
+				"file" : 1,
+				"line" : 190,
+				"parent" : 0
+			},
+			{
+				"command" : 7,
+				"file" : 1,
+				"line" : 193,
+				"parent" : 0
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 79,
+				"parent" : 1
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "/DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -std:c++20 -MDd"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/W4"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14242"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14254"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14263"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14265"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14287"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/we4289"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14296"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14311"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14545"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14546"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14547"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14549"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14555"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14619"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14640"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14826"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14905"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14906"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/w14928"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/permissive-"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/wd4068"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/wd4505"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/wd4800"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "/wd4275"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 7,
+					"define" : "FLAC__NO_DLL"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "MA_NO_ENCODING"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "MA_NO_FLAC"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "MA_NO_GENERATION"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "MA_NO_MP3"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "MA_NO_RESOURCE_MANAGER"
+				},
+				{
+					"backtrace" : 9,
+					"define" : "MA_USE_STDINT"
+				},
+				{
+					"backtrace" : 7,
+					"define" : "OV_EXCLUDE_STATIC_CALLBACKS"
+				},
+				{
+					"backtrace" : 10,
+					"define" : "SFML_IS_BIG_ENDIAN=0"
+				},
+				{
+					"backtrace" : 11,
+					"define" : "SFML_STATIC"
+				},
+				{
+					"backtrace" : 12,
+					"define" : "_CRT_SECURE_NO_WARNINGS"
+				},
+				{
+					"backtrace" : 13,
+					"define" : "_WINSOCK_DEPRECATED_NO_WARNINGS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 14,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/external/sfml-3.0/include"
+				},
+				{
+					"backtrace" : 14,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/external/sfml-3.0/src"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/vorbis-src/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/ogg-src/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/ogg-build/include"
+				},
+				{
+					"backtrace" : 4,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/build/x64-Debug/_deps/flac-src/include"
+				},
+				{
+					"backtrace" : 15,
+					"isSystem" : true,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/external/sfml-3.0/extlibs/headers/miniaudio"
+				},
+				{
+					"backtrace" : 16,
+					"isSystem" : true,
+					"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/external/sfml-3.0/extlibs/headers/minimp3"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					17
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				2,
+				5,
+				7,
+				9,
+				10,
+				12,
+				14,
+				16,
+				18,
+				21,
+				23,
+				25,
+				27,
+				29,
+				31,
+				36,
+				38,
+				40,
+				42,
+				45,
+				47,
+				49
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 4,
+			"id" : "sfml-system::@228115ffd5d3c550c4c2"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "ogg::@4e5ed7d02827854e35f8"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "FLAC::@d572677c3819035d9b3d"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "vorbisenc::@692b0ee2b61df6760d20"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "vorbisfile::@692b0ee2b61df6760d20"
+		},
+		{
+			"backtrace" : 4,
+			"id" : "vorbis::@692b0ee2b61df6760d20"
+		}
+	],
+	"folder" : 
+	{
+		"name" : "SFML"
+	},
+	"id" : "sfml-audio::@6ab3819bf0ab3630a2ae",
+	"install" : 
+	{
+		"destinations" : 
+		[
+			{
+				"backtrace" : 3,
+				"path" : "lib"
+			}
+		],
+		"prefix" : 
+		{
+			"path" : "C:/Programming/Projects/Cpp/VS22/LinkedIn/BasicVulkanEngine/linkedin_daily-vulkan/BasicVulkanEngine/out/install/x64-Debug"
+		}
+	},
+	"name" : "sfml-audio",
+	"nameOnDisk" : "sfml-audio-s-d.lib",
+	"paths" : 
+	{
+		"build" : "external/sfml-3.0/src/SFML/Audio",
+		"source" : "external/sfml-3.0/src/SFML/Audio"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12,
+				13,
+				14,
+				15,
+				16,
+				17,
+				18,
+				19,
+				20,
+				21,
+				22,
+				23,
+				24,
+				25,
+				26,
+				27,
+				28,
+				29,
+				30
+			]
+		},
+		{
+			"name" : "codecs",
+			"sourceIndexes" : 
+			[
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47,
+				48,
+				49
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/AudioResource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/AudioResource.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/AudioDevice.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/AudioDevice.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/Export.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/Listener.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/Listener.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/Miniaudio.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/MiniaudioUtils.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/MiniaudioUtils.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/Music.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/Music.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/PlaybackDevice.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/PlaybackDevice.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/Sound.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/Sound.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundBuffer.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundBuffer.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundBufferRecorder.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundBufferRecorder.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundChannel.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/InputSoundFile.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/InputSoundFile.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/OutputSoundFile.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/OutputSoundFile.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundRecorder.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundRecorder.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundSource.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundSource.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundStream.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundStream.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileFactory.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundFileFactory.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundFileFactory.inl",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundFileReader.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderFlac.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderFlac.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderMp3.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderMp3.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderOgg.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderOgg.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderWav.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileReaderWav.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/include/SFML/Audio/SoundFileWriter.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileWriterFlac.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileWriterFlac.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileWriterOgg.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileWriterOgg.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileWriterWav.hpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 2,
+			"compileGroupIndex" : 0,
+			"path" : "external/sfml-3.0/src/SFML/Audio/SoundFileWriterWav.cpp",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

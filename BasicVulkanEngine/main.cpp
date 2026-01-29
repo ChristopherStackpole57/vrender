@@ -35,7 +35,11 @@ int main()
 		.enable_validation = ENABLE_VALIDATION_LAYERS,
 	};
 	//instance_config.extensions = std::vector<std::string>{};					// Not needed yet
-	vrender::render::Renderer renderer(*surface_provider_ptr, instance_config);
+	vrender::render::Renderer renderer(
+		*window_provider_ptr,
+		*surface_provider_ptr, 
+		instance_config
+	);
 
 	// Configure Window
 	window_provider_ptr->set_title("Platform Agnostic Window");

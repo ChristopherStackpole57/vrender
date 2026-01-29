@@ -1,7 +1,5 @@
 #include "Instance.h"
 
-// Locally managed diagnostics information struct
-
 // Lifecycle Management
 vrender::render::Instance::Instance(const vrender::render::InstanceConfig& config)
 {
