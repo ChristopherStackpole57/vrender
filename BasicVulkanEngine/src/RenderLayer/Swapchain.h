@@ -2,6 +2,7 @@
 #define RENDER_SWAPCHAIN_H
 
 #include <algorithm>
+#include <stdexcept>
 
 #include <vulkan/vulkan.h>
 

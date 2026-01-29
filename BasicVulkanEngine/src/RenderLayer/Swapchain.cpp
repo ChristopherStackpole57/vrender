@@ -30,12 +30,16 @@ vrender::render::Swapchain::Swapchain(
 	create_info.clipped = configuration.clipped;
 	create_info.oldSwapchain = configuration.old_swapchain;
 
-	vkCreateSwapchainKHR(
+	VkResult creation_result = vkCreateSwapchainKHR(
 		logical_device.get_logical_device(),
 		&create_info,
 		nullptr,
 		&this->swapchain
 	);
+	if (creation_result != VK_SUCCESS)
+	{
+		throw std::runtime_error("ERROR: Vulkan Failed to Create Swapchain");
+	}
 }
 vrender::render::Swapchain::~Swapchain()
 {
