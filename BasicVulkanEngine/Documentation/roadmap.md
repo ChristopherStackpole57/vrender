@@ -12,8 +12,15 @@ This roadmap is intentionaly fluid and will be subject to revision and change as
 - [x] LogicalDevice
 
 #### Week 2:
-- [x] Queue
+- [x] Queues
 - [x] Strong Feature/Extension Filtering and Selection
-- [] Engine Allocators
+- [x] Swapchains
+- [x] Image Acquisition
+- [x] Synchronization
+- [x] Attachments and Render Passes
+- [ ] Framebuffers
+- [ ] Commandbuffers
+- [ ] Render Pipeline
+- [ ] Shader Modules
 
 #### More weeks to come! (as I get a more concrete idea of where I am at)

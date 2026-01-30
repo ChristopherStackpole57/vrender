@@ -96,7 +96,7 @@ vrender::render::Instance::Instance(const vrender::render::InstanceConfig& confi
 	}
 	else
 	{
-		std::cout << "[Render] Vulkan Instance Created" << std::endl;
+		std::cout << "[Render] VRENDER Built Instance" << std::endl;
 		std::cout << "[Render] Extensions Enabled: " << std::endl;
 		for (const std::string& extension : extensions)
 		{

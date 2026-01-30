@@ -17,25 +17,18 @@ static vrender::render::InstanceConfig build_instance_config(
 
 	return config;
 }
-
-// Lifetime Control
-vrender::render::Renderer::Renderer(
-	const vrender::platform::WindowProvider& window_provider,
-	const vrender::platform::WindowSurfaceProvider& surface_provider, 
-	const InstanceConfig& instance_config
-) : instance(build_instance_config(surface_provider, instance_config))
+static vrender::render::PhysicalDevice build_physical_device(
+	const vrender::render::Instance& instance,
+	const VkSurfaceKHR surface
+)
 {
-	// TODO: Clear up what should be stored and not stored by the renderer
-
-	// Create and bind a VkSurfaceKHR to use as a render target
-	this->surface = surface_provider.create_surface(this->instance.get_handle());
-	std::cout << "[Render] Vulkan Render Surface Created" << std::endl;
-
-	// Query the instance for physical devices and choose the best one
-	std::vector<vrender::render::PhysicalDevice> physical_devices = vrender::render::utility::physical_device::enumerate_physical_devices(this->instance);
+	// Enumerate Physical Devices
+	std::vector<vrender::render::PhysicalDevice> physical_devices = vrender::render::utility::physical_device::enumerate_physical_devices(instance);
 	vrender::render::utility::physical_device::SurfaceRequirements surface_requirements{
-		.surface = this->surface
+		.surface = surface
 	};
+
+	// Choose the best physical device
 	vrender::render::PhysicalDevice best_device = vrender::render::utility::physical_device::select_physical_device(
 		physical_devices,
 		vrender::render::utility::physical_device::PhysicalDeviceSelectionParameters{
@@ -45,33 +38,79 @@ vrender::render::Renderer::Renderer(
 			.surface{surface_requirements}
 		}
 	);
-	std::cout << "[Render] Vulkan Renderer Chose Ideal Physical Device: " << std::endl << "\t" << best_device.get_name() << std::endl;
 
-	// Use the physical device to create a logical device
-	vrender::render::utility::queue::QueueSelection queue_selection = vrender::render::utility::queue::select_queue_families(best_device, this->surface);
+	std::cout << "[Render] VRENDER Selected Physical Device" << std::endl;
+
+	return best_device;
+}
+static vrender::render::LogicalDevice build_logical_device(
+	const vrender::render::PhysicalDevice& physical_device,
+	const VkSurfaceKHR surface
+)
+{
+	vrender::render::utility::queue::QueueSelection queue_selection = vrender::render::utility::queue::select_queue_families(physical_device, surface);
 	vrender::render::LogicalDevice logical_device(
-		best_device,
+		physical_device,
 		queue_selection
 	);
-	std::cout << "[Render] Vulkan Renderer Created Logical Device From Physical Device" << std::endl;
 
-	// Query swapchain support and create a swapchain
+	std::cout << "[RENDER] VRENDER Built Logical Device" << std::endl;
+
+	return logical_device;
+}
+static vrender::render::Swapchain build_swapchain(
+	const vrender::render::PhysicalDevice& physical_device,
+	const vrender::render::LogicalDevice& logical_device,
+	const vrender::platform::WindowProvider& window_provider,
+	const VkSurfaceKHR surface
+)
+{
 	vrender::render::utility::swapchain::SwapchainSupport swapchain_support = vrender::render::utility::swapchain::query_swapchain_support(
-		best_device,
-		this->surface
+		physical_device,
+		surface
 	);
 	vrender::render::utility::swapchain::SwapchainConfiguration swapchain_configuration = vrender::render::utility::swapchain::configure_swapchain(
 		swapchain_support,
-		queue_selection,
+		vrender::render::utility::queue::select_queue_families(physical_device, surface),
 		window_provider.get_framebuffer_size()
 	);
 
 	vrender::render::Swapchain swapchain(
 		logical_device,
-		this->surface,
+		surface,
 		swapchain_configuration
 	);
-	std::cout << "[Render] Vulkan Renderer Created Swapchain" << std::endl;
+
+	std::cout << "[Render] VRENDER Built Swapchain" << std::endl;
+
+	return swapchain;
+}
+static vrender::render::Semaphore build_semaphore(
+	const vrender::render::LogicalDevice& logical_device
+)
+{
+	vrender::render::Semaphore semaphore(
+		logical_device
+	);
+	return semaphore;
+
+	std::cout << "[Render] VRENDER Built Semaphore" << std::endl;
+}
+
+// Lifetime Control
+vrender::render::Renderer::Renderer(
+	const vrender::platform::WindowProvider& window_provider,
+	const vrender::platform::WindowSurfaceProvider& surface_provider, 
+	const InstanceConfig& instance_config
+)
+	: instance(build_instance_config(surface_provider, instance_config))
+	, surface(surface_provider.create_surface(instance.get_handle()))
+	, physical_device(build_physical_device(instance, surface))
+	, logical_device(build_logical_device(physical_device, surface))
+	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
+	, test_semaphore(build_semaphore(logical_device))
+{
+	// TODO: Clearly document static build function
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -81,10 +120,20 @@ vrender::render::Renderer::~Renderer()
 // Public API
 void vrender::render::Renderer::step(const vrender::platform::WindowProvider& window)
 {
+	std::cout << "[Render] VRENDER Executing Frame..." << std::endl;
+
 	if (window.was_resized())
 	{
 		// Window Resized, need to update accordingly
 		// fence based syncing
 		// recreate the swapchain to match new size
 	}
+
+	vrender::render::AcquireSwapchainImageResult image_result = this->swapchain.acquire_image(
+		this->test_semaphore,
+		UINT64_MAX
+	);
+	std::cout << "[Render] VRENDER Acquired Swapchain Image" << std::endl;
+
+	std::cout << "[Render] VRENDER Completed Frame" << std::endl;
 }

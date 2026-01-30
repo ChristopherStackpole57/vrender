@@ -28,12 +28,16 @@ any non technical people can understand what is happening.
 
 #### A Rough Outline of this Week's Schedule:
 Week 1:
-- [x] Project Setup
-- [x] Window Creation
-- [x] Basic Validation and Debugging
-- [x] Instance
-- [x] PhysicalDevice
-- [x] LogicalDevice
+- [x] Queues
+- [x] Strong Feature/Extension Filtering and Selection
+- [x] Swapchains
+- [x] Image Acquisition
+- [x] Synchronization
+- [x] Attachments and Render Passes
+- [ ] Framebuffers
+- [ ] Commandbuffers
+- [ ] Render Pipeline
+- [ ] Shader Modules
 
 For a complete picture, view the full roadmap here:
 [Full Roadmap](BasicVulkanEngine/Documentation/roadmap.md)

@@ -84,6 +84,10 @@ int main()
 			// Render Step
 			renderer.step(*window_provider_ptr);
 		}
+
+		// Render Step
+		renderer.step(*window_provider_ptr);
+		return 0;
 	}
 
 	return 0;

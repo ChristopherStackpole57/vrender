@@ -10,6 +10,7 @@
 #include <RenderLayer/Instance.h>
 #include <RenderLayer/PhysicalDevice.h>
 #include <RenderLayer/LogicalDevice.h>
+#include <RenderLayer/Semaphore.h>
 #include <RenderLayer/Swapchain.h>
 
 #include <RenderLayer/Utility/PhysicalDeviceEnumeration.h>
@@ -35,6 +36,11 @@ namespace vrender::render
 	private:
 		vrender::render::Instance instance;
 		VkSurfaceKHR surface;
+		vrender::render::PhysicalDevice physical_device;
+		vrender::render::LogicalDevice logical_device;
+		vrender::render::Swapchain swapchain;
+
+		vrender::render::Semaphore test_semaphore;
 	};
 }
 
