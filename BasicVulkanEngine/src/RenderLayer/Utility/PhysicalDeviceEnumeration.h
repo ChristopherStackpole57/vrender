@@ -3,8 +3,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include <RenderLayer/Instance.h>
-#include <RenderLayer/PhysicalDevice.h>
+#include <Instance.h>
+#include <PhysicalDevice.h>
 
 namespace vrender::render
 {

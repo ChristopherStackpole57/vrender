@@ -18,7 +18,8 @@ This roadmap is intentionaly fluid and will be subject to revision and change as
 - [x] Image Acquisition
 - [x] Synchronization
 - [x] Attachments and Render Passes
-- [ ] Framebuffers
+- [x] Framebuffers
+- [ ] Command Pools
 - [ ] Commandbuffers
 - [ ] Render Pipeline
 - [ ] Shader Modules

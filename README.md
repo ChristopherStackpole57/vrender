@@ -34,7 +34,8 @@ Week 1:
 - [x] Image Acquisition
 - [x] Synchronization
 - [x] Attachments and Render Passes
-- [ ] Framebuffers
+- [x] Framebuffers
+- [ ] Command Pools
 - [ ] Commandbuffers
 - [ ] Render Pipeline
 - [ ] Shader Modules

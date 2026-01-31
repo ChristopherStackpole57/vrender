@@ -1,7 +1,7 @@
 #include "Instance.h"
 
 // Lifecycle Management
-vrender::render::Instance::Instance(const vrender::render::InstanceConfig& config)
+vrender::render::Instance::Instance(const vrender::render::config::InstanceConfig& config)
 {
 	std::vector<std::string> extensions = config.extensions;
 

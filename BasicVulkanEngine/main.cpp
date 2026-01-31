@@ -8,8 +8,8 @@
 #include <PlatformLayer/Utility/WindowMode.h>
 #include <PlatformLayer/WindowBackends/GLFWWindowBackend.h>
 
-#include <RenderLayer/InstanceConfiguration.h>
-#include <RenderLayer/Renderer.h>
+#include <RenderLayer/Configuration/InstanceConfiguration.h>
+#include <Renderer.h>
 
 #ifdef NDEBUG
 const bool ENABLE_VALIDATION_LAYERS = false;
@@ -31,7 +31,7 @@ int main()
 		vrender::platform::WindowSurfaceProvider
 	>(window_provider_ptr);
 
-	vrender::render::InstanceConfig instance_config{
+	vrender::render::config::InstanceConfig instance_config{
 		.enable_validation = ENABLE_VALIDATION_LAYERS,
 	};
 	//instance_config.extensions = std::vector<std::string>{};					// Not needed yet
@@ -52,6 +52,7 @@ int main()
 		// Check for window closure
 		if (window_provider_ptr->should_close())
 		{
+			std::cout << "Window should close!" << std::endl;
 			// Close Window
 			// WindowProvider's destructor handles terminating the backend and destroying the window, so simply exit scope
 			run_loop = false;
@@ -87,7 +88,8 @@ int main()
 
 		// Render Step
 		renderer.step(*window_provider_ptr);
-		return 0;
+		
+		run_loop = false;
 	}
 
 	return 0;

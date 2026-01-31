@@ -1,12 +1,12 @@
 #include "Renderer.h"
 
 // Utility Function
-static vrender::render::InstanceConfig build_instance_config(
+static vrender::render::config::InstanceConfig build_instance_config(
 	const vrender::platform::WindowSurfaceProvider& surface_provider,
-	const vrender::render::InstanceConfig& base_config
+	const vrender::render::config::InstanceConfig& base_config
 )
 {
-	vrender::render::InstanceConfig config = base_config;
+	vrender::render::config::InstanceConfig config = base_config;
 
 	std::vector<std::string> required_extensions = surface_provider.get_required_instance_extensions();
 	config.extensions.insert(
@@ -100,8 +100,8 @@ static vrender::render::Semaphore build_semaphore(
 // Lifetime Control
 vrender::render::Renderer::Renderer(
 	const vrender::platform::WindowProvider& window_provider,
-	const vrender::platform::WindowSurfaceProvider& surface_provider, 
-	const InstanceConfig& instance_config
+	const vrender::platform::WindowSurfaceProvider& surface_provider,
+	const vrender::render::config::InstanceConfig& instance_config
 )
 	: instance(build_instance_config(surface_provider, instance_config))
 	, surface(surface_provider.create_surface(instance.get_handle()))
@@ -111,6 +111,29 @@ vrender::render::Renderer::Renderer(
 	, test_semaphore(build_semaphore(logical_device))
 {
 	// TODO: Clearly document static build function
+
+	// Create Base Render Pass and Store
+	this->render_passes.emplace_back(
+		std::make_unique<vrender::render::RenderPass>(
+			logical_device,
+			vrender::render::misc::basic_render_pass_config(swapchain)
+		)
+	);
+	std::cout << "[Render] VRENDER Built RenderPass" << std::endl;
+
+	// Create framebuffers from render pass and swapchain image views
+	for (const VkImageView image_view : swapchain.get_image_views())
+	{
+		this->framebuffers.emplace_back(
+			std::make_unique<vrender::render::Framebuffer>(
+				logical_device,
+				*this->render_passes.back().get(),
+				std::vector<VkImageView>{ image_view },
+				swapchain.get_extent()
+			)
+		);
+	}
+	std::cout << "[Render] VRENDER Built " << this->framebuffers.size() << " Framebuffers" << std::endl;
 }
 vrender::render::Renderer::~Renderer()
 {

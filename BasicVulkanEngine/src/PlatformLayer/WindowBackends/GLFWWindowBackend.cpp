@@ -70,11 +70,11 @@ std::vector<vrender::platform::Event> vrender::platform::GLFWWindowBackend::poll
 			vrender::platform::Event event{};
 			if (action == GLFW_PRESS)
 			{
-				event.type == vrender::platform::EventType::KeyPress;
+				event.type = vrender::platform::EventType::KeyPress;
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				event.type == vrender::platform::EventType::KeyRelease;
+				event.type = vrender::platform::EventType::KeyRelease;
 			}
 			event.key.key_code = key;
 
@@ -87,12 +87,12 @@ std::vector<vrender::platform::Event> vrender::platform::GLFWWindowBackend::poll
 			vrender::platform::Event event{};
 			if (action == GLFW_PRESS)
 			{
-				event.type == vrender::platform::EventType::MouseButtonPress;
+				event.type = vrender::platform::EventType::MouseButtonPress;
 				event.mouse_button.button = button;
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				event.type == vrender::platform::EventType::MouseButtonRelease;
+				event.type = vrender::platform::EventType::MouseButtonRelease;
 				event.mouse_button.button = button;
 			}
 

@@ -15,15 +15,17 @@ add_library(vrender
 "src/RenderLayer/Renderer.cpp"
 "src/RenderLayer/PhysicalDevice.cpp" 
 "src/RenderLayer/LogicalDevice.cpp" 
+"src/RenderLayer/Swapchain.cpp" 
+"src/RenderLayer/Semaphore.cpp" 
+"src/RenderLayer/Framebuffer.cpp" 
+"src/RenderLayer/RenderPass.cpp"
 
 "src/RenderLayer/Utility/PhysicalDeviceEnumeration.cpp" 
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp"
 "src/RenderLayer/Utility/QueueHandle.h"
 "src/RenderLayer/Utility/QueueSelection.cpp" 
-"src/RenderLayer/Swapchain.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" 
-"src/RenderLayer/Semaphore.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"  )
 
 find_package(Vulkan REQUIRED MODULE)
 target_link_libraries(vrender PUBLIC Vulkan::Vulkan)
@@ -86,6 +88,7 @@ endif()
 target_include_directories(vrender PUBLIC
 	src/
 	src/PlatformLayer/WindowBackends/
+	include/
 )
 
 add_executable(vrender_test main.cpp 
@@ -94,5 +97,11 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/LogicalDevice.cpp" 
 "src/RenderLayer/Utility/PhysicalDeviceEnumeration.cpp" 
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
-"src/RenderLayer/Utility/QueueSelection.cpp" "src/RenderLayer/Swapchain.cpp" "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Semaphore.cpp")
+"src/RenderLayer/Utility/QueueSelection.cpp" 
+"src/RenderLayer/Swapchain.cpp" 
+"src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" 
+"src/RenderLayer/Semaphore.cpp" 
+"src/RenderLayer/Framebuffer.cpp" 
+"src/RenderLayer/RenderPass.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
