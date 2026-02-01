@@ -31,6 +31,12 @@ namespace vrender::render
 		);
 		~Swapchain();
 
+		Swapchain(const Swapchain&) = delete;
+		Swapchain& operator=(const Swapchain&) = delete;
+
+		Swapchain(Swapchain&& other) noexcept;
+		Swapchain& operator=(Swapchain&&) noexcept;
+
 		// API Accessibility
 		//		Configuration Access
 		const VkFormat get_image_format() const;

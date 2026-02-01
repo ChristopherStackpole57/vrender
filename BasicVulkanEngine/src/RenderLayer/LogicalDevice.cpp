@@ -131,6 +131,30 @@ const VkQueue vrender::render::LogicalDevice::get_compute_queue() const
 	}
 	return VK_NULL_HANDLE;
 }
+
+// TODO: These can be made faster by caching family indices
+const uint32_t vrender::render::LogicalDevice::get_graphics_queue_family_index() const
+{
+	for (vrender::render::utility::queue::QueueHandle queue : this->queues)
+	{
+		if (queue.supports_graphics())
+		{
+			return queue.family_index;
+		}
+	}
+	return UINT32_MAX;
+}
+const uint32_t vrender::render::LogicalDevice::get_compute_queue_family_index() const
+{
+	for (vrender::render::utility::queue::QueueHandle queue : this->queues)
+	{
+		if (queue.supports_compute())
+		{
+			return queue.family_index;
+		}
+	}
+}
+
 const std::vector<std::string>& vrender::render::LogicalDevice::get_enabled_extensions() const
 {
 	return this->enabled_extensions;

@@ -124,7 +124,7 @@ vrender::render::Swapchain::~Swapchain()
 		}
 	}
 
-	if (this->swapchain == VK_NULL_HANDLE)
+	if (this->swapchain == VK_NULL_HANDLE || this->device_ptr == nullptr)
 	{
 		return;
 	}
@@ -134,6 +134,42 @@ vrender::render::Swapchain::~Swapchain()
 		this->swapchain,
 		nullptr
 	);
+
+	this->swapchain = VK_NULL_HANDLE;
+	this->device_ptr = nullptr;
+}
+
+vrender::render::Swapchain::Swapchain(vrender::render::Swapchain&& other) noexcept
+	: swapchain(other.swapchain)
+	, device_ptr(other.device_ptr)
+	, images(other.images)
+	, image_views(other.image_views)
+	, image_format(other.image_format)
+	, color_space(other.color_space)
+	, image_extent(other.image_extent)
+	, image_count(other.image_count)
+{
+	other.image_views = {};
+	other.swapchain = VK_NULL_HANDLE;
+}
+vrender::render::Swapchain& vrender::render::Swapchain::operator=(vrender::render::Swapchain&& other) noexcept
+{
+	if (this != &other)
+	{
+		this->swapchain = other.swapchain;
+		this->device_ptr = other.device_ptr;
+		this->images = other.images;
+		this->image_views = other.image_views;
+		this->image_format = other.image_format;
+		this->color_space = other.color_space;
+		this->image_extent = other.image_extent;
+		this->image_count = other.image_count;
+
+		other.image_views = {};
+		other.swapchain = VK_NULL_HANDLE;
+	}
+
+	return *this;
 }
 
 // API Accessibility

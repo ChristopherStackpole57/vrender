@@ -1,5 +1,6 @@
 #ifdef VRENDER_HAS_GLFW
 
+#include <iostream>
 #include <stdexcept>
 
 #include "GLFWWindowBackend.h"
@@ -102,9 +103,6 @@ std::vector<vrender::platform::Event> vrender::platform::GLFWWindowBackend::poll
 	);
 
 	glfwPollEvents();
-
-	// Reset Resized State Flag
-	this->resize_state.resized = false;
 
 	return event_queue;
 }
@@ -212,6 +210,11 @@ bool vrender::platform::GLFWWindowBackend::was_resized() const
 std::pair<int, int> vrender::platform::GLFWWindowBackend::get_last_resize_size() const
 {
 	return resize_state.previous_size;
+}
+void vrender::platform::GLFWWindowBackend::clear_resize_flag() 
+{
+	this->resize_state.resized = false;
+	return;
 }
 
 // WindowSurfaceProvider Contract

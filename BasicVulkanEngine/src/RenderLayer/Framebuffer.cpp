@@ -31,7 +31,7 @@ vrender::render::Framebuffer::Framebuffer(
 }
 vrender::render::Framebuffer::~Framebuffer()
 {
-	if (this->framebuffer == VK_NULL_HANDLE)
+	if (this->framebuffer == VK_NULL_HANDLE || logical_device_ptr == nullptr)
 	{
 		return;
 	}
@@ -41,8 +41,27 @@ vrender::render::Framebuffer::~Framebuffer()
 		this->framebuffer,
 		nullptr
 	);
+}
 
-	this->framebuffer = VK_NULL_HANDLE;
+vrender::render::Framebuffer::Framebuffer(vrender::render::Framebuffer&& other) noexcept
+	: framebuffer(other.framebuffer)
+	, extent(other.extent)
+	, logical_device_ptr(other.logical_device_ptr)
+{
+	other.framebuffer = VK_NULL_HANDLE;
+}
+vrender::render::Framebuffer& vrender::render::Framebuffer::operator=(vrender::render::Framebuffer&& other) noexcept
+{
+	if (this != &other)
+	{
+		this->framebuffer = other.framebuffer;
+		this->extent = other.extent;
+		this->logical_device_ptr = other.logical_device_ptr;
+
+		other.framebuffer = VK_NULL_HANDLE;
+	}
+
+	return *this;
 }
 
 // API Accessibility

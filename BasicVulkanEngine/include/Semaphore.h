@@ -14,10 +14,18 @@ namespace vrender::render
 		Semaphore(const vrender::render::LogicalDevice& logical_device);
 		~Semaphore();
 
+		Semaphore(const Semaphore&) = delete;
+		Semaphore& operator=(const Semaphore&) = delete;
+
+		Semaphore(Semaphore&& other) noexcept;
+		Semaphore& operator=(Semaphore&& other) noexcept;
+
 		// API Accessibility
 		const VkSemaphore get_semaphore() const;
-	private:
+
 		const vrender::render::LogicalDevice* device_ptr = nullptr;
+	private:
+		
 		VkSemaphore semaphore;
 	};
 }

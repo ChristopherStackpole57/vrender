@@ -43,6 +43,7 @@
 				//		Resize Signaling
 				bool was_resized() const override;
 				std::pair<int, int> get_last_resize_size() const override;
+				void clear_resize_flag() override;
 
 				// WindowSurfaceProvider Contract
 				std::vector<std::string> get_required_instance_extensions() const override;

@@ -1,5 +1,5 @@
 #ifndef RENDER_FRAMEBUFFER_H
-#define RENDER_FRAMEBUFFE_H
+#define RENDER_FRAMEBUFFER_H
 
 #include <vulkan/vulkan.h>
 
@@ -21,12 +21,18 @@ namespace vrender::render
 		);
 		~Framebuffer();
 
+		Framebuffer(const Framebuffer&) = delete;
+		Framebuffer& operator=(const Framebuffer&) = delete;
+
+		Framebuffer(Framebuffer&& other) noexcept;
+		Framebuffer& operator=(Framebuffer&& other) noexcept;
+
 		// API Accessibility
 		const VkFramebuffer get_framebuffer() const;
 		const VkExtent2D get_extent() const;
 	private:
 		VkFramebuffer framebuffer;
-		const VkExtent2D extent;
+		VkExtent2D extent;
 		const vrender::render::LogicalDevice* logical_device_ptr;
 	};
 }

@@ -56,6 +56,7 @@ int main()
 			// Close Window
 			// WindowProvider's destructor handles terminating the backend and destroying the window, so simply exit scope
 			run_loop = false;
+			renderer.~Renderer();
 			break;
 		}
 
@@ -81,15 +82,15 @@ int main()
 			}
 
 			// Mutate Engine State
-
-			// Render Step
-			renderer.step(*window_provider_ptr);
 		}
 
 		// Render Step
-		renderer.step(*window_provider_ptr);
+		if (!renderer.step()) return 0;
+
+		// Clear Resized Flag
+		window_provider_ptr->clear_resize_flag();
 		
-		run_loop = false;
+		//run_loop = false;
 	}
 
 	return 0;

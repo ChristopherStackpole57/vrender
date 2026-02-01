@@ -4,6 +4,7 @@
 vrender::render::Semaphore::Semaphore(
 	const vrender::render::LogicalDevice& logical_device
 )
+	: device_ptr(&logical_device)
 {
 	VkSemaphoreCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -16,12 +17,14 @@ vrender::render::Semaphore::Semaphore(
 		nullptr,
 		&this->semaphore
 	);
-
-	this->device_ptr = &logical_device;
+	if (creation_result != VK_SUCCESS)
+	{
+		throw std::runtime_error("ERROR: Vulkan Unable to Create Semaphore");
+	}
 }
 vrender::render::Semaphore::~Semaphore()
 {
-	if (this->semaphore == VK_NULL_HANDLE)
+	if (this->semaphore == VK_NULL_HANDLE || this->device_ptr == nullptr)
 	{
 		return;
 	}
@@ -31,6 +34,30 @@ vrender::render::Semaphore::~Semaphore()
 		this->semaphore,
 		nullptr
 	);
+
+	this->semaphore = VK_NULL_HANDLE;
+	this->device_ptr = nullptr;
+}
+
+vrender::render::Semaphore::Semaphore(vrender::render::Semaphore&& other) noexcept
+	: semaphore(other.semaphore)
+	, device_ptr(other.device_ptr)
+{
+	other.semaphore = VK_NULL_HANDLE;
+	other.device_ptr = nullptr;
+}
+vrender::render::Semaphore& vrender::render::Semaphore::operator=(vrender::render::Semaphore&& other) noexcept
+{
+	if (this != &other)
+	{
+		this->semaphore = other.semaphore;
+		this->device_ptr = other.device_ptr;
+
+		other.semaphore = VK_NULL_HANDLE;
+		other.device_ptr = nullptr;
+	}
+
+	return *this;
 }
 
 // API Acessibility

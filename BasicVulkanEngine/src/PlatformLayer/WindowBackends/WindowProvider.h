@@ -38,6 +38,7 @@ namespace vrender
 			// Resize Signaling
 			virtual bool was_resized() const = 0;
 			virtual std::pair<int, int> get_last_resize_size() const = 0;
+			virtual void clear_resize_flag() = 0;
 
 			// Native Handle Access
 			// This will not be implemented for some time because (as much as possible) the platform layer should NOT be exposed to the render layer

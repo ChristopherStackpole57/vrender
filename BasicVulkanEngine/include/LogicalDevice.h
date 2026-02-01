@@ -29,6 +29,8 @@ namespace vrender::render
 		const VkDevice get_logical_device() const;
 		const VkQueue get_graphics_queue() const;
 		const VkQueue get_compute_queue() const;
+		const uint32_t get_graphics_queue_family_index() const;
+		const uint32_t get_compute_queue_family_index() const;
 		const std::vector<std::string>& get_enabled_extensions() const;
 	private:
 		VkDevice device;
