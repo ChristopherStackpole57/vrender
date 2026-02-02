@@ -154,6 +154,8 @@ vrender::render::Instance::~Instance()
 	}
 
 	vkDestroyInstance(this->instance, nullptr);
+
+	this->instance = VK_NULL_HANDLE;
 }
 
 // API Accessibility

@@ -160,33 +160,44 @@ void vrender::render::CommandController::record(uint32_t frame_index)
 	// End Command Buffer
 	vkEndCommandBuffer(buffer);
 }
-void vrender::render::CommandController::submit(uint32_t frame_index, vrender::render::Fence& frame_fence)
+void vrender::render::CommandController::submit(
+	uint32_t frame_index,
+	vrender::render::FrameContext& frame_context
+)
 {
+	const VkSemaphore image_avilable = frame_context.image_available.get_semaphore();
+	const VkSemaphore render_finished = frame_context.render_finished.get_semaphore();
+	const VkPipelineStageFlags wait_stage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
 	VkSubmitInfo submit_info{};
 	submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-	submit_info.waitSemaphoreCount = 0;
-	submit_info.pWaitSemaphores = nullptr;
-	submit_info.pWaitDstStageMask = nullptr;
+	submit_info.waitSemaphoreCount = 1;
+	submit_info.pWaitSemaphores = &image_avilable;
+	submit_info.pWaitDstStageMask = &wait_stage;
 	submit_info.commandBufferCount = 1;
 	submit_info.pCommandBuffers = &this->command_buffers[frame_index];
-	submit_info.signalSemaphoreCount = 0;
-	submit_info.pSignalSemaphores = nullptr;
+	submit_info.signalSemaphoreCount = 1;
+	submit_info.pSignalSemaphores = &render_finished;
 
 	vkQueueSubmit(
 		this->logical_device_ptr->get_graphics_queue(),
 		1,
 		&submit_info,
-		frame_fence.get_fence()
+		frame_context.in_flight.get_fence()
 	);
 }
-void vrender::render::CommandController::present(uint32_t frame_index)
+void vrender::render::CommandController::present(
+	uint32_t frame_index,
+	vrender::render::FrameContext& frame_context
+)
 {
 	VkSwapchainKHR swapchain_handle = this->swapchain->get_swapchain();
+	const VkSemaphore render_finished = frame_context.render_finished.get_semaphore();
 
 	VkPresentInfoKHR present_info{};
 	present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	present_info.waitSemaphoreCount = 0;
-	present_info.pWaitSemaphores = nullptr;
+	present_info.waitSemaphoreCount = 1;
+	present_info.pWaitSemaphores = &render_finished;
 	present_info.swapchainCount = 1;
 	present_info.pSwapchains = &swapchain_handle;
 	present_info.pImageIndices = &frame_index;

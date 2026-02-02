@@ -6,8 +6,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Fence.h>
 #include <Framebuffer.h>
+#include <FrameContext.h>
 #include <ICommandRecorder.h>
 #include <IFrameTarget.h>
 #include <LogicalDevice.h>
@@ -36,8 +36,8 @@ namespace vrender::render
 
 		// API Accessibility
 		void record(uint32_t frame_index);
-		void submit(uint32_t frame_index, vrender::render::Fence& frame_fence);
-		void present(uint32_t frame_index);
+		void submit(uint32_t frame_index, vrender::render::FrameContext& frame_context);
+		void present(uint32_t frame_index, vrender::render::FrameContext& frame_context);
 	private:
 		const vrender::render::LogicalDevice* logical_device_ptr;
 		// TODO: Change name to swapchain ptr

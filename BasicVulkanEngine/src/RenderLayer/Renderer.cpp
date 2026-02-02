@@ -115,7 +115,6 @@ static vrender::render::CommandController frame_and_command_factory(
 	const vrender::render::Swapchain& swapchain,
 	const vrender::render::RenderPass& render_pass,
 	std::vector<vrender::render::Framebuffer>& framebuffers,
-	std::vector<vrender::render::Fence>& frame_fences,
 	std::vector<std::unique_ptr<vrender::render::IFrameTarget>>& frame_targets,
 	std::vector<const vrender::render::IFrameTarget*>& frame_targets_raw,
 	vrender::render::ICommandRecorder* command_recorder
@@ -124,7 +123,6 @@ static vrender::render::CommandController frame_and_command_factory(
 	// Create framebuffers from render pass and swapchain image views
 	const std::vector<VkImageView> image_views = swapchain.get_image_views();
 	framebuffers.reserve(image_views.size());
-	frame_fences.reserve(image_views.size());
 	for (const VkImageView image_view : image_views)
 	{
 		framebuffers.emplace_back(
@@ -133,8 +131,6 @@ static vrender::render::CommandController frame_and_command_factory(
 			std::vector<VkImageView>{ image_view },
 			swapchain.get_extent()
 		);
-
-		frame_fences.push_back(logical_device);
 	}
 	std::cout << "[Render] VRENDER Built " << framebuffers.size() << " Framebuffers" << std::endl;
 
@@ -167,12 +163,28 @@ static vrender::render::CommandController frame_and_command_factory(
 
 	return command_controller;
 }
+static std::vector<vrender::render::FrameContext> build_frame_contexts(
+	const vrender::render::LogicalDevice& logical_device,
+	const uint32_t frame_count
+)
+{
+	std::vector<vrender::render::FrameContext> frame_contexts;
+	frame_contexts.reserve(frame_count);
+
+	for (int i = 0; i < frame_count; i++)
+	{
+		frame_contexts.push_back(logical_device);
+	}
+
+	return frame_contexts;
+}
 
 // Lifetime Control
 vrender::render::Renderer::Renderer(
 	const vrender::platform::WindowProvider& window_provider,
 	const vrender::platform::WindowSurfaceProvider& surface_provider,
-	const vrender::render::config::InstanceConfig& instance_config
+	const vrender::render::config::InstanceConfig& instance_config,
+	const uint32_t max_frames
 )
 	: window_provider(window_provider)
 	, window_surface_provider(window_surface_provider)
@@ -181,7 +193,6 @@ vrender::render::Renderer::Renderer(
 	, physical_device(build_physical_device(instance, surface))
 	, logical_device(build_logical_device(physical_device, surface))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
-	, test_semaphore(build_semaphore(logical_device))
 	, render_pass(build_render_pass(logical_device, swapchain))
 	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>())
 	, command_controller(frame_and_command_factory(
@@ -189,30 +200,31 @@ vrender::render::Renderer::Renderer(
 		swapchain,
 		render_pass,
 		framebuffers,
-		frame_fences,
 		frame_targets,
 		frame_targets_raw,
 		command_recorder.get()
 	))
+	, MAX_FRAMES_IN_FLIGHT(max_frames)
+	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 {
 	// TODO: Clearly document static build function
 }
 vrender::render::Renderer::~Renderer()
 {
-	std::cout << test_semaphore.device_ptr;
-
+	std::cout << "[Render] VRENDER Closing..." << std::endl;
 	this->framebuffers.clear();
+	this->frame_contexts.clear();
 	this->frame_targets.clear();
-	this->frame_fences.clear();
 
 	this->command_recorder.release();
 
-	this->test_semaphore.~Semaphore();
+	this->command_controller.~CommandController();
 	this->render_pass.~RenderPass();
 	this->swapchain.~Swapchain();
 	this->logical_device.~LogicalDevice();
 	this->physical_device.~PhysicalDevice();
 	this->instance.~Instance();
+	std::cout << "[Render] VRENDER Finished Closing" << std::endl;
 }
 
 // Public API
@@ -223,9 +235,9 @@ bool vrender::render::Renderer::step()
 		std::cout << "[Render] VRENDER Regenerating Swapchain..." << std::endl;
 
 		// Wait for Fences to Complete
-		for (const vrender::render::Fence& fence : this->frame_fences)
+		for (const vrender::render::FrameContext& frame_context: this->frame_contexts)
 		{
-			const VkFence& fence_ptr = fence.get_fence();
+			const VkFence& fence_ptr = frame_context.in_flight.get_fence();
 			vkWaitForFences(
 				this->logical_device.get_logical_device(),
 				1,
@@ -236,7 +248,7 @@ bool vrender::render::Renderer::step()
 		}
 
 		this->framebuffers.clear();
-		this->frame_fences.clear();
+		this->frame_contexts.clear();
 		this->frame_targets.clear();
 		this->frame_targets_raw.clear();
 
@@ -256,17 +268,19 @@ bool vrender::render::Renderer::step()
 			this->swapchain,
 			this->render_pass,
 			this->framebuffers,
-			this->frame_fences,
 			this->frame_targets,
 			this->frame_targets_raw,
 			this->command_recorder.get()
 		);
 
+		// Regenerate Frame Contexts
+		this->frame_contexts = build_frame_contexts(this->logical_device, this->framebuffers.size());
+
 		std::cout << "[Render] VRENDER Successfully Rebuilt Swapchain" << std::endl;
 	}
 
 	vrender::render::AcquireSwapchainImageResult image_result = this->swapchain.acquire_image(
-		this->test_semaphore,
+		this->frame_contexts[current_frame].image_available,
 		UINT64_MAX
 	);
 
@@ -286,11 +300,14 @@ bool vrender::render::Renderer::step()
 	);
 	this->command_controller.submit(
 		image_result.image_index,
-		this->frame_fences[image_result.image_index]
+		this->frame_contexts[this->current_frame]
 	);
 	this->command_controller.present(
-		image_result.image_index
+		image_result.image_index,
+		this->frame_contexts[this->current_frame]
 	);
+
+	this->current_frame = (this->current_frame + 1) % this->frame_contexts.size();
 
 	return true;
 }

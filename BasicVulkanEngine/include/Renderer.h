@@ -9,8 +9,8 @@
 #include <PlatformLayer/WindowBackends/WindowSurfaceProvider.h>
 
 #include <CommandController.h>
-#include <Fence.h>
 #include <Framebuffer.h>
+#include <FrameContext.h>
 #include <ICommandRecorder.h>
 #include <IFrameTarget.h>
 #include <Instance.h>
@@ -19,7 +19,6 @@
 #include <RenderPass.h>
 #include <RenderPassCommandRecorder.h>
 #include <RenderPassFrameTarget.h>
-#include <Semaphore.h>
 #include <Swapchain.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
@@ -41,7 +40,8 @@ namespace vrender::render
 		Renderer(
 			const vrender::platform::WindowProvider& window_provider,
 			const vrender::platform::WindowSurfaceProvider& surface_provider, 
-			const vrender::render::config::InstanceConfig& instance_config
+			const vrender::render::config::InstanceConfig& instance_config,
+			const uint32_t max_frames = 3
 		);
 		~Renderer();
 
@@ -60,8 +60,9 @@ namespace vrender::render
 		vrender::render::LogicalDevice logical_device;
 		vrender::render::Swapchain swapchain;
 		
-		vrender::render::Semaphore test_semaphore;
-		std::vector<vrender::render::Fence> frame_fences;
+		std::vector<vrender::render::FrameContext> frame_contexts;
+		uint32_t MAX_FRAMES_IN_FLIGHT = 3;
+		uint32_t current_frame = 0;
 
 		vrender::render::RenderPass render_pass;
 		std::vector<vrender::render::Framebuffer> framebuffers;

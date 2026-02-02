@@ -52,11 +52,9 @@ int main()
 		// Check for window closure
 		if (window_provider_ptr->should_close())
 		{
-			std::cout << "Window should close!" << std::endl;
 			// Close Window
 			// WindowProvider's destructor handles terminating the backend and destroying the window, so simply exit scope
 			run_loop = false;
-			renderer.~Renderer();
 			break;
 		}
 
