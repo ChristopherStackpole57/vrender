@@ -19,6 +19,7 @@
 #include <RenderPass.h>
 #include <RenderPassCommandRecorder.h>
 #include <RenderPassFrameTarget.h>
+#include <Shader.h>
 #include <Swapchain.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>

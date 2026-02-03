@@ -27,7 +27,10 @@ add_library(vrender
 "src/RenderLayer/Utility/QueueHandle.h"
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/RenderPassFrameTarget.cpp" "src/RenderLayer/RenderPassCommandRecorder.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" 
+"src/RenderLayer/RenderPassFrameTarget.cpp" 
+"src/RenderLayer/RenderPassCommandRecorder.cpp" 
+"src/RenderLayer/Shader.cpp")
 
 find_package(Vulkan REQUIRED MODULE)
 target_link_libraries(vrender PUBLIC Vulkan::Vulkan)
@@ -110,5 +113,5 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)

@@ -30,7 +30,7 @@ void vrender::render::RenderPassFrameTarget::begin(VkCommandBuffer command_buffe
 	// Create Clear Values
 	// TODO: Extend this to generic render pass
 	VkClearValue clear_color{};
-	clear_color.color = { { 0.19f, 0.16f, 0.411f, 1.0f} };
+	clear_color.color = { { 0.19f, 0.16f, 0.411f, 1.0f } };
 
 	std::vector<VkClearValue> clear_values;
 	clear_values.push_back(clear_color);

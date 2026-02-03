@@ -208,6 +208,11 @@ vrender::render::Renderer::Renderer(
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 {
 	// TODO: Clearly document static build function
+	vrender::render::Shader shader(
+		this->logical_device,
+		"base_vert.spv"
+	);
+
 }
 vrender::render::Renderer::~Renderer()
 {
