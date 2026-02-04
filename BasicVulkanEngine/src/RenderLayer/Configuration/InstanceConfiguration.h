@@ -14,7 +14,11 @@ namespace vrender::render::config
 	{
 		// Configuration for Create Info
 		std::vector<std::string> extensions;
-		std::vector<std::string> layers;
+		std::vector<std::string> layers{ 
+			// TODO: Fix layer + validation layer matching
+			//"VK_LAYER_KHRONOS_validation", 
+			//"VK_LAYER_LUNARG_api_dump" 
+		};
 		std::vector<std::string> validation_layers{ "VK_LAYER_KHRONOS_validation" };
 		bool enable_validation = true;
 

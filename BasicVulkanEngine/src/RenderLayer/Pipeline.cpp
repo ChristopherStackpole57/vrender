@@ -1,0 +1,168 @@
+#include <Pipeline.h>
+
+// Lifetime Control
+vrender::render::Pipeline::Pipeline(
+	const vrender::render::LogicalDevice& logical_device,
+	const vrender::render::config::PipelineConfiguration& config
+)
+	: logical_device_ptr(&logical_device)
+	, bind_point(config.bind_point)
+
+{
+	// TODO: Switch on pipeline type
+	std::vector<VkPipelineShaderStageCreateInfo> stages;
+	stages.reserve(config.stages.size());
+	for (const vrender::render::config::ShaderPipelineConfiguration& stage : config.stages)
+	{
+		stages.push_back(stage.get_vulkan_struct());
+	}
+
+	VkGraphicsPipelineCreateInfo create_info{};
+	create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	create_info.pNext = nullptr;
+	create_info.flags = 0;
+	create_info.stageCount = static_cast<uint32_t>(stages.size());
+	create_info.pStages = stages.data();
+
+	VkPipelineVertexInputStateCreateInfo vertex_input{};
+	vertex_input.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertex_input.vertexBindingDescriptionCount = 0;
+	vertex_input.pVertexBindingDescriptions = nullptr;
+	vertex_input.vertexAttributeDescriptionCount = 0;
+	vertex_input.pVertexAttributeDescriptions = nullptr;
+	create_info.pVertexInputState = &vertex_input;
+
+	VkPipelineInputAssemblyStateCreateInfo input_assembly{};
+	input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	input_assembly.primitiveRestartEnable = VK_FALSE;
+	create_info.pInputAssemblyState = &input_assembly;
+
+	//create_info.pTessellationState = ;
+	
+	VkViewport viewport{};
+	viewport.x = 0.0f;
+	viewport.y = 0.0;
+	viewport.width = config.extent.width;
+	viewport.height = config.extent.height;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+
+	VkRect2D scissor{};
+	scissor.offset = { 0, 0 };
+	scissor.extent = config.extent;
+
+	VkPipelineViewportStateCreateInfo viewport_state{};
+	viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewport_state.viewportCount = 1;
+	viewport_state.pViewports = &viewport;
+	viewport_state.scissorCount = 1;
+	viewport_state.pScissors = &scissor;
+	create_info.pViewportState = &viewport_state;
+	
+	VkPipelineRasterizationStateCreateInfo rasterizer_state{};
+	rasterizer_state.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizer_state.depthClampEnable = VK_FALSE;
+	rasterizer_state.rasterizerDiscardEnable = VK_FALSE;
+	rasterizer_state.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterizer_state.lineWidth = 1.0f;
+	rasterizer_state.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer_state.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer_state.depthBiasEnable = VK_FALSE;
+	create_info.pRasterizationState = &rasterizer_state;
+
+	VkPipelineMultisampleStateCreateInfo multisampling_state{};
+	multisampling_state.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling_state.sampleShadingEnable = VK_FALSE;
+	multisampling_state.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+	create_info.pMultisampleState = &multisampling_state;
+
+	//create_info.pDepthStencilState = ;
+	
+	VkPipelineColorBlendAttachmentState color_blend_attachment{};
+	color_blend_attachment.colorWriteMask =
+		VK_COLOR_COMPONENT_R_BIT |
+		VK_COLOR_COMPONENT_G_BIT |
+		VK_COLOR_COMPONENT_B_BIT |
+		VK_COLOR_COMPONENT_A_BIT;
+	color_blend_attachment.blendEnable = VK_FALSE;
+
+	VkPipelineColorBlendStateCreateInfo color_blending{};
+	color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	color_blending.logicOpEnable = VK_FALSE;
+	color_blending.attachmentCount = 1;
+	color_blending.pAttachments = &color_blend_attachment;
+	create_info.pColorBlendState = &color_blending;
+
+	//create_info.pDynamicState = ;
+	create_info.layout = config.layout.get_layout();
+	create_info.renderPass = config.render_pass.get_render_pass();
+	create_info.subpass = 0;
+	
+	//create_info.basePipelineHandle = ;
+	//create_info.basePipelineIndex = ;
+
+	VkResult creation_result = vkCreateGraphicsPipelines(
+		logical_device.get_logical_device(),
+		VK_NULL_HANDLE,
+		1,
+		&create_info,
+		nullptr,
+		&this->pipeline
+	);
+	if (creation_result != VK_SUCCESS)
+	{
+		throw std::runtime_error("ERROR: Vulkan Could Not Create Graphics Pipeline");
+	}
+}
+vrender::render::Pipeline::~Pipeline()
+{
+	if (this->pipeline != VK_NULL_HANDLE && this->logical_device_ptr)
+	{
+		vkDestroyPipeline(
+			this->logical_device_ptr->get_logical_device(),
+			this->pipeline,
+			nullptr
+		);
+
+		this->pipeline = VK_NULL_HANDLE;
+		this->logical_device_ptr = nullptr;
+	}
+}
+
+vrender::render::Pipeline::Pipeline(vrender::render::Pipeline&& other) noexcept
+	: pipeline(other.pipeline)
+	, bind_point(other.bind_point)
+	, logical_device_ptr(other.logical_device_ptr)
+{
+	other.pipeline = VK_NULL_HANDLE;
+	other.logical_device_ptr = nullptr;
+}
+vrender::render::Pipeline& vrender::render::Pipeline::operator=(vrender::render::Pipeline&& other) noexcept
+{
+	if (this != &other)
+	{
+		this->pipeline = other.pipeline;
+		this->bind_point = other.bind_point;
+		this->logical_device_ptr = other.logical_device_ptr;
+
+		other.pipeline = VK_NULL_HANDLE;
+		other.logical_device_ptr = nullptr;
+	}
+
+	return *this;
+}
+
+// API Accessibility
+VkPipeline vrender::render::Pipeline::get_pipeline() const
+{
+	return this->pipeline;
+}
+//VkPipelineLayout vrender::render::Pipeline::get_layout() const
+//{
+	//return this->pipeline_layout;
+//}
+VkPipelineBindPoint vrender::render::Pipeline::get_bind_point() const
+{
+	return this->bind_point;
+}

@@ -110,6 +110,52 @@ static vrender::render::RenderPass build_render_pass(
 
 	return render_pass;
 }
+static vrender::render::Shader build_shader(
+	const vrender::render::LogicalDevice& logical_device,
+	const std::string path
+)
+{
+	return vrender::render::Shader(
+		logical_device,
+		path
+	);
+}
+static vrender::render::PipelineLayout build_pipeline_layout(
+	const vrender::render::LogicalDevice& logical_device,
+	const std::vector<vrender::render::DescriptorLayout>& descriptor_layouts,
+	const std::vector<VkPushConstantRange>& push_constants
+)
+{
+	return vrender::render::PipelineLayout(
+		logical_device,
+		descriptor_layouts,
+		push_constants
+	);
+}
+static vrender::render::Pipeline build_pipeline(
+	const vrender::render::LogicalDevice& logical_device,
+	const vrender::render::Swapchain& swapchain,
+	const vrender::render::RenderPass& render_pass,
+	const vrender::render::PipelineLayout& layout,
+	const vrender::render::Shader& vertex,
+	const vrender::render::Shader& fragment
+)
+{
+	return vrender::render::Pipeline(
+		logical_device,
+		vrender::render::config::PipelineConfiguration{
+			.bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS,
+			.extent = swapchain.get_extent(),
+
+			.render_pass = render_pass,
+			.layout = layout,
+			.stages = {
+				vrender::render::config::ShaderPipelineConfiguration{ vertex, vrender::render::config::VERTEX_STAGE, "main" },
+				vrender::render::config::ShaderPipelineConfiguration{ fragment, vrender::render::config::FRAGMENT_STAGE, "main" }
+			}
+		}
+	);
+}
 static vrender::render::CommandController frame_and_command_factory(
 	const vrender::render::LogicalDevice& logical_device,
 	const vrender::render::Swapchain& swapchain,
@@ -194,7 +240,13 @@ vrender::render::Renderer::Renderer(
 	, logical_device(build_logical_device(physical_device, surface))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
 	, render_pass(build_render_pass(logical_device, swapchain))
-	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>())
+	, vertex(build_shader(logical_device, "base_vert.spv"))
+	, fragment(build_shader(logical_device, "base_frag.spv"))
+	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
+	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
+	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
+		pipeline
+	))
 	, command_controller(frame_and_command_factory(
 		logical_device,
 		swapchain,
@@ -208,10 +260,6 @@ vrender::render::Renderer::Renderer(
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 {
 	// TODO: Clearly document static build function
-	vrender::render::Shader shader(
-		this->logical_device,
-		"base_vert.spv"
-	);
 
 }
 vrender::render::Renderer::~Renderer()

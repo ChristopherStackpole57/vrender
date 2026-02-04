@@ -1,6 +1,8 @@
 #ifndef RENDER_SHADER_H
 #define RENDER_SHADER_H
 
+#include <iostream>
+
 #include <cstdint>
 #include <fstream>
 #include <stdexcept>
@@ -25,6 +27,9 @@ namespace vrender::render
 
 		Shader(const Shader&) = delete;
 		Shader& operator=(const Shader&) = delete;
+
+		Shader(Shader&& other) noexcept;
+		Shader& operator=(Shader&& other) noexcept;
 
 		// API Accessibility
 		VkShaderModule get_shader_module() const;

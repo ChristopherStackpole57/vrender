@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.20)
 
+# Project Settings
 project(vrender LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(VRENDER_ROOT_DIR ${CMAKE_SOURCE_DIR}/src)
 
+# Project Source Files
 add_library(vrender
 "src/PlatformLayer/WindowBackends/GLFWWindowBackend.cpp"
 "src/PlatformLayer/WindowBackends/SDLWindowBackend.cpp"
@@ -30,8 +32,29 @@ add_library(vrender
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" 
 "src/RenderLayer/RenderPassFrameTarget.cpp" 
 "src/RenderLayer/RenderPassCommandRecorder.cpp" 
-"src/RenderLayer/Shader.cpp")
+"src/RenderLayer/Shader.cpp" 
+"src/RenderLayer/Pipeline.cpp" 
+"src/RenderLayer/DescriptorLayout.cpp" 
+"src/RenderLayer/PipelineLayout.cpp")
 
+# Set Compiler Settings
+if (MSVC)
+	target_compile_options(vrender PRIVATE
+		/Wall
+		/wd4514
+		/wd4625
+		/wd4626
+		/wd5026
+		/wd5027
+
+		/permissive-
+		/Zc:__cplusplus
+		/Zc:preprocessor
+		/EHsc
+	)
+endif()
+
+# Add Vulkan
 find_package(Vulkan REQUIRED MODULE)
 target_link_libraries(vrender PUBLIC Vulkan::Vulkan)
 
@@ -113,5 +136,11 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp" "src/RenderLayer/Pipeline.cpp" "src/RenderLayer/DescriptorLayout.cpp" "src/RenderLayer/PipelineLayout.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
+
+if (MSVC)
+	target_compile_options(vrender_test PRIVATE
+		$<$<CONFIG:Debug>:/RTC1>
+	)
+endif()

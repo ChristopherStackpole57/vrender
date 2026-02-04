@@ -16,6 +16,8 @@
 #include <Instance.h>
 #include <LogicalDevice.h>
 #include <PhysicalDevice.h>
+#include <Pipeline.h>
+#include <PipelineLayout.h>
 #include <RenderPass.h>
 #include <RenderPassCommandRecorder.h>
 #include <RenderPassFrameTarget.h>
@@ -65,11 +67,18 @@ namespace vrender::render
 		uint32_t MAX_FRAMES_IN_FLIGHT = 3;
 		uint32_t current_frame = 0;
 
+		// Render Model Specific
 		vrender::render::RenderPass render_pass;
 		std::vector<vrender::render::Framebuffer> framebuffers;
 		std::vector<std::unique_ptr<vrender::render::IFrameTarget>> frame_targets;
 		std::vector<const vrender::render::IFrameTarget*> frame_targets_raw;
 		std::unique_ptr<vrender::render::ICommandRecorder> command_recorder;
+		vrender::render::Shader vertex;
+		vrender::render::Shader fragment;
+		vrender::render::PipelineLayout pipeline_layout;
+		vrender::render::Pipeline pipeline;
+		std::vector<vrender::render::DescriptorLayout> descriptor_layouts = {};
+		std::vector<VkPushConstantRange> push_constants = {};
 
 		vrender::render::CommandController command_controller;
 	};
