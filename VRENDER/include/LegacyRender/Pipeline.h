@@ -36,15 +36,12 @@ namespace vrender::render
 
 		// API Accessiblity
 		VkPipeline get_pipeline() const;
-		VkPipelineLayout get_layout() const;
+		const vrender::render::PipelineLayout* get_layout() const;
 		VkPipelineBindPoint get_bind_point() const;
-		//const vrender::render::PushConstantRangeInfo get_push_constants() const;
-		//const vrender::render::DescriptorLayout& get_descriptor_layout() const;
-		// const vrender::render::RenderPass& get_render_pass() const;
 	private:
 		VkPipeline pipeline;
-		//VkPipelineLayout layout;
 		VkPipelineBindPoint bind_point;
+		const vrender::render::PipelineLayout* layout;
 		const LogicalDevice* logical_device_ptr;
 	};
 }

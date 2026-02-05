@@ -76,10 +76,10 @@ namespace vrender::render
 		std::unique_ptr<vrender::render::ICommandRecorder> command_recorder;
 		vrender::render::Shader vertex;
 		vrender::render::Shader fragment;
+		std::vector<vrender::render::DescriptorLayout> descriptor_layouts;
+		std::vector<VkPushConstantRange> push_constants = {};
 		vrender::render::PipelineLayout pipeline_layout;
 		vrender::render::Pipeline pipeline;
-		std::vector<vrender::render::DescriptorLayout> descriptor_layouts = {};
-		std::vector<VkPushConstantRange> push_constants = {};
 
 		vrender::render::CommandController command_controller;
 	};

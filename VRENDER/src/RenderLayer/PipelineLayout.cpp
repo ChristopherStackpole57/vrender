@@ -14,6 +14,7 @@ vrender::render::PipelineLayout::PipelineLayout(
 	{
 		layouts.push_back(layout.get_descriptor_layout());
 	}
+	this->descriptor_layouts = layouts;
 
 	VkPipelineLayoutCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -53,6 +54,7 @@ vrender::render::PipelineLayout::~PipelineLayout()
 
 vrender::render::PipelineLayout::PipelineLayout(vrender::render::PipelineLayout&& other) noexcept
 	: layout(other.layout)
+	, descriptor_layouts(other.descriptor_layouts)
 	, logical_device_ptr(other.logical_device_ptr)
 {
 	other.layout = VK_NULL_HANDLE;
@@ -72,6 +74,7 @@ vrender::render::PipelineLayout& vrender::render::PipelineLayout::operator=(vren
 		}
 
 		this->layout = other.layout;
+		this->descriptor_layouts = other.descriptor_layouts;
 		this->logical_device_ptr = other.logical_device_ptr;
 
 		other.layout = VK_NULL_HANDLE;
@@ -85,4 +88,8 @@ vrender::render::PipelineLayout& vrender::render::PipelineLayout::operator=(vren
 VkPipelineLayout vrender::render::PipelineLayout::get_layout() const
 {
 	return this->layout;
+}
+std::vector<VkDescriptorSetLayout> vrender::render::PipelineLayout::get_descriptor_layouts() const
+{
+	return this->descriptor_layouts;
 }

@@ -4,6 +4,8 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/ICommandRecorder.h>
+#include <Core/PhysicalDevice.h>
+#include <Core/LogicalDevice.h>
 
 #include <LegacyRender/Pipeline.h>
 
@@ -14,6 +16,8 @@ namespace vrender::render
 	public:
 		// Lifetime Control
 		RenderPassCommandRecorder(
+			const vrender::render::LogicalDevice& logical_device,
+			const vrender::render::PhysicalDevice& physical_device,
 			const vrender::render::Pipeline& pipeline
 		);
 		~RenderPassCommandRecorder();
@@ -25,6 +29,8 @@ namespace vrender::render
 		) const override;
 	private:
 		const vrender::render::Pipeline& pipeline;
+		const vrender::render::LogicalDevice* logical_device_ptr;
+		const vrender::render::PhysicalDevice* physical_device_ptr;
 	};
 }
 

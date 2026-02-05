@@ -120,6 +120,18 @@ static vrender::render::Shader build_shader(
 		path
 	);
 }
+static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
+	const vrender::render::LogicalDevice& logical_device
+)
+{
+	std::vector<vrender::render::DescriptorLayout> layouts;
+
+	layouts.emplace_back(logical_device, std::vector<vrender::render::config::BindingConfiguration>{
+		{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, vrender::render::config::VERTEX_STAGE }
+	});
+
+	return layouts;
+}
 static vrender::render::PipelineLayout build_pipeline_layout(
 	const vrender::render::LogicalDevice& logical_device,
 	const std::vector<vrender::render::DescriptorLayout>& descriptor_layouts,
@@ -240,11 +252,14 @@ vrender::render::Renderer::Renderer(
 	, logical_device(build_logical_device(physical_device, surface))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
 	, render_pass(build_render_pass(logical_device, swapchain))
-	, vertex(build_shader(logical_device, "base_vert.spv"))
+	, vertex(build_shader(logical_device, "descriptor_vert.spv"))
 	, fragment(build_shader(logical_device, "base_frag.spv"))
+	, descriptor_layouts(build_descriptor_layouts(logical_device))
 	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
 	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
 	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
+		logical_device,
+		physical_device,
 		pipeline
 	))
 	, command_controller(frame_and_command_factory(

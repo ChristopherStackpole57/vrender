@@ -31,8 +31,10 @@ namespace vrender::render
 
 		// API Accessibility
 		VkPipelineLayout get_layout() const;
+		std::vector<VkDescriptorSetLayout> get_descriptor_layouts() const;
 	private:
 		VkPipelineLayout layout;
+		std::vector<VkDescriptorSetLayout> descriptor_layouts;
 		const vrender::render::LogicalDevice* logical_device_ptr;
 	};
 }

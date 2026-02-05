@@ -7,6 +7,7 @@ vrender::render::Pipeline::Pipeline(
 )
 	: logical_device_ptr(&logical_device)
 	, bind_point(config.bind_point)
+	, layout(&config.layout)
 
 {
 	// TODO: Switch on pipeline type
@@ -115,7 +116,6 @@ vrender::render::Pipeline::Pipeline(
 		throw std::runtime_error("ERROR: Vulkan Could Not Create Graphics Pipeline");
 	}
 }
-
 vrender::render::Pipeline::~Pipeline()
 {
 	if (this->pipeline == VK_NULL_HANDLE || this->logical_device_ptr == nullptr)
@@ -137,9 +137,11 @@ vrender::render::Pipeline::Pipeline(vrender::render::Pipeline&& other) noexcept
 	: pipeline(other.pipeline)
 	, bind_point(other.bind_point)
 	, logical_device_ptr(other.logical_device_ptr)
+	, layout(other.layout)
 {
 	other.pipeline = VK_NULL_HANDLE;
 	other.logical_device_ptr = nullptr;
+	other.layout = nullptr;
 }
 vrender::render::Pipeline& vrender::render::Pipeline::operator=(vrender::render::Pipeline&& other) noexcept
 {
@@ -148,9 +150,11 @@ vrender::render::Pipeline& vrender::render::Pipeline::operator=(vrender::render:
 		this->pipeline = other.pipeline;
 		this->bind_point = other.bind_point;
 		this->logical_device_ptr = other.logical_device_ptr;
+		this->layout = other.layout;
 
 		other.pipeline = VK_NULL_HANDLE;
 		other.logical_device_ptr = nullptr;
+		other.layout = nullptr;
 	}
 
 	return *this;
@@ -161,10 +165,10 @@ VkPipeline vrender::render::Pipeline::get_pipeline() const
 {
 	return this->pipeline;
 }
-//VkPipelineLayout vrender::render::Pipeline::get_layout() const
-//{
-	//return this->pipeline_layout;
-//}
+const vrender::render::PipelineLayout* vrender::render::Pipeline::get_layout() const
+{
+	return this->layout;
+}
 VkPipelineBindPoint vrender::render::Pipeline::get_bind_point() const
 {
 	return this->bind_point;
