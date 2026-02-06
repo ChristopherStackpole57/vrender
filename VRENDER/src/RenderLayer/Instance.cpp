@@ -166,7 +166,7 @@ vrender::render::Instance::~Instance()
 }
 
 // API Accessibility
-VkInstance vrender::render::Instance::get_handle() const
+VkInstance vrender::render::Instance::get_instance() const
 {
 	return this->instance;
 }

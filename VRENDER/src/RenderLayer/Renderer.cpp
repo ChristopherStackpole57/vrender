@@ -237,6 +237,47 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
+
+
+
+
+
+
+
+struct alignas(16) TriangleUBO
+{
+	float vertices[6][4];
+	float colors[6][4];
+};
+
+TriangleUBO ubo = {
+	{
+		{ 0.0f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, 0.0f, 0.0f, 1.0f },
+		{ -0.5f, 0.0f, 0.0f, 1.0f },
+
+		{ 0.5f,  0.0f, 0.0f, 1.0f },
+		{ 0.0f,  0.5f, 0.0f, 1.0f },
+		{ -0.5f, 0.0f, 0.0f, 1.0f },
+	},
+	{
+		{ 0.f, 0.f, 0.f, 1.f },
+		{ 0.f, 0.f, 1.f, 1.f },
+		{ 0.f, 1.f, 0.f, 1.f },
+
+		{ 0.f, 1.f, 1.f, 1.f },
+		{ 1.f, 0.f, 0.f, 1.f },
+		{ 1.f, 0.f, 1.f, 1.f }
+	}
+};
+
+
+
+
+
+
+
+
 // Lifetime Control
 vrender::render::Renderer::Renderer(
 	const vrender::platform::WindowProvider& window_provider,
@@ -244,24 +285,42 @@ vrender::render::Renderer::Renderer(
 	const vrender::render::config::InstanceConfig& instance_config,
 	const uint32_t max_frames
 )
+// Basic
 	: window_provider(window_provider)
 	, window_surface_provider(window_surface_provider)
+
+	// Core
 	, instance(build_instance_config(surface_provider, instance_config))
-	, surface(surface_provider.create_surface(instance.get_handle()))
+	, surface(surface_provider.create_surface(instance.get_instance()))
 	, physical_device(build_physical_device(instance, surface))
 	, logical_device(build_logical_device(physical_device, surface))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
+
+	// Memory
+	, allocator(instance, physical_device, logical_device)
+	, geo_buffer(
+		allocator,
+		sizeof(TriangleUBO),
+		vrender::render::memory::BufferUsageClass::UNIFORM,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
+
+	// Render Specific
 	, render_pass(build_render_pass(logical_device, swapchain))
-	, vertex(build_shader(logical_device, "descriptor_vert.spv"))
-	, fragment(build_shader(logical_device, "base_frag.spv"))
+	, vertex(build_shader(logical_device, "geo_vert.spv"))
+	, fragment(build_shader(logical_device, "geo_frag.spv"))
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
 	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
 	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
 	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
 		logical_device,
 		physical_device,
-		pipeline
+		pipeline,
+		geo_buffer
 	))
+
+	// Generic Render
 	, command_controller(frame_and_command_factory(
 		logical_device,
 		swapchain,
@@ -275,7 +334,10 @@ vrender::render::Renderer::Renderer(
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 {
 	// TODO: Clearly document static build function
-
+	this->geo_buffer.write(
+		&ubo,
+		sizeof(ubo)
+	);
 }
 vrender::render::Renderer::~Renderer()
 {

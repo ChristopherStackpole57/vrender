@@ -6,6 +6,7 @@
 #include <Core/ICommandRecorder.h>
 #include <Core/PhysicalDevice.h>
 #include <Core/LogicalDevice.h>
+#include <Core/Memory/Buffer.h>
 
 #include <LegacyRender/Pipeline.h>
 
@@ -18,7 +19,8 @@ namespace vrender::render
 		RenderPassCommandRecorder(
 			const vrender::render::LogicalDevice& logical_device,
 			const vrender::render::PhysicalDevice& physical_device,
-			const vrender::render::Pipeline& pipeline
+			const vrender::render::Pipeline& pipeline,
+			const vrender::render::memory::Buffer& geo_buffer
 		);
 		~RenderPassCommandRecorder();
 
@@ -31,6 +33,8 @@ namespace vrender::render
 		const vrender::render::Pipeline& pipeline;
 		const vrender::render::LogicalDevice* logical_device_ptr;
 		const vrender::render::PhysicalDevice* physical_device_ptr;
+
+		const vrender::render::memory::Buffer& geo_buffer;
 	};
 }
 

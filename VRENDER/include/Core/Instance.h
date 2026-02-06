@@ -26,7 +26,7 @@ namespace vrender::render
 		Instance& operator=(const Instance&) = delete;
 
 		// API Accessibility
-		VkInstance get_handle() const;
+		VkInstance get_instance() const;
 		std::vector<VkPhysicalDevice> query_physical_devices() const;
 	private:
 		VkInstance instance = VK_NULL_HANDLE;

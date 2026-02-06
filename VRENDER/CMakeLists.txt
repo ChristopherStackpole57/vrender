@@ -35,7 +35,10 @@ add_library(vrender
 "src/RenderLayer/Shader.cpp" 
 "src/RenderLayer/Pipeline.cpp" 
 "src/RenderLayer/DescriptorLayout.cpp" 
-"src/RenderLayer/PipelineLayout.cpp")
+"src/RenderLayer/PipelineLayout.cpp" 
+ "src/RenderLayer/Memory/Allocator.cpp" 
+ "src/RenderLayer/Memory/Buffer.cpp" 
+ "src/RenderLayer/Memory/VMAImplementation.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -114,6 +117,7 @@ else()
 endif()
 
 target_include_directories(vrender PUBLIC
+	external/
 	src/
 	src/PlatformLayer/WindowBackends/
 	include/
@@ -136,7 +140,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp" "src/RenderLayer/Pipeline.cpp" "src/RenderLayer/DescriptorLayout.cpp" "src/RenderLayer/PipelineLayout.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp" "src/RenderLayer/Pipeline.cpp" "src/RenderLayer/DescriptorLayout.cpp" "src/RenderLayer/PipelineLayout.cpp"  "src/RenderLayer/Memory/Allocator.cpp" "src/RenderLayer/Memory/Buffer.cpp" "src/RenderLayer/Memory/VMAImplementation.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

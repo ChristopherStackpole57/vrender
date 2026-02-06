@@ -18,6 +18,8 @@
 #include <Core/Shader.h>
 #include <Core/Swapchain.h>
 
+#include <Core/Memory/Allocator.h>
+
 #include <LegacyRender/Framebuffer.h>
 #include <LegacyRender/Pipeline.h>
 #include <LegacyRender/PipelineLayout.h>
@@ -64,6 +66,10 @@ namespace vrender::render
 		vrender::render::LogicalDevice logical_device;
 		vrender::render::Swapchain swapchain;
 		
+		// Memory
+		vrender::render::memory::Allocator allocator;
+		vrender::render::memory::Buffer geo_buffer;
+
 		std::vector<vrender::render::FrameContext> frame_contexts;
 		uint32_t MAX_FRAMES_IN_FLIGHT = 3;
 		uint32_t current_frame = 0;
