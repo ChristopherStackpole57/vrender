@@ -32,35 +32,20 @@ void vrender::render::RenderPassCommandRecorder::record(
 		this->pipeline.get_pipeline()
 	);
 
+	// plan for descriptors
+	// each frame owns a descriptor pool, held in command controller(?)
+	// descriptor set layouts are already set in the pipeline
+	// per frame allocate sets for these layouts
+	// per frame bind these sets
+	// per frame write into these sets
+	// besides per frame descriptor pools there are persistent descriptor pools
+	// these contain things like materials, static textures, static buffers, etc
+	// vs transient pools which store things like per draw ubos, constants, etc
+
 	// Bind Descriptor Sets
 	//		Acquire Descriptor Set Layouts
-	std::vector<VkDescriptorSetLayout> descriptor_layouts = this->pipeline.get_layout()->get_descriptor_layouts();
+	const std::vector<VkDescriptorSetLayout> descriptor_layouts = this->pipeline.get_layout()->get_descriptor_layout_handles();
 	uint32_t set_count = static_cast<uint32_t>(descriptor_layouts.size());
-
-	//		Create Descriptor Pool and Sets
-	VkDescriptorPoolSize pool_size{};
-	pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	pool_size.descriptorCount = set_count;
-	
-	VkDescriptorPoolCreateInfo pool_info{};
-	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	pool_info.pNext = nullptr;
-	pool_info.flags = 0;
-	pool_info.maxSets = set_count;
-	pool_info.poolSizeCount = 1;
-	pool_info.pPoolSizes = &pool_size;
-	
-	VkDescriptorPool descriptor_pool = VK_NULL_HANDLE;
-	VkResult pool_result = vkCreateDescriptorPool(
-		this->logical_device_ptr->get_logical_device(),
-		&pool_info,
-		nullptr,
-		&descriptor_pool
-	);
-	if (pool_result != VK_SUCCESS)
-	{
-		throw std::runtime_error("ERROR: Vulkan Unable to Create Descriptor Pool");
-	}
 
 	//		Allocate Descriptor Sets
 	VkDescriptorSetAllocateInfo alloc_info{};
@@ -81,13 +66,6 @@ void vrender::render::RenderPassCommandRecorder::record(
 	{
 		throw std::runtime_error("ERROR: Vulkan Unabled to Allocate Descriptors");
 	}
-
-	// things to replace
-	// write descriptor sets
-
-	// write mapped mem
-	// bind buffers
-	// descriptor_set.bind_buffer
 
 	VkDescriptorBufferInfo buffer_info{};
 	buffer_info.buffer = this->geo_buffer.get_buffer();
