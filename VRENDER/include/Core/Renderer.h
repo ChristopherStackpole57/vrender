@@ -11,6 +11,7 @@
 #include <Core/CommandController.h>
 #include <Core/FrameContext.h>
 #include <Core/ICommandRecorder.h>
+#include <Core/IDescriptorController.h>
 #include <Core/IFrameTarget.h>
 #include <Core/Instance.h>
 #include <Core/LogicalDevice.h>
@@ -20,11 +21,14 @@
 
 #include <Core/Memory/Allocator.h>
 
+#include <LegacyRender/DescriptorLayout.h>
+#include <LegacyRender/DescriptorPool.h>
 #include <LegacyRender/Framebuffer.h>
 #include <LegacyRender/Pipeline.h>
 #include <LegacyRender/PipelineLayout.h>
 #include <LegacyRender/RenderPass.h>
 #include <LegacyRender/RenderPassCommandRecorder.h>
+#include <LegacyRender/RenderPassDescriptorController.h>
 #include <LegacyRender/RenderPassFrameTarget.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
@@ -76,17 +80,24 @@ namespace vrender::render
 
 		// Render Model Specific
 		vrender::render::RenderPass render_pass;
+
 		std::vector<vrender::render::Framebuffer> framebuffers;
 		std::vector<std::unique_ptr<vrender::render::IFrameTarget>> frame_targets;
 		std::vector<const vrender::render::IFrameTarget*> frame_targets_raw;
+
 		std::unique_ptr<vrender::render::ICommandRecorder> command_recorder;
+
 		vrender::render::Shader vertex;
 		vrender::render::Shader fragment;
+
 		std::vector<vrender::render::DescriptorLayout> descriptor_layouts;
+		std::unique_ptr<vrender::render::IDescriptorController> descriptor_controller;
 		std::vector<VkPushConstantRange> push_constants = {};
+
 		vrender::render::PipelineLayout pipeline_layout;
 		vrender::render::Pipeline pipeline;
 
+		vrender::render::DescriptorPool persistent_descriptor_pool;
 		vrender::render::CommandController command_controller;
 	};
 }

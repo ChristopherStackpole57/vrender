@@ -175,7 +175,8 @@ static vrender::render::CommandController frame_and_command_factory(
 	std::vector<vrender::render::Framebuffer>& framebuffers,
 	std::vector<std::unique_ptr<vrender::render::IFrameTarget>>& frame_targets,
 	std::vector<const vrender::render::IFrameTarget*>& frame_targets_raw,
-	vrender::render::ICommandRecorder* command_recorder
+	vrender::render::ICommandRecorder* command_recorder,
+	vrender::render::IDescriptorController* descriptor_controller
 )
 {
 	// Create framebuffers from render pass and swapchain image views
@@ -215,7 +216,8 @@ static vrender::render::CommandController frame_and_command_factory(
 		logical_device,
 		logical_device.get_graphics_queue_family_index(),
 		swapchain,
-		*command_recorder,
+		command_recorder,
+		descriptor_controller,
 		frame_targets_raw
 	);
 
@@ -239,17 +241,11 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 
 
 
-
-
-
-
-
 struct alignas(16) TriangleUBO
 {
 	float vertices[6][4];
 	float colors[6][4];
 };
-
 TriangleUBO ubo = {
 	{
 		{ 0.0f, -0.5f, 0.0f, 1.0f },
@@ -265,16 +261,11 @@ TriangleUBO ubo = {
 		{ 0.f, 0.f, 1.f, 1.f },
 		{ 0.f, 1.f, 0.f, 1.f },
 
-		{ 0.f, 1.f, 1.f, 1.f },
-		{ 1.f, 0.f, 0.f, 1.f },
-		{ 1.f, 0.f, 1.f, 1.f }
+		{ 0.f, 0.f, 1.f, 1.f },
+		{ 0.f, 0.f, 0.f, 1.f },
+		{ 0.f, 1.f, 0.f, 1.f }
 	}
 };
-
-
-
-
-
 
 
 
@@ -308,16 +299,24 @@ vrender::render::Renderer::Renderer(
 
 	// Render Specific
 	, render_pass(build_render_pass(logical_device, swapchain))
+
 	, vertex(build_shader(logical_device, "geo_vert.spv"))
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
+
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
+	, descriptor_controller(std::make_unique<vrender::render::RenderPassDescriptorController>(logical_device, descriptor_layouts))
+
 	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
 	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
+	, persistent_descriptor_pool(
+		logical_device, 
+		descriptor_controller->get_pool_sizes().pool_sizes,
+		descriptor_controller->get_pool_sizes().max_sets
+	)
 	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
 		logical_device,
 		physical_device,
-		pipeline,
-		geo_buffer
+		pipeline
 	))
 
 	// Generic Render
@@ -328,7 +327,8 @@ vrender::render::Renderer::Renderer(
 		framebuffers,
 		frame_targets,
 		frame_targets_raw,
-		command_recorder.get()
+		command_recorder.get(),
+		descriptor_controller.get()
 	))
 	, MAX_FRAMES_IN_FLIGHT(max_frames)
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
@@ -404,11 +404,14 @@ bool vrender::render::Renderer::step()
 			this->framebuffers,
 			this->frame_targets,
 			this->frame_targets_raw,
-			this->command_recorder.get()
+			this->command_recorder.get(),
+			this->descriptor_controller.get()
 		);
 
 		// Regenerate Frame Contexts
 		this->frame_contexts = build_frame_contexts(this->logical_device, this->framebuffers.size());
+
+		// TODO: rebuild descriptors
 
 		std::cout << "[Render] VRENDER Successfully Rebuilt Swapchain" << std::endl;
 	}
@@ -430,7 +433,10 @@ bool vrender::render::Renderer::step()
 	}
 	
 	this->command_controller.record(
-		image_result.image_index
+		image_result.image_index,
+		vrender::render::FrameDescriptorInputs{
+			.frame_ubo = this->geo_buffer.get_buffer()
+		}
 	);
 	this->command_controller.submit(
 		image_result.image_index,

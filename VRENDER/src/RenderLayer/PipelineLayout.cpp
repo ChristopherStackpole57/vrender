@@ -7,6 +7,7 @@ vrender::render::PipelineLayout::PipelineLayout(
 	const std::vector<VkPushConstantRange>& push_constants
 )
 	: logical_device_ptr(&logical_device)
+	, descriptor_layouts(&descriptor_layouts)
 {
 	std::vector<VkDescriptorSetLayout> layouts;
 	layouts.reserve(descriptor_layouts.size());
@@ -14,7 +15,7 @@ vrender::render::PipelineLayout::PipelineLayout(
 	{
 		layouts.push_back(layout.get_descriptor_layout());
 	}
-	this->descriptor_layouts = layouts;
+	this->descriptor_layout_handles = layouts;
 
 	VkPipelineLayoutCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -54,10 +55,12 @@ vrender::render::PipelineLayout::~PipelineLayout()
 
 vrender::render::PipelineLayout::PipelineLayout(vrender::render::PipelineLayout&& other) noexcept
 	: layout(other.layout)
+	, descriptor_layout_handles(other.descriptor_layout_handles)
 	, descriptor_layouts(other.descriptor_layouts)
 	, logical_device_ptr(other.logical_device_ptr)
 {
 	other.layout = VK_NULL_HANDLE;
+	other.descriptor_layout_handles = {};
 	other.logical_device_ptr = nullptr;
 }
 vrender::render::PipelineLayout& vrender::render::PipelineLayout::operator=(vrender::render::PipelineLayout&& other) noexcept
@@ -75,9 +78,11 @@ vrender::render::PipelineLayout& vrender::render::PipelineLayout::operator=(vren
 
 		this->layout = other.layout;
 		this->descriptor_layouts = other.descriptor_layouts;
+		this->descriptor_layout_handles = other.descriptor_layout_handles;
 		this->logical_device_ptr = other.logical_device_ptr;
 
 		other.layout = VK_NULL_HANDLE;
+		other.descriptor_layout_handles = {};
 		other.logical_device_ptr = nullptr;
 	}
 
@@ -89,7 +94,11 @@ VkPipelineLayout vrender::render::PipelineLayout::get_layout() const
 {
 	return this->layout;
 }
-std::vector<VkDescriptorSetLayout> vrender::render::PipelineLayout::get_descriptor_layouts() const
+const std::vector<vrender::render::DescriptorLayout>& vrender::render::PipelineLayout::get_descriptor_layouts() const
 {
-	return this->descriptor_layouts;
+	return *this->descriptor_layouts;
+}
+const std::vector<VkDescriptorSetLayout> vrender::render::PipelineLayout::get_descriptor_layout_handles() const
+{
+	return this->descriptor_layout_handles;
 }

@@ -5,12 +5,14 @@ vrender::render::CommandController::CommandController(
 	const vrender::render::LogicalDevice& logical_device,
 	const uint32_t queue_family_index,
 	const vrender::render::Swapchain& swapchain,
-	const vrender::render::ICommandRecorder& command_recorder,
+	const vrender::render::ICommandRecorder* command_recorder,
+	const vrender::render::IDescriptorController* descriptor_controller,
 	const std::vector<const vrender::render::IFrameTarget*> frame_targets
 )
 	: logical_device_ptr(&logical_device)
 	, swapchain(&swapchain)
-	, command_recorder(&command_recorder)
+	, command_recorder(command_recorder)
+	, descriptor_controller(descriptor_controller)
 	, frame_targets(frame_targets)
 {
 	// TODO: validate queue_family_index points to real family
@@ -62,6 +64,18 @@ vrender::render::CommandController::CommandController(
 			throw std::runtime_error("ERROR: Vulkan Was Unable To Created Command Buffer");
 		}
 	}
+
+	// Create Descriptor Pools
+	vrender::render::DescriptorPoolRequirements pool_requirements = descriptor_controller->get_pool_sizes();
+	this->descriptor_pools.reserve(target_count);
+	for (uint32_t i = 0; i < target_count; i++)
+	{
+		this->descriptor_pools.emplace_back(
+			logical_device, 
+			pool_requirements.pool_sizes,
+			pool_requirements.max_sets
+		);
+	}
 }
 vrender::render::CommandController::~CommandController()
 {
@@ -94,6 +108,7 @@ vrender::render::CommandController::CommandController(vrender::render::CommandCo
 	: logical_device_ptr(other.logical_device_ptr)
 	, swapchain(std::move(other.swapchain))
 	, command_recorder(std::move(other.command_recorder))
+	, descriptor_controller(std::move(other.descriptor_controller))
 	, command_pools(std::move(other.command_pools))
 	, command_buffers(std::move(other.command_buffers))
 	, frame_targets(other.frame_targets)
@@ -110,6 +125,7 @@ vrender::render::CommandController& vrender::render::CommandController::operator
 		this->logical_device_ptr = other.logical_device_ptr;
 		this->swapchain = std::move(other.swapchain);
 		this->command_recorder = std::move(other.command_recorder);
+		this->descriptor_controller = std::move(other.descriptor_controller);
 		this->command_pools = std::move(other.command_pools);
 		this->command_buffers = std::move(other.command_buffers);
 		this->frame_targets = other.frame_targets;
@@ -122,7 +138,10 @@ vrender::render::CommandController& vrender::render::CommandController::operator
 }
 
 // API Accessibility
-void vrender::render::CommandController::record(uint32_t frame_index)
+void vrender::render::CommandController::record(
+	uint32_t frame_index,
+	vrender::render::FrameDescriptorInputs inputs
+)
 {
 	if (frame_index >= this->command_pools.size())
 	{
@@ -131,6 +150,7 @@ void vrender::render::CommandController::record(uint32_t frame_index)
 
 	const VkCommandPool pool = this->command_pools[frame_index];
 	const VkCommandBuffer buffer = this->command_buffers[frame_index];
+	const VkDescriptorPool descriptor_pool = this->descriptor_pools[frame_index].get_descriptor_pool();
 	const vrender::render::IFrameTarget& frame_target = *this->frame_targets[frame_index];
 
 	// Reset Command Pool
@@ -138,6 +158,31 @@ void vrender::render::CommandController::record(uint32_t frame_index)
 		this->logical_device_ptr->get_logical_device(),
 		pool,
 		0
+	);
+
+	// Reset Descriptor Pool
+	vkResetDescriptorPool(
+		this->logical_device_ptr->get_logical_device(),
+		descriptor_pool,
+		0
+	);
+
+	// Acquire Descriptor Sets
+	const vrender::render::FrameDescriptorSets frame_descriptor_sets = this->descriptor_controller->prepare_descriptors(
+		descriptor_pool,
+		inputs
+	);
+	std::vector<VkDescriptorSet> descriptor_sets;
+	descriptor_sets.reserve(frame_descriptor_sets.global_descriptors.size() + frame_descriptor_sets.frame_descriptors.size());
+	descriptor_sets.insert(
+		descriptor_sets.end(),
+		frame_descriptor_sets.global_descriptors.begin(),
+		frame_descriptor_sets.global_descriptors.end()
+	);
+	descriptor_sets.insert(
+		descriptor_sets.end(),
+		frame_descriptor_sets.frame_descriptors.begin(),
+		frame_descriptor_sets.frame_descriptors.end()
 	);
 
 	// Begin Command Buffer
@@ -154,7 +199,7 @@ void vrender::render::CommandController::record(uint32_t frame_index)
 
 	// Run Commands
 	frame_target.begin(buffer);
-	command_recorder->record(buffer, frame_target);
+	command_recorder->record(buffer, frame_target, descriptor_sets);
 	frame_target.end(buffer);
 	
 	// End Command Buffer

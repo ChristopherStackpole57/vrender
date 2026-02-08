@@ -13,6 +13,7 @@ vrender::render::DescriptorLayout::DescriptorLayout(
 	{
 		descriptor_bindings.push_back(config.get_binding_config());
 	}
+	this->bindings = descriptor_bindings;
 
 	VkDescriptorSetLayoutCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -74,4 +75,8 @@ vrender::render::DescriptorLayout& vrender::render::DescriptorLayout::operator=(
 VkDescriptorSetLayout vrender::render::DescriptorLayout::get_descriptor_layout() const
 {
 	return this->descriptor_layout;
+}
+std::vector<VkDescriptorSetLayoutBinding> vrender::render::DescriptorLayout::get_bindings() const
+{
+	return this->bindings;
 }

@@ -29,8 +29,10 @@ namespace vrender::render
 
 		// API Accessibility
 		VkDescriptorSetLayout get_descriptor_layout() const;
+		std::vector<VkDescriptorSetLayoutBinding> get_bindings() const;
 	private:
 		VkDescriptorSetLayout descriptor_layout;
+		std::vector<VkDescriptorSetLayoutBinding> bindings;
 		const vrender::render::LogicalDevice* logical_device_ptr;
 	};
 }
