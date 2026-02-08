@@ -78,5 +78,5 @@ VkDescriptorSetLayout vrender::render::DescriptorLayout::get_descriptor_layout()
 }
 std::vector<VkDescriptorSetLayoutBinding> vrender::render::DescriptorLayout::get_bindings() const
 {
-	return this->get_bindings();
+	return this->bindings;
 }

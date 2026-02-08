@@ -19,22 +19,20 @@ namespace vrender::render
 		RenderPassCommandRecorder(
 			const vrender::render::LogicalDevice& logical_device,
 			const vrender::render::PhysicalDevice& physical_device,
-			const vrender::render::Pipeline& pipeline,
-			const vrender::render::memory::Buffer& geo_buffer
+			const vrender::render::Pipeline& pipeline
 		);
 		~RenderPassCommandRecorder();
 
 		// API Accessibility
 		void record(
 			const VkCommandBuffer command_buffer,
-			const vrender::render::IFrameTarget& frame_target
+			const vrender::render::IFrameTarget& frame_target,
+			const std::vector<VkDescriptorSet> descriptor_sets
 		) const override;
 	private:
 		const vrender::render::Pipeline& pipeline;
 		const vrender::render::LogicalDevice* logical_device_ptr;
 		const vrender::render::PhysicalDevice* physical_device_ptr;
-
-		const vrender::render::memory::Buffer& geo_buffer;
 	};
 }
 

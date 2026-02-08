@@ -11,15 +11,14 @@
 
 namespace vrender::render
 {
-	uint16_t MAX_OBJECTS_PER_FRAME = 500;
-
 	class DescriptorPool
 	{
 	public:
 		// Lifetime Control
 		DescriptorPool(
 			const vrender::render::LogicalDevice& logical_device,
-			const vrender::render::PipelineLayout& pipeline_layout
+			const std::vector<VkDescriptorPoolSize> pool_sizes,
+			uint32_t max_sets
 		);
 		~DescriptorPool();
 
