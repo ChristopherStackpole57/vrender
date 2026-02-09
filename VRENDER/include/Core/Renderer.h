@@ -72,7 +72,6 @@ namespace vrender::render
 		
 		// Memory
 		vrender::render::memory::Allocator allocator;
-		vrender::render::memory::Buffer geo_buffer;
 
 		std::vector<vrender::render::FrameContext> frame_contexts;
 		uint32_t MAX_FRAMES_IN_FLIGHT = 3;
@@ -99,6 +98,12 @@ namespace vrender::render
 
 		vrender::render::DescriptorPool persistent_descriptor_pool;
 		vrender::render::CommandController command_controller;
+
+		// Testing
+		vrender::render::memory::Buffer vertex_buffer;
+		vrender::render::memory::Buffer index_buffer;
+
+		std::vector<vrender::render::Mesh> meshes;
 	};
 }
 

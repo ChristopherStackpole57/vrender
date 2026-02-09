@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/IFrameTarget.h>
+#include <Core/Mesh.h>
 
 namespace vrender::render
 {
@@ -17,7 +18,8 @@ namespace vrender::render
 		virtual void record(
 			const VkCommandBuffer command_buffer, 
 			const vrender::render::IFrameTarget& frame_target,
-			const std::vector<VkDescriptorSet> descriptor_set
+			const std::vector<VkDescriptorSet> descriptor_set,
+			const std::vector<vrender::render::Mesh>& meshes
 		) const = 0;
 	};
 }

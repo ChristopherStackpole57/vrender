@@ -11,6 +11,7 @@
 #include <Core/IDescriptorController.h>
 #include <Core/IFrameTarget.h>
 #include <Core/LogicalDevice.h>
+#include <Core/Mesh.h>
 #include <Core/Swapchain.h>
 
 #include <LegacyRender/DescriptorLayout.h>
@@ -43,7 +44,8 @@ namespace vrender::render
 		// API Accessibility
 		void record(
 			uint32_t frame_index, 
-			vrender::render::FrameDescriptorInputs inputs	
+			vrender::render::FrameDescriptorInputs inputs,
+			std::vector<vrender::render::Mesh>& meshes
 		);
 		void submit(uint32_t frame_index, vrender::render::FrameContext& frame_context);
 		void present(uint32_t frame_index, vrender::render::FrameContext& frame_context);

@@ -140,7 +140,8 @@ vrender::render::CommandController& vrender::render::CommandController::operator
 // API Accessibility
 void vrender::render::CommandController::record(
 	uint32_t frame_index,
-	vrender::render::FrameDescriptorInputs inputs
+	vrender::render::FrameDescriptorInputs inputs,
+	std::vector < vrender::render::Mesh>& meshes
 )
 {
 	if (frame_index >= this->command_pools.size())
@@ -199,7 +200,7 @@ void vrender::render::CommandController::record(
 
 	// Run Commands
 	frame_target.begin(buffer);
-	command_recorder->record(buffer, frame_target, descriptor_sets);
+	command_recorder->record(buffer, frame_target, descriptor_sets, meshes);
 	frame_target.end(buffer);
 	
 	// End Command Buffer

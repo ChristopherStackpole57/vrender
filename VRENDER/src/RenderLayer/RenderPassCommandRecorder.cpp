@@ -21,7 +21,8 @@ vrender::render::RenderPassCommandRecorder::~RenderPassCommandRecorder()
 void vrender::render::RenderPassCommandRecorder::record(
 	const VkCommandBuffer command_buffer,
 	const vrender::render::IFrameTarget& frame_target,
-	const std::vector<VkDescriptorSet> descriptor_sets
+	const std::vector<VkDescriptorSet> descriptor_sets,
+	const std::vector<vrender::render::Mesh>& meshes
 ) const
 {
 	// Bind Pipeline
@@ -46,12 +47,10 @@ void vrender::render::RenderPassCommandRecorder::record(
 	// Push Constants
 	//vkCmdPushConstants();
 
-	// Draw
-	vkCmdDraw(
-		command_buffer,
-		6,
-		1,
-		0,
-		0
-	);
+	for (const vrender::render::Mesh& mesh : meshes)
+	{
+		mesh.bind(command_buffer);
+		// TODO: these bounds need corrected
+		vkCmdDrawIndexed(command_buffer, mesh.index_count, 1, 0, 0, 0);
+	}
 }

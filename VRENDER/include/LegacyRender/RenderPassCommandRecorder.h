@@ -4,8 +4,9 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/ICommandRecorder.h>
-#include <Core/PhysicalDevice.h>
 #include <Core/LogicalDevice.h>
+#include <Core/Mesh.h>
+#include <Core/PhysicalDevice.h>
 #include <Core/Memory/Buffer.h>
 
 #include <LegacyRender/Pipeline.h>
@@ -27,7 +28,8 @@ namespace vrender::render
 		void record(
 			const VkCommandBuffer command_buffer,
 			const vrender::render::IFrameTarget& frame_target,
-			const std::vector<VkDescriptorSet> descriptor_sets
+			const std::vector<VkDescriptorSet> descriptor_sets,
+			const std::vector<vrender::render::Mesh>& meshes
 		) const override;
 	private:
 		const vrender::render::Pipeline& pipeline;

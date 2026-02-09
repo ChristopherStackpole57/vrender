@@ -127,7 +127,7 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 	std::vector<vrender::render::DescriptorLayout> layouts;
 
 	layouts.emplace_back(logical_device, std::vector<vrender::render::config::BindingConfiguration>{
-		{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, vrender::render::config::VERTEX_STAGE }
+		
 	});
 
 	return layouts;
@@ -239,34 +239,29 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
-
-
-struct alignas(16) TriangleUBO
+struct Vertex
 {
-	float vertices[6][4];
-	float colors[6][4];
+	float position[3];
+	float color[3];
 };
-TriangleUBO ubo = {
-	{
-		{ 0.0f, -0.5f, 0.0f, 1.0f },
-		{ 0.5f, 0.0f, 0.0f, 1.0f },
-		{ -0.5f, 0.0f, 0.0f, 1.0f },
+std::vector<Vertex> vertices = {
+	// Mesh 1
+	{{ 0.0f, -0.5f, 0.0f }, {1,0,0}},
+	{{ 0.5f,  0.5f, 0.0f }, {0,1,0}},
+	{{-0.5f,  0.5f, 0.0f }, {0,0,1}},
 
-		{ 0.5f,  0.0f, 0.0f, 1.0f },
-		{ 0.0f,  0.5f, 0.0f, 1.0f },
-		{ -0.5f, 0.0f, 0.0f, 1.0f },
-	},
-	{
-		{ 0.f, 0.f, 0.f, 1.f },
-		{ 0.f, 0.f, 1.f, 1.f },
-		{ 0.f, 1.f, 0.f, 1.f },
-
-		{ 0.f, 0.f, 1.f, 1.f },
-		{ 0.f, 0.f, 0.f, 1.f },
-		{ 0.f, 1.f, 0.f, 1.f }
-	}
+	// Mesh B
+	{{ 0.5f, -0.5f, 0.0f }, {1,1,0}},
+	{{ 1.0f,  0.5f, 0.0f }, {0,1,1}},
+	{{ 0.0f,  0.5f, 0.0f }, {1,0,1}},
 };
+std::vector<uint32_t> indices = {
+	// Mesh A
+	0, 1, 2,
 
+	// Mesh B
+	3, 4, 5
+};
 
 
 // Lifetime Control
@@ -289,13 +284,6 @@ vrender::render::Renderer::Renderer(
 
 	// Memory
 	, allocator(instance, physical_device, logical_device)
-	, geo_buffer(
-		allocator,
-		sizeof(TriangleUBO),
-		vrender::render::memory::BufferUsageClass::UNIFORM,
-		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
-		vrender::render::memory::BufferLifetime::PERSISTENT
-	)
 
 	// Render Specific
 	, render_pass(build_render_pass(logical_device, swapchain))
@@ -309,7 +297,7 @@ vrender::render::Renderer::Renderer(
 	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
 	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
 	, persistent_descriptor_pool(
-		logical_device, 
+		logical_device,
 		descriptor_controller->get_pool_sizes().pool_sizes,
 		descriptor_controller->get_pool_sizes().max_sets
 	)
@@ -332,12 +320,52 @@ vrender::render::Renderer::Renderer(
 	))
 	, MAX_FRAMES_IN_FLIGHT(max_frames)
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
+
+	// Testing
+	, vertex_buffer(
+		allocator,
+		sizeof(vertices),
+		vrender::render::memory::BufferUsageClass::VERTEX | vrender::render::memory::BufferUsageClass::TRANSFER,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
+	, index_buffer(
+		allocator,
+		sizeof(indices),
+		vrender::render::memory::BufferUsageClass::INDEX | vrender::render::memory::BufferUsageClass::TRANSFER,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
 {
 	// TODO: Clearly document static build function
-	this->geo_buffer.write(
-		&ubo,
-		sizeof(ubo)
+
+	// Write Data into Vertex and Index Buffers
+	this->vertex_buffer.write(
+		vertices.data(),
+		sizeof(vertices)
 	);
+	this->index_buffer.write(
+		indices.data(),
+		sizeof(indices)
+	);
+
+	// Create Meshes
+	this->meshes.push_back(vrender::render::Mesh{
+		.vertex_buffer = &this->vertex_buffer,
+		.vertex_offset = 0,
+		
+		.index_buffer = &this->index_buffer,
+		.index_offset = 0,
+		.index_count = 3
+	});
+	this->meshes.push_back(vrender::render::Mesh{
+		.vertex_buffer = &this->vertex_buffer,
+		.vertex_offset = sizeof(vertices) / 2,
+
+		.index_buffer = &this->index_buffer,
+		.index_offset = sizeof(indices) / 2,
+		.index_count = 3
+	});
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -435,8 +463,9 @@ bool vrender::render::Renderer::step()
 	this->command_controller.record(
 		image_result.image_index,
 		vrender::render::FrameDescriptorInputs{
-			.frame_ubo = this->geo_buffer.get_buffer()
-		}
+			
+		},
+		this->meshes
 	);
 	this->command_controller.submit(
 		image_result.image_index,
