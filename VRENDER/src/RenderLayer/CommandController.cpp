@@ -140,6 +140,7 @@ vrender::render::CommandController& vrender::render::CommandController::operator
 // API Accessibility
 void vrender::render::CommandController::record(
 	uint32_t frame_index,
+	vrender::render::FrameContext& frame_context,
 	vrender::render::FrameDescriptorInputs inputs,
 	std::vector < vrender::render::Mesh>& meshes
 )
@@ -233,7 +234,7 @@ void vrender::render::CommandController::submit(
 	);
 }
 void vrender::render::CommandController::present(
-	uint32_t frame_index,
+	uint32_t image_index,
 	vrender::render::FrameContext& frame_context
 )
 {
@@ -246,7 +247,7 @@ void vrender::render::CommandController::present(
 	present_info.pWaitSemaphores = &render_finished;
 	present_info.swapchainCount = 1;
 	present_info.pSwapchains = &swapchain_handle;
-	present_info.pImageIndices = &frame_index;
+	present_info.pImageIndices = &image_index;
 
 	vkQueuePresentKHR(
 		this->logical_device_ptr->get_graphics_queue(),

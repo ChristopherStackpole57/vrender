@@ -43,12 +43,13 @@ namespace vrender::render
 
 		// API Accessibility
 		void record(
-			uint32_t frame_index, 
+			uint32_t frame_index,
+			vrender::render::FrameContext& frame_context,
 			vrender::render::FrameDescriptorInputs inputs,
 			std::vector<vrender::render::Mesh>& meshes
 		);
 		void submit(uint32_t frame_index, vrender::render::FrameContext& frame_context);
-		void present(uint32_t frame_index, vrender::render::FrameContext& frame_context);
+		void present(uint32_t image_index, vrender::render::FrameContext& frame_context);
 	private:
 		const vrender::render::LogicalDevice* logical_device_ptr;
 		// TODO: Change name to swapchain ptr

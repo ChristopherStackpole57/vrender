@@ -21,7 +21,8 @@ namespace vrender::render
 		// Lifetime Control
 		LogicalDevice(
 			const vrender::render::PhysicalDevice& physical_device,
-			const vrender::render::utility::queue::QueueSelection& queue_selection_result	
+			const vrender::render::utility::queue::QueueSelection& queue_selection_result,
+			const std::vector<std::string>& required_extensions
 		);
 		~LogicalDevice();
 

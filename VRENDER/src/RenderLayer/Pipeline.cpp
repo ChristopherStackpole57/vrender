@@ -25,12 +25,39 @@ vrender::render::Pipeline::Pipeline(
 	create_info.stageCount = static_cast<uint32_t>(stages.size());
 	create_info.pStages = stages.data();
 
+	// TODO: input bindings will probably need to configurable
+	struct Vertex
+	{
+		float position[3];
+		float color[3];
+	};
+
+	VkVertexInputBindingDescription binding{};
+	binding.binding = 0;
+	binding.stride = sizeof(Vertex);
+	binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	VkVertexInputAttributeDescription attributes[] = {
+		{
+			.location = 0,
+			.binding = 0,
+			.format = VK_FORMAT_R32G32B32_SFLOAT,
+			.offset = offsetof(Vertex, position)
+		},
+		{
+			.location = 1,
+			.binding = 0,
+			.format = VK_FORMAT_R32G32B32_SFLOAT,
+			.offset = offsetof(Vertex, color)
+		}
+	};
+
 	VkPipelineVertexInputStateCreateInfo vertex_input{};
 	vertex_input.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertex_input.vertexBindingDescriptionCount = 0;
-	vertex_input.pVertexBindingDescriptions = nullptr;
-	vertex_input.vertexAttributeDescriptionCount = 0;
-	vertex_input.pVertexAttributeDescriptions = nullptr;
+	vertex_input.vertexBindingDescriptionCount = 1;
+	vertex_input.pVertexBindingDescriptions = &binding;
+	vertex_input.vertexAttributeDescriptionCount = 2;
+	vertex_input.pVertexAttributeDescriptions = attributes;
 	create_info.pVertexInputState = &vertex_input;
 
 	VkPipelineInputAssemblyStateCreateInfo input_assembly{};
@@ -67,7 +94,7 @@ vrender::render::Pipeline::Pipeline(
 	rasterizer_state.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer_state.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer_state.lineWidth = 1.0f;
-	rasterizer_state.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer_state.cullMode = VK_CULL_MODE_NONE;
 	rasterizer_state.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rasterizer_state.depthBiasEnable = VK_FALSE;
 	create_info.pRasterizationState = &rasterizer_state;

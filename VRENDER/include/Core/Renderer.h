@@ -64,6 +64,11 @@ namespace vrender::render
 		const vrender::platform::WindowProvider& window_provider;
 		const vrender::platform::WindowSurfaceProvider& window_surface_provider;
 
+		std::vector<std::string> required_extensions = { 
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
+		};
+
 		vrender::render::Instance instance;
 		VkSurfaceKHR surface;
 		vrender::render::PhysicalDevice physical_device;

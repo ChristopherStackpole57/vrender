@@ -33,6 +33,9 @@ static VkBufferUsageFlags buffer_usage_flag_from_desc_enum(vrender::render::memo
 	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::VERTEX))
 		flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::INDEX))
+		flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
 	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::UNIFORM))
 		flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 

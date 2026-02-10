@@ -33,16 +33,19 @@ void vrender::render::RenderPassCommandRecorder::record(
 	);
 
 	// Bind Sets
-	vkCmdBindDescriptorSets(
-		command_buffer,
-		this->pipeline.get_bind_point(),
-		this->pipeline.get_layout()->get_layout(),
-		0,
-		static_cast<uint32_t>(descriptor_sets.size()),
-		descriptor_sets.data(),
-		0,
-		nullptr
-	);
+	if (descriptor_sets.size() > 0)
+	{
+		vkCmdBindDescriptorSets(
+			command_buffer,
+			this->pipeline.get_bind_point(),
+			this->pipeline.get_layout()->get_layout(),
+			0,
+			static_cast<uint32_t>(descriptor_sets.size()),
+			descriptor_sets.data(),
+			0,
+			nullptr
+		);
+	}
 
 	// Push Constants
 	//vkCmdPushConstants();
