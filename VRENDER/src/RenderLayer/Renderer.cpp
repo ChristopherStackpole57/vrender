@@ -248,6 +248,46 @@ struct Vertex
 	float color[3];
 };
 std::vector<Vertex> vertices = {
+	{{ -0.25f,  0.25f, 0.0f }, {0,0,0}},				// 0
+	{{ -0.25f, -0.25f, 0.0f }, {0.25,0.25,0.25}},		// 1
+	{{  0.25f,  0.25f, 0.0f }, {0.25,0.25,0.25}},		// 2
+
+	{{  0.25f, -0.25f, 0.0f }, {0.50,0.50,0.50}},		// 3
+
+	{{ -0.25f,  0.00f, 0.0f }, {0.125,0.125,0.125}},	// 4
+	{{ -0.50f, -0.25f, 0.0f }, {1,0,0}},				// 5
+
+	{{ -0.50f,  0.25f, 0.0f }, {1,0,0}},				// 6
+
+	{{ -0.25f, -0.50f, 0.0f }, {0,1,0}},				// 7
+	{{  0.00f, -0.25f, 0.0f }, {0.375,0.375,0.375}},	// 8
+
+	{{  0.25f, -0.50f, 0.0f }, {0,1,0}},				// 9
+
+	{{  0.50f, -0.25f, 0.0f }, {0,0,1}},				// 10
+	{{  0.25f,  0.00f, 0.0f }, {0.375,0.375,0.375}},	// 11
+
+	{{  0.50f,  0.25f, 0.0f }, {0,0,1}},				// 12
+
+	{{  0.25f,  0.50f, 0.0f }, {1,0,1}},				// 13
+	{{  0.00f,  0.25f, 0.0f }, {0.125,0.125,0.125}},	// 14
+
+	{{ -0.25f,  0.50f, 0.0f }, {1,0,1}}					// 15
+};
+std::vector<uint32_t> indices = {
+	0, 1, 2,
+	2, 1, 3,
+	4, 5, 1,
+	0, 6, 4,
+	1, 7, 8,
+	8, 9, 3,
+	3, 10, 11,
+	11, 12, 2,
+	13, 2, 14,
+	15, 0, 14
+};
+/*
+std::vector<Vertex> vertices = {
 	// Mesh 1
 	{{ -0.5f,  0.0f, 0.0f }, {1,0,0}},
 	{{  0.0f, -0.5f, 0.0f }, {0,1,0}},
@@ -264,8 +304,9 @@ std::vector<uint32_t> indices = {
 
 	// Mesh B
 	2, 3, 0
+	//3, 4, 5
 };
-
+*/
 
 // Lifetime Control
 vrender::render::Renderer::Renderer(
@@ -356,6 +397,15 @@ vrender::render::Renderer::Renderer(
 	this->meshes.push_back(vrender::render::Mesh{
 		.vertex_buffer = &this->vertex_buffer,
 		.vertex_offset = 0,
+
+		.index_buffer = &this->index_buffer,
+		.index_offset = 0,
+		.index_count = static_cast<uint32_t>(indices.size())
+	});
+	/*
+	this->meshes.push_back(vrender::render::Mesh{
+		.vertex_buffer = &this->vertex_buffer,
+		.vertex_offset = 0,
 		
 		.index_buffer = &this->index_buffer,
 		.index_offset = 0,
@@ -369,6 +419,7 @@ vrender::render::Renderer::Renderer(
 		.index_offset = sizeof(uint32_t) * 3,
 		.index_count = 3
 	});
+	*/
 }
 vrender::render::Renderer::~Renderer()
 {
