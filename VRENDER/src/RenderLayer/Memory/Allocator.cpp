@@ -28,19 +28,26 @@ static vrender::render::memory::BufferValidationResult buffer_desc_valid(const v
 }
 static VkBufferUsageFlags buffer_usage_flag_from_desc_enum(vrender::render::memory::BufferUsageClass usage_class)
 {
-	switch (usage_class)
-	{
-	case vrender::render::memory::BufferUsageClass::VERTEX:
-		return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-	case vrender::render::memory::BufferUsageClass::UNIFORM:
-		return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-	case vrender::render::memory::BufferUsageClass::STAGING:
-		return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-	default:
-		// Take advantage of C++ lazy evalation
-		assert(false && "ERROR: Invalid BufferUsageClass");
-		return 0;
-	}
+	VkBufferUsageFlags flags = 0;
+	
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::VERTEX))
+		flags |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::INDEX))
+		flags |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::UNIFORM))
+		flags |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::STAGING))
+		flags |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::TRANSFER))
+		flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+	assert(flags != 0 && "ERROR: BufferUsage must not be NONE");
+
+	return flags;
 }
 static PlacementInfo choose_placement(
 	vrender::render::memory::BufferCPUAccess cpu_access

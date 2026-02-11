@@ -64,6 +64,11 @@ namespace vrender::render
 		const vrender::platform::WindowProvider& window_provider;
 		const vrender::platform::WindowSurfaceProvider& window_surface_provider;
 
+		std::vector<std::string> required_extensions = { 
+			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+			VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME
+		};
+
 		vrender::render::Instance instance;
 		VkSurfaceKHR surface;
 		vrender::render::PhysicalDevice physical_device;
@@ -72,7 +77,6 @@ namespace vrender::render
 		
 		// Memory
 		vrender::render::memory::Allocator allocator;
-		vrender::render::memory::Buffer geo_buffer;
 
 		std::vector<vrender::render::FrameContext> frame_contexts;
 		uint32_t MAX_FRAMES_IN_FLIGHT = 3;
@@ -99,6 +103,12 @@ namespace vrender::render
 
 		vrender::render::DescriptorPool persistent_descriptor_pool;
 		vrender::render::CommandController command_controller;
+
+		// Testing
+		vrender::render::memory::Buffer vertex_buffer;
+		vrender::render::memory::Buffer index_buffer;
+
+		std::vector<vrender::render::Mesh> meshes;
 	};
 }
 

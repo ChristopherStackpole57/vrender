@@ -1,7 +1,8 @@
 #include <Core/PhysicalDevice.h>
 
 // Lifecycle Control
-vrender::render::PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device) : device(physical_device)
+vrender::render::PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device)
+	: device(physical_device)
 {
 	assert(this->device != VK_NULL_HANDLE);
 
@@ -26,7 +27,13 @@ vrender::render::PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device
 	}
 
 	this->queue_family_properties.resize(queue_family_properties_count);
-	this->queue_family_properties2.resize(queue_family_properties_count);
+	this->queue_family_properties2 = std::vector<VkQueueFamilyProperties2>(queue_family_properties_count);
+	for (VkQueueFamilyProperties2& family_properties : this->queue_family_properties2)
+	{
+		family_properties.sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2;
+		family_properties.pNext = nullptr;
+	}
+
 	vkGetPhysicalDeviceQueueFamilyProperties(this->device, &queue_family_properties_count, this->queue_family_properties.data());
 	vkGetPhysicalDeviceQueueFamilyProperties2(this->device, &queue_family_properties_count, this->queue_family_properties2.data());
 	
@@ -57,6 +64,10 @@ vrender::render::PhysicalDevice::PhysicalDevice(VkPhysicalDevice physical_device
 	}
 
 	// MEMORY PROPERTIES
+	this->memory_properties = VkPhysicalDeviceMemoryProperties2{
+		.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2,
+		.pNext = nullptr
+	};
 	vkGetPhysicalDeviceMemoryProperties2(this->device, &this->memory_properties);
 }
 
@@ -94,7 +105,7 @@ const std::vector<std::string> vrender::render::PhysicalDevice::get_extension_na
 
 	return names;
 }
-const VkPhysicalDeviceFeatures2& vrender::render::PhysicalDevice::get_features() const
+VkPhysicalDeviceFeatures2 vrender::render::PhysicalDevice::get_features() const
 {
 	return this->features;
 }

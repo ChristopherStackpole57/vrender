@@ -21,7 +21,8 @@ vrender::render::RenderPassCommandRecorder::~RenderPassCommandRecorder()
 void vrender::render::RenderPassCommandRecorder::record(
 	const VkCommandBuffer command_buffer,
 	const vrender::render::IFrameTarget& frame_target,
-	const std::vector<VkDescriptorSet> descriptor_sets
+	const std::vector<VkDescriptorSet> descriptor_sets,
+	const std::vector<vrender::render::Mesh>& meshes
 ) const
 {
 	// Bind Pipeline
@@ -32,26 +33,33 @@ void vrender::render::RenderPassCommandRecorder::record(
 	);
 
 	// Bind Sets
-	vkCmdBindDescriptorSets(
-		command_buffer,
-		this->pipeline.get_bind_point(),
-		this->pipeline.get_layout()->get_layout(),
-		0,
-		static_cast<uint32_t>(descriptor_sets.size()),
-		descriptor_sets.data(),
-		0,
-		nullptr
-	);
+	if (descriptor_sets.size() > 0)
+	{
+		vkCmdBindDescriptorSets(
+			command_buffer,
+			this->pipeline.get_bind_point(),
+			this->pipeline.get_layout()->get_layout(),
+			0,
+			static_cast<uint32_t>(descriptor_sets.size()),
+			descriptor_sets.data(),
+			0,
+			nullptr
+		);
+	}
 
 	// Push Constants
 	//vkCmdPushConstants();
-
-	// Draw
-	vkCmdDraw(
-		command_buffer,
-		6,
-		1,
-		0,
-		0
-	);
+	for (const vrender::render::Mesh& mesh : meshes)
+	{
+		mesh.bind(command_buffer);
+		// TODO: these bounds need corrected
+		vkCmdDrawIndexed(
+			command_buffer, 
+			mesh.index_count, 
+			1, 
+			0, 
+			0, 
+			0
+		);
+	}
 }

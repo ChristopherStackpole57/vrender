@@ -7,7 +7,7 @@ vrender::render::Fence::Fence(const vrender::render::LogicalDevice& logical_devi
 	VkFenceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	create_info.pNext = nullptr;
-	create_info.flags = 0;
+	create_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 	VkResult creation_result = vkCreateFence(
 		logical_device.get_logical_device(),

@@ -48,6 +48,11 @@ vrender::render::FrameDescriptorSets vrender::render::RenderPassDescriptorContro
 	vrender::render::FrameDescriptorInputs inputs
 ) const
 {
+	if (inputs.frame_ubo == VK_NULL_HANDLE && inputs.global_ubo == VK_NULL_HANDLE)
+	{
+		return {};
+	}
+
 	// Allocate Descriptor Sets
 	VkDescriptorSetAllocateInfo allocate_info{};
 	allocate_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -75,7 +80,7 @@ vrender::render::FrameDescriptorSets vrender::render::RenderPassDescriptorContro
 	VkDescriptorBufferInfo buffer_info{};
 	buffer_info.buffer = inputs.frame_ubo;
 	buffer_info.offset = 0;
-	buffer_info.range = 16 * 6 * 2;
+	buffer_info.range = 0;
 
 	VkWriteDescriptorSet write{};
 	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

@@ -48,7 +48,8 @@ static bool satisfies_feature_requirements(
 	const vrender::render::utility::physical_device::FeatureRequirements& requirements
 )
 {
-	const VkBool32* supported = reinterpret_cast<const VkBool32*>(&device.get_features().features);
+	VkPhysicalDeviceFeatures features = device.get_features().features;
+	const VkBool32* supported = reinterpret_cast<const VkBool32*>(&features);
 	const VkBool32* core_required = reinterpret_cast<const VkBool32*>(&requirements.core);
 
 	constexpr size_t count = sizeof(VkPhysicalDeviceFeatures) / sizeof(VkBool32);

@@ -38,7 +38,7 @@ add_library(vrender
 "src/RenderLayer/PipelineLayout.cpp" 
  "src/RenderLayer/Memory/Allocator.cpp" 
  "src/RenderLayer/Memory/Buffer.cpp" 
- "src/RenderLayer/Memory/VMAImplementation.cpp" "src/RenderLayer/DescriptorPool.cpp" "src/RenderLayer/RenderPassDescriptorController.cpp")
+ "src/RenderLayer/Memory/VMAImplementation.cpp" "src/RenderLayer/DescriptorPool.cpp" "src/RenderLayer/RenderPassDescriptorController.cpp" "src/RenderLayer/Mesh.cpp" "src/EngineLayer/Triangle.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -140,7 +140,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp" "src/RenderLayer/Pipeline.cpp" "src/RenderLayer/DescriptorLayout.cpp" "src/RenderLayer/PipelineLayout.cpp"  "src/RenderLayer/Memory/Allocator.cpp" "src/RenderLayer/Memory/Buffer.cpp" "src/RenderLayer/Memory/VMAImplementation.cpp" "src/RenderLayer/DescriptorPool.cpp" "src/RenderLayer/RenderPassDescriptorController.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/Shader.cpp" "src/RenderLayer/Pipeline.cpp" "src/RenderLayer/DescriptorLayout.cpp" "src/RenderLayer/PipelineLayout.cpp"  "src/RenderLayer/Memory/Allocator.cpp" "src/RenderLayer/Memory/Buffer.cpp" "src/RenderLayer/Memory/VMAImplementation.cpp" "src/RenderLayer/DescriptorPool.cpp" "src/RenderLayer/RenderPassDescriptorController.cpp" "src/RenderLayer/Mesh.cpp" "src/EngineLayer/Triangle.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

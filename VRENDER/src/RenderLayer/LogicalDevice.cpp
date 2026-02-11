@@ -3,7 +3,8 @@
 // Lifetime Control
 vrender::render::LogicalDevice::LogicalDevice(
 	const vrender::render::PhysicalDevice& physical_device,
-	const vrender::render::utility::queue::QueueSelection& queue_selection_result
+	const vrender::render::utility::queue::QueueSelection& queue_selection_result,
+	const std::vector<std::string>& required_extensions
 )
 {
 	// Verify that a physical device has been given
@@ -39,10 +40,21 @@ vrender::render::LogicalDevice::LogicalDevice(
 		queue_create_infos.emplace_back(queue_create_info);
 	}
 
-	// TODO: Verify all extension names are valid
-	this->enabled_extensions = physical_device.get_extension_names();
-	const std::vector<const char*> extension_names = physical_device.get_raw_extension_names();
-	const VkPhysicalDeviceFeatures2& device_features = physical_device.get_features();
+	this->enabled_extensions = required_extensions;
+	std::vector<const char*> extension_names;
+	extension_names.reserve(required_extensions.size());
+	for (const std::string& extension_name : required_extensions)
+	{
+		extension_names.push_back(extension_name.c_str());
+	}
+
+	VkPhysicalDeviceFeatures2 device_features = physical_device.get_features();
+
+	// Enable Synchronization 2
+	VkPhysicalDeviceSynchronization2Features sync2{};
+	sync2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+	sync2.synchronization2 = VK_TRUE;
+	device_features.pNext = &sync2;
 
 	VkDeviceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -54,14 +66,14 @@ vrender::render::LogicalDevice::LogicalDevice(
 	create_info.ppEnabledExtensionNames = extension_names.data();
 	create_info.pEnabledFeatures = nullptr;
 
-	VkResult creation_reult = vkCreateDevice(
+	VkResult creation_result = vkCreateDevice(
 		physical_device.get_physical_device(), 
 		&create_info,
 		nullptr,
 		&this->device
 	);
-
-	if (creation_reult != VK_SUCCESS)
+	std::cout << creation_result << std::endl;
+	if (creation_result != VK_SUCCESS)
 	{
 		throw std::runtime_error("ERROR: Vulkan Device Creation Failed");
 	}
@@ -70,23 +82,20 @@ vrender::render::LogicalDevice::LogicalDevice(
 	for (uint32_t family_index : unique_families)
 	{
 		VkQueueFlags capabilities = device_queue_family_properties[family_index].queueFlags;
-		for (uint32_t i = 0; i < device_queue_family_properties[family_index].queueCount; i++)
-		{
-			VkQueue queue;
-			vkGetDeviceQueue(
-				this->device,
-				family_index,
-				i,
-				&queue
-			);
-			vrender::render::utility::queue::QueueHandle queue_handle{
-				.queue = queue,
-				.family_index = family_index,
-				.index = i,
-				.capabilities = capabilities
-			};
-			this->queues.emplace_back(queue_handle);
-		}
+		VkQueue queue;
+		vkGetDeviceQueue(
+			this->device,
+			family_index,
+			0,
+			&queue
+		);
+		vrender::render::utility::queue::QueueHandle queue_handle{
+			.queue = queue,
+			.family_index = family_index,
+			.index = 0,
+			.capabilities = capabilities
+		};
+		this->queues.emplace_back(queue_handle);
 	}
 }
 vrender::render::LogicalDevice::~LogicalDevice()

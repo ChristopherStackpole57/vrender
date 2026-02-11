@@ -19,7 +19,8 @@ static vrender::render::config::InstanceConfig build_instance_config(
 }
 static vrender::render::PhysicalDevice build_physical_device(
 	const vrender::render::Instance& instance,
-	const VkSurfaceKHR surface
+	const VkSurfaceKHR surface,
+	const std::vector<std::string>& required_extensions
 )
 {
 	// Enumerate Physical Devices
@@ -33,7 +34,7 @@ static vrender::render::PhysicalDevice build_physical_device(
 		physical_devices,
 		vrender::render::utility::physical_device::PhysicalDeviceSelectionParameters{
 			.extensions{
-				.required = std::vector<std::string>{ VK_KHR_SWAPCHAIN_EXTENSION_NAME }
+				.required = required_extensions
 			},
 			.surface{surface_requirements}
 		}
@@ -45,13 +46,15 @@ static vrender::render::PhysicalDevice build_physical_device(
 }
 static vrender::render::LogicalDevice build_logical_device(
 	const vrender::render::PhysicalDevice& physical_device,
-	const VkSurfaceKHR surface
+	const VkSurfaceKHR surface,
+	const std::vector<std::string>& required_extensions
 )
 {
 	vrender::render::utility::queue::QueueSelection queue_selection = vrender::render::utility::queue::select_queue_families(physical_device, surface);
 	vrender::render::LogicalDevice logical_device(
 		physical_device,
-		queue_selection
+		queue_selection,
+		required_extensions
 	);
 
 	std::cout << "[RENDER] VRENDER Built Logical Device" << std::endl;
@@ -127,7 +130,7 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 	std::vector<vrender::render::DescriptorLayout> layouts;
 
 	layouts.emplace_back(logical_device, std::vector<vrender::render::config::BindingConfiguration>{
-		{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, vrender::render::config::VERTEX_STAGE }
+		
 	});
 
 	return layouts;
@@ -239,35 +242,71 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
-
-
-struct alignas(16) TriangleUBO
+struct Vertex
 {
-	float vertices[6][4];
-	float colors[6][4];
+	float position[3];
+	float color[3];
 };
-TriangleUBO ubo = {
-	{
-		{ 0.0f, -0.5f, 0.0f, 1.0f },
-		{ 0.5f, 0.0f, 0.0f, 1.0f },
-		{ -0.5f, 0.0f, 0.0f, 1.0f },
+std::vector<Vertex> vertices = {
+	{{ -0.25f,  0.25f, 0.0f }, {0,0,0}},				// 0
+	{{ -0.25f, -0.25f, 0.0f }, {0.25,0.25,0.25}},		// 1
+	{{  0.25f,  0.25f, 0.0f }, {0.25,0.25,0.25}},		// 2
 
-		{ 0.5f,  0.0f, 0.0f, 1.0f },
-		{ 0.0f,  0.5f, 0.0f, 1.0f },
-		{ -0.5f, 0.0f, 0.0f, 1.0f },
-	},
-	{
-		{ 0.f, 0.f, 0.f, 1.f },
-		{ 0.f, 0.f, 1.f, 1.f },
-		{ 0.f, 1.f, 0.f, 1.f },
+	{{  0.25f, -0.25f, 0.0f }, {0.50,0.50,0.50}},		// 3
 
-		{ 0.f, 0.f, 1.f, 1.f },
-		{ 0.f, 0.f, 0.f, 1.f },
-		{ 0.f, 1.f, 0.f, 1.f }
-	}
+	{{ -0.25f,  0.00f, 0.0f }, {0.125,0.125,0.125}},	// 4
+	{{ -0.50f, -0.25f, 0.0f }, {1,0,0}},				// 5
+
+	{{ -0.50f,  0.25f, 0.0f }, {1,0,0}},				// 6
+
+	{{ -0.25f, -0.50f, 0.0f }, {0,1,0}},				// 7
+	{{  0.00f, -0.25f, 0.0f }, {0.375,0.375,0.375}},	// 8
+
+	{{  0.25f, -0.50f, 0.0f }, {0,1,0}},				// 9
+
+	{{  0.50f, -0.25f, 0.0f }, {0,0,1}},				// 10
+	{{  0.25f,  0.00f, 0.0f }, {0.375,0.375,0.375}},	// 11
+
+	{{  0.50f,  0.25f, 0.0f }, {0,0,1}},				// 12
+
+	{{  0.25f,  0.50f, 0.0f }, {1,0,1}},				// 13
+	{{  0.00f,  0.25f, 0.0f }, {0.125,0.125,0.125}},	// 14
+
+	{{ -0.25f,  0.50f, 0.0f }, {1,0,1}}					// 15
 };
+std::vector<uint32_t> indices = {
+	0, 1, 2,
+	2, 1, 3,
+	4, 5, 1,
+	0, 6, 4,
+	1, 7, 8,
+	8, 9, 3,
+	3, 10, 11,
+	11, 12, 2,
+	13, 2, 14,
+	15, 0, 14
+};
+/*
+std::vector<Vertex> vertices = {
+	// Mesh 1
+	{{ -0.5f,  0.0f, 0.0f }, {1,0,0}},
+	{{  0.0f, -0.5f, 0.0f }, {0,1,0}},
+	{{  0.5f,  0.0f, 0.0f }, {0,0,1}},
 
+	// Mesh B
+	//{{  0.5f,  0.0f, 0.0f }, {1,1,0}},
+	{{  0.0f,  0.5f, 0.0f }, {0,1,1}},
+	//{{ -0.5f,  0.0f, 0.0f }, {1,0,1}},
+};
+std::vector<uint32_t> indices = {
+	// Mesh A
+	0, 1, 2,
 
+	// Mesh B
+	2, 3, 0
+	//3, 4, 5
+};
+*/
 
 // Lifetime Control
 vrender::render::Renderer::Renderer(
@@ -283,24 +322,17 @@ vrender::render::Renderer::Renderer(
 	// Core
 	, instance(build_instance_config(surface_provider, instance_config))
 	, surface(surface_provider.create_surface(instance.get_instance()))
-	, physical_device(build_physical_device(instance, surface))
-	, logical_device(build_logical_device(physical_device, surface))
+	, physical_device(build_physical_device(instance, surface, this->required_extensions))
+	, logical_device(build_logical_device(physical_device, surface, this->required_extensions))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
 
 	// Memory
 	, allocator(instance, physical_device, logical_device)
-	, geo_buffer(
-		allocator,
-		sizeof(TriangleUBO),
-		vrender::render::memory::BufferUsageClass::UNIFORM,
-		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
-		vrender::render::memory::BufferLifetime::PERSISTENT
-	)
 
 	// Render Specific
 	, render_pass(build_render_pass(logical_device, swapchain))
 
-	, vertex(build_shader(logical_device, "geo_vert.spv"))
+	, vertex(build_shader(logical_device, "buffer_vert.spv"))
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
@@ -309,7 +341,7 @@ vrender::render::Renderer::Renderer(
 	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
 	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
 	, persistent_descriptor_pool(
-		logical_device, 
+		logical_device,
 		descriptor_controller->get_pool_sizes().pool_sizes,
 		descriptor_controller->get_pool_sizes().max_sets
 	)
@@ -332,12 +364,62 @@ vrender::render::Renderer::Renderer(
 	))
 	, MAX_FRAMES_IN_FLIGHT(max_frames)
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
+
+	// Testing
+	, vertex_buffer(
+		allocator,
+		sizeof(vertices[0]) * vertices.size(),
+		vrender::render::memory::BufferUsageClass::VERTEX | vrender::render::memory::BufferUsageClass::TRANSFER,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
+	, index_buffer(
+		allocator,
+		sizeof(indices[0]) * indices.size(),
+		vrender::render::memory::BufferUsageClass::INDEX | vrender::render::memory::BufferUsageClass::TRANSFER,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
 {
 	// TODO: Clearly document static build function
-	this->geo_buffer.write(
-		&ubo,
-		sizeof(ubo)
+
+	// Write Data into Vertex and Index Buffers
+	this->vertex_buffer.write(
+		vertices.data(),
+		sizeof(vertices[0]) * vertices.size()
 	);
+	this->index_buffer.write(
+		indices.data(),
+		sizeof(indices[0]) * indices.size()
+	);
+
+	// Create Meshes
+	this->meshes.push_back(vrender::render::Mesh{
+		.vertex_buffer = &this->vertex_buffer,
+		.vertex_offset = 0,
+
+		.index_buffer = &this->index_buffer,
+		.index_offset = 0,
+		.index_count = static_cast<uint32_t>(indices.size())
+	});
+	/*
+	this->meshes.push_back(vrender::render::Mesh{
+		.vertex_buffer = &this->vertex_buffer,
+		.vertex_offset = 0,
+		
+		.index_buffer = &this->index_buffer,
+		.index_offset = 0,
+		.index_count = 3
+	});
+	this->meshes.push_back(vrender::render::Mesh{
+		.vertex_buffer = &this->vertex_buffer,
+		.vertex_offset = 0,//sizeof(Vertex) * 3,
+
+		.index_buffer = &this->index_buffer,
+		.index_offset = sizeof(uint32_t) * 3,
+		.index_count = 3
+	});
+	*/
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -364,6 +446,21 @@ vrender::render::Renderer::~Renderer()
 // Public API
 bool vrender::render::Renderer::step()
 {
+	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
+	VkFence wait_fence = this->frame_contexts[this->current_frame].in_flight.get_fence();
+	vkWaitForFences(
+		this->logical_device.get_logical_device(),
+		1,
+		&wait_fence,
+		VK_TRUE,
+		UINT64_MAX
+	);
+	vkResetFences(
+		this->logical_device.get_logical_device(),
+		1,
+		&wait_fence
+	);
+
 	if (this->window_provider.was_resized())
 	{
 		std::cout << "[Render] VRENDER Regenerating Swapchain..." << std::endl;
@@ -431,19 +528,22 @@ bool vrender::render::Renderer::step()
 		// Skip rendering this frame, next frame will tick swapchain recreation
 		return true;
 	}
-	
+
+	uint32_t image = image_result.image_index;
 	this->command_controller.record(
-		image_result.image_index,
+		this->current_frame,
+		this->frame_contexts[this->current_frame],
 		vrender::render::FrameDescriptorInputs{
-			.frame_ubo = this->geo_buffer.get_buffer()
-		}
+			
+		},
+		this->meshes
 	);
 	this->command_controller.submit(
-		image_result.image_index,
+		this->current_frame,
 		this->frame_contexts[this->current_frame]
 	);
 	this->command_controller.present(
-		image_result.image_index,
+		image,
 		this->frame_contexts[this->current_frame]
 	);
 
