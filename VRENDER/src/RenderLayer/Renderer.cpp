@@ -254,16 +254,16 @@ std::vector<Vertex> vertices = {
 	{{  0.5f,  0.0f, 0.0f }, {0,0,1}},
 
 	// Mesh B
-	//{{ 0.5f, -0.5f, 0.0f }, {1,1,0}},
-	//{{ 1.0f,  0.5f, 0.0f }, {0,1,1}},
-	//{{ 0.0f,  0.5f, 0.0f }, {1,0,1}},
+	//{{  0.5f,  0.0f, 0.0f }, {1,1,0}},
+	{{  0.0f,  0.5f, 0.0f }, {0,1,1}},
+	//{{ -0.5f,  0.0f, 0.0f }, {1,0,1}},
 };
 std::vector<uint32_t> indices = {
 	// Mesh A
 	0, 1, 2,
 
 	// Mesh B
-	//3, 4, 5
+	2, 3, 0
 };
 
 
@@ -327,14 +327,14 @@ vrender::render::Renderer::Renderer(
 	// Testing
 	, vertex_buffer(
 		allocator,
-		sizeof(vertices),
+		sizeof(vertices[0]) * vertices.size(),
 		vrender::render::memory::BufferUsageClass::VERTEX | vrender::render::memory::BufferUsageClass::TRANSFER,
 		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
 		vrender::render::memory::BufferLifetime::PERSISTENT
 	)
 	, index_buffer(
 		allocator,
-		sizeof(indices),
+		sizeof(indices[0]) * indices.size(),
 		vrender::render::memory::BufferUsageClass::INDEX | vrender::render::memory::BufferUsageClass::TRANSFER,
 		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
 		vrender::render::memory::BufferLifetime::PERSISTENT
@@ -345,11 +345,11 @@ vrender::render::Renderer::Renderer(
 	// Write Data into Vertex and Index Buffers
 	this->vertex_buffer.write(
 		vertices.data(),
-		sizeof(vertices)
+		sizeof(vertices[0]) * vertices.size()
 	);
 	this->index_buffer.write(
 		indices.data(),
-		sizeof(indices)
+		sizeof(indices[0]) * indices.size()
 	);
 
 	// Create Meshes
@@ -361,14 +361,14 @@ vrender::render::Renderer::Renderer(
 		.index_offset = 0,
 		.index_count = 3
 	});
-	/*this->meshes.push_back(vrender::render::Mesh{
+	this->meshes.push_back(vrender::render::Mesh{
 		.vertex_buffer = &this->vertex_buffer,
-		.vertex_offset = sizeof(Vertex) * 3,
+		.vertex_offset = 0,//sizeof(Vertex) * 3,
 
 		.index_buffer = &this->index_buffer,
 		.index_offset = sizeof(uint32_t) * 3,
 		.index_count = 3
-	});*/
+	});
 }
 vrender::render::Renderer::~Renderer()
 {

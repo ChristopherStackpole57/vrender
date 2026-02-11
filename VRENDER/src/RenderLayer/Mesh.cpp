@@ -21,7 +21,7 @@ void vrender::render::Mesh::bind(VkCommandBuffer command_buffer) const
 	vkCmdBindIndexBuffer(
 		command_buffer,
 		index_buffer->get_buffer(),
-		0,
+		index_offset,
 		VK_INDEX_TYPE_UINT32
 	);
 }

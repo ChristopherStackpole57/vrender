@@ -49,11 +49,17 @@ void vrender::render::RenderPassCommandRecorder::record(
 
 	// Push Constants
 	//vkCmdPushConstants();
-
 	for (const vrender::render::Mesh& mesh : meshes)
 	{
 		mesh.bind(command_buffer);
 		// TODO: these bounds need corrected
-		vkCmdDrawIndexed(command_buffer, mesh.index_count, 1, 0, 0, 0);
+		vkCmdDrawIndexed(
+			command_buffer, 
+			mesh.index_count, 
+			1, 
+			0, 
+			0, 
+			0
+		);
 	}
 }
