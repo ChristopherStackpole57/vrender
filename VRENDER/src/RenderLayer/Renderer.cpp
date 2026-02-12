@@ -382,44 +382,6 @@ vrender::render::Renderer::Renderer(
 	)
 {
 	// TODO: Clearly document static build function
-
-	// Write Data into Vertex and Index Buffers
-	this->vertex_buffer.write(
-		vertices.data(),
-		sizeof(vertices[0]) * vertices.size()
-	);
-	this->index_buffer.write(
-		indices.data(),
-		sizeof(indices[0]) * indices.size()
-	);
-
-	// Create Meshes
-	this->meshes.push_back(vrender::render::Mesh{
-		.vertex_buffer = &this->vertex_buffer,
-		.vertex_offset = 0,
-
-		.index_buffer = &this->index_buffer,
-		.index_offset = 0,
-		.index_count = static_cast<uint32_t>(indices.size())
-	});
-	/*
-	this->meshes.push_back(vrender::render::Mesh{
-		.vertex_buffer = &this->vertex_buffer,
-		.vertex_offset = 0,
-		
-		.index_buffer = &this->index_buffer,
-		.index_offset = 0,
-		.index_count = 3
-	});
-	this->meshes.push_back(vrender::render::Mesh{
-		.vertex_buffer = &this->vertex_buffer,
-		.vertex_offset = 0,//sizeof(Vertex) * 3,
-
-		.index_buffer = &this->index_buffer,
-		.index_offset = sizeof(uint32_t) * 3,
-		.index_count = 3
-	});
-	*/
 }
 vrender::render::Renderer::~Renderer()
 {

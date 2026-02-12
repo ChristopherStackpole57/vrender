@@ -18,7 +18,7 @@ add_library(vrender
 "src/RenderLayer/Framebuffer.cpp"
 "src/RenderLayer/Instance.cpp"
 "src/RenderLayer/LogicalDevice.cpp"
-"src/RenderLayer/Mesh.cpp"
+
 "src/RenderLayer/PhysicalDevice.cpp"
 "src/RenderLayer/Renderer.cpp"
 "src/RenderLayer/Semaphore.cpp"
@@ -43,7 +43,7 @@ add_library(vrender
 "src/RenderLayer/Utility/QueueHandle.h"
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/GeometryArena.cpp" "src/RenderLayer/Memory/Suballocator.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -133,7 +133,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Fence.cpp"
 "src/RenderLayer/Framebuffer.cpp"
 "src/RenderLayer/LogicalDevice.cpp"
-"src/RenderLayer/Mesh.cpp"
+
 "src/RenderLayer/PhysicalDevice.cpp"
 "src/RenderLayer/Renderer.cpp" 
 "src/RenderLayer/Semaphore.cpp"
@@ -158,7 +158,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"  
-)
+ "src/RenderLayer/GeometryArena.cpp" "src/RenderLayer/Memory/Suballocator.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

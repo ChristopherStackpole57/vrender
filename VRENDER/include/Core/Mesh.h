@@ -9,17 +9,12 @@ namespace vrender::render
 {
 	struct Mesh
 	{
-		// Vertex Buffer
-		vrender::render::memory::Buffer* vertex_buffer;
+		// Vertices
 		VkDeviceSize vertex_offset;
 
-		// Index Buffer
-		vrender::render::memory::Buffer* index_buffer;
+		// Indices
 		VkDeviceSize index_offset;
 		uint32_t index_count;
-
-		// Binding
-		void bind(VkCommandBuffer command_bufer) const;
 	};
 }
 

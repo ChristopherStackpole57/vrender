@@ -32,6 +32,8 @@ void vrender::render::RenderPassCommandRecorder::record(
 		this->pipeline.get_pipeline()
 	);
 
+	// Bind GeometryArena Vertex Buffer and Index Buffer
+
 	// Bind Sets
 	if (descriptor_sets.size() > 0)
 	{
@@ -51,14 +53,12 @@ void vrender::render::RenderPassCommandRecorder::record(
 	//vkCmdPushConstants();
 	for (const vrender::render::Mesh& mesh : meshes)
 	{
-		mesh.bind(command_buffer);
-		// TODO: these bounds need corrected
 		vkCmdDrawIndexed(
 			command_buffer, 
 			mesh.index_count, 
 			1, 
-			0, 
-			0, 
+			mesh.index_offset, 
+			mesh.vertex_offset, 
 			0
 		);
 	}
