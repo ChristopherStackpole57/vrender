@@ -3,6 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <Core/GeometryArena.h>
 #include <Core/ICommandRecorder.h>
 #include <Core/LogicalDevice.h>
 #include <Core/Mesh.h>
@@ -20,7 +21,8 @@ namespace vrender::render
 		RenderPassCommandRecorder(
 			const vrender::render::LogicalDevice& logical_device,
 			const vrender::render::PhysicalDevice& physical_device,
-			const vrender::render::Pipeline& pipeline
+			const vrender::render::Pipeline& pipeline,
+			const vrender::render::GeometryArena& geometry_arena
 		);
 		~RenderPassCommandRecorder();
 
@@ -35,6 +37,7 @@ namespace vrender::render
 		const vrender::render::Pipeline& pipeline;
 		const vrender::render::LogicalDevice* logical_device_ptr;
 		const vrender::render::PhysicalDevice* physical_device_ptr;
+		const vrender::render::GeometryArena* geometry_arena_ptr;
 	};
 }
 

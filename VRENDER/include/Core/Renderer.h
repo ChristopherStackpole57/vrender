@@ -10,6 +10,7 @@
 
 #include <Core/CommandController.h>
 #include <Core/FrameContext.h>
+#include <Core/GeometryArena.h>
 #include <Core/ICommandRecorder.h>
 #include <Core/IDescriptorController.h>
 #include <Core/IFrameTarget.h>
@@ -60,6 +61,9 @@ namespace vrender::render
 
 		// Public API
 		bool step();
+
+		vrender::render::GeometryArena& get_geometry_arena();
+		void add_mesh(vrender::render::Mesh mesh);
 	private:
 		const vrender::platform::WindowProvider& window_provider;
 		const vrender::platform::WindowSurfaceProvider& window_surface_provider;
@@ -101,12 +105,10 @@ namespace vrender::render
 		vrender::render::PipelineLayout pipeline_layout;
 		vrender::render::Pipeline pipeline;
 
+		// Generic Render
 		vrender::render::DescriptorPool persistent_descriptor_pool;
 		vrender::render::CommandController command_controller;
-
-		// Testing
-		vrender::render::memory::Buffer vertex_buffer;
-		vrender::render::memory::Buffer index_buffer;
+		vrender::render::GeometryArena geometry_arena;
 
 		std::vector<vrender::render::Mesh> meshes;
 	};

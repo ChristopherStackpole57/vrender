@@ -19,6 +19,12 @@ namespace vrender::render::memory
 		);
 		~Buffer();
 
+		Buffer(const Buffer&) = delete;
+		Buffer& operator=(const Buffer&) = delete;
+
+		Buffer(Buffer&& other) noexcept;
+		Buffer& operator=(Buffer&& other) noexcept;
+
 		// API Accessibility
 		// TODO: Support debug names
 		VkBuffer get_buffer() const;

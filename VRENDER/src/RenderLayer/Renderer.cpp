@@ -242,12 +242,9 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
-struct Vertex
-{
-	float position[3];
-	float color[3];
-};
-std::vector<Vertex> vertices = {
+
+/*
+std::vector<vrender::render::Vertex> vertices = {
 	{{ -0.25f,  0.25f, 0.0f }, {0,0,0}},				// 0
 	{{ -0.25f, -0.25f, 0.0f }, {0.25,0.25,0.25}},		// 1
 	{{  0.25f,  0.25f, 0.0f }, {0.25,0.25,0.25}},		// 2
@@ -286,27 +283,9 @@ std::vector<uint32_t> indices = {
 	13, 2, 14,
 	15, 0, 14
 };
-/*
-std::vector<Vertex> vertices = {
-	// Mesh 1
-	{{ -0.5f,  0.0f, 0.0f }, {1,0,0}},
-	{{  0.0f, -0.5f, 0.0f }, {0,1,0}},
-	{{  0.5f,  0.0f, 0.0f }, {0,0,1}},
-
-	// Mesh B
-	//{{  0.5f,  0.0f, 0.0f }, {1,1,0}},
-	{{  0.0f,  0.5f, 0.0f }, {0,1,1}},
-	//{{ -0.5f,  0.0f, 0.0f }, {1,0,1}},
-};
-std::vector<uint32_t> indices = {
-	// Mesh A
-	0, 1, 2,
-
-	// Mesh B
-	2, 3, 0
-	//3, 4, 5
-};
 */
+
+
 
 // Lifetime Control
 vrender::render::Renderer::Renderer(
@@ -336,7 +315,10 @@ vrender::render::Renderer::Renderer(
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
-	, descriptor_controller(std::make_unique<vrender::render::RenderPassDescriptorController>(logical_device, descriptor_layouts))
+	, descriptor_controller(std::make_unique<vrender::render::RenderPassDescriptorController>(
+		logical_device, 
+		descriptor_layouts
+	))
 
 	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
 	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
@@ -348,7 +330,8 @@ vrender::render::Renderer::Renderer(
 	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
 		logical_device,
 		physical_device,
-		pipeline
+		pipeline,
+		geometry_arena
 	))
 
 	// Generic Render
@@ -364,24 +347,16 @@ vrender::render::Renderer::Renderer(
 	))
 	, MAX_FRAMES_IN_FLIGHT(max_frames)
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
-
-	// Testing
-	, vertex_buffer(
-		allocator,
-		sizeof(vertices[0]) * vertices.size(),
-		vrender::render::memory::BufferUsageClass::VERTEX | vrender::render::memory::BufferUsageClass::TRANSFER,
-		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
-		vrender::render::memory::BufferLifetime::PERSISTENT
-	)
-	, index_buffer(
-		allocator,
-		sizeof(indices[0]) * indices.size(),
-		vrender::render::memory::BufferUsageClass::INDEX | vrender::render::memory::BufferUsageClass::TRANSFER,
-		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
-		vrender::render::memory::BufferLifetime::PERSISTENT
-	)
+	, geometry_arena(allocator, MAX_FRAMES_IN_FLIGHT)
 {
 	// TODO: Clearly document static build function
+
+	/*this->meshes.push_back(
+		this->geometry_arena.create_static_mesh(
+			vertices,
+			indices
+		)
+	);*/
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -512,4 +487,13 @@ bool vrender::render::Renderer::step()
 	this->current_frame = (this->current_frame + 1) % this->frame_contexts.size();
 
 	return true;
+}
+
+vrender::render::GeometryArena& vrender::render::Renderer::get_geometry_arena()
+{
+	return this->geometry_arena;
+}
+void vrender::render::Renderer::add_mesh(vrender::render::Mesh mesh)
+{
+	this->meshes.push_back(mesh);
 }
