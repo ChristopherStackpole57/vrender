@@ -64,6 +64,7 @@ namespace vrender::render
 
 		vrender::render::GeometryArena& get_geometry_arena();
 		void add_mesh(vrender::render::Mesh mesh);
+		void render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices);
 	private:
 		const vrender::platform::WindowProvider& window_provider;
 		const vrender::platform::WindowSurfaceProvider& window_surface_provider;
@@ -111,6 +112,8 @@ namespace vrender::render
 		vrender::render::GeometryArena geometry_arena;
 
 		std::vector<vrender::render::Mesh> meshes;
+		std::vector<std::vector<vrender::render::Vertex>> pending_dynamic_vertices;
+		std::vector<std::vector<uint32_t>> pending_dynamic_indices;
 	};
 }
 

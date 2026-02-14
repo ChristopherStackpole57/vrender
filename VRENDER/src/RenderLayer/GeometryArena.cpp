@@ -114,12 +114,49 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_dynamic_mesh(
 	uint32_t index
 )
 {
-	return {};
+	// Find Allocation Offsets
+	uint32_t vertex_offset = this->dynamic_vertex_suballocators[index].allocate(vertices.size() * sizeof(vrender::render::Vertex));
+	uint32_t index_offset = this->dynamic_index_suballocators[index].allocate(indices.size() * sizeof(uint32_t));
+
+	// Validate Offsets
+	if (vertex_offset == UINT32_MAX || index_offset == UINT32_MAX)
+	{
+		std::cerr << "ERROR: VRENDER Could Not Allocate Memory for Requested Mesh" << std::endl;
+		return { UINT32_MAX, UINT32_MAX, UINT32_MAX };
+	}
+
+	// Write Data
+	this->vertex_buffer.write(
+		vertices.data(),
+		vertices.size() * sizeof(vrender::render::Vertex),
+		vertex_offset
+	);
+	this->index_buffer.write(
+		indices.data(),
+		indices.size() * sizeof(uint32_t),
+		index_offset
+	);
+
+	// Return Mesh
+	return vrender::render::Mesh{
+		.vertex_offset = vertex_offset,
+		.vertex_offset_count = vertex_offset / sizeof(vrender::render::Vertex),
+		.vertex_count = static_cast<uint32_t>(vertices.size()),
+		.index_offset = index_offset,
+		.index_offset_count = index_offset / sizeof(uint32_t),
+		.index_count = static_cast<uint32_t>(indices.size())
+	};
 }
 
 void vrender::render::GeometryArena::reset_dynamic(uint32_t index)
 {
+	if (index > this->dynamic_vertex_suballocators.size())
+	{
+		throw std::runtime_error("ERROR: VRENDER Was Requested to Reset Invalid Dynamic Region");
+	}
 
+	this->dynamic_vertex_suballocators[index].reset();
+	this->dynamic_index_suballocators[index].reset();
 }
 
 const vrender::render::memory::Buffer& vrender::render::GeometryArena::get_vertex_buffer() const

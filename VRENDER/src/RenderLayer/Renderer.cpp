@@ -242,51 +242,6 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
-
-/*
-std::vector<vrender::render::Vertex> vertices = {
-	{{ -0.25f,  0.25f, 0.0f }, {0,0,0}},				// 0
-	{{ -0.25f, -0.25f, 0.0f }, {0.25,0.25,0.25}},		// 1
-	{{  0.25f,  0.25f, 0.0f }, {0.25,0.25,0.25}},		// 2
-
-	{{  0.25f, -0.25f, 0.0f }, {0.50,0.50,0.50}},		// 3
-
-	{{ -0.25f,  0.00f, 0.0f }, {0.125,0.125,0.125}},	// 4
-	{{ -0.50f, -0.25f, 0.0f }, {1,0,0}},				// 5
-
-	{{ -0.50f,  0.25f, 0.0f }, {1,0,0}},				// 6
-
-	{{ -0.25f, -0.50f, 0.0f }, {0,1,0}},				// 7
-	{{  0.00f, -0.25f, 0.0f }, {0.375,0.375,0.375}},	// 8
-
-	{{  0.25f, -0.50f, 0.0f }, {0,1,0}},				// 9
-
-	{{  0.50f, -0.25f, 0.0f }, {0,0,1}},				// 10
-	{{  0.25f,  0.00f, 0.0f }, {0.375,0.375,0.375}},	// 11
-
-	{{  0.50f,  0.25f, 0.0f }, {0,0,1}},				// 12
-
-	{{  0.25f,  0.50f, 0.0f }, {1,0,1}},				// 13
-	{{  0.00f,  0.25f, 0.0f }, {0.125,0.125,0.125}},	// 14
-
-	{{ -0.25f,  0.50f, 0.0f }, {1,0,1}}					// 15
-};
-std::vector<uint32_t> indices = {
-	0, 1, 2,
-	2, 1, 3,
-	4, 5, 1,
-	0, 6, 4,
-	1, 7, 8,
-	8, 9, 3,
-	3, 10, 11,
-	11, 12, 2,
-	13, 2, 14,
-	15, 0, 14
-};
-*/
-
-
-
 // Lifetime Control
 vrender::render::Renderer::Renderer(
 	const vrender::platform::WindowProvider& window_provider,
@@ -350,13 +305,6 @@ vrender::render::Renderer::Renderer(
 	, geometry_arena(allocator, MAX_FRAMES_IN_FLIGHT)
 {
 	// TODO: Clearly document static build function
-
-	/*this->meshes.push_back(
-		this->geometry_arena.create_static_mesh(
-			vertices,
-			indices
-		)
-	);*/
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -398,6 +346,9 @@ bool vrender::render::Renderer::step()
 		&wait_fence
 	);
 
+	this->geometry_arena.reset_dynamic(current_frame);
+
+	// Handle Window Resize
 	if (this->window_provider.was_resized())
 	{
 		std::cout << "[Render] VRENDER Regenerating Swapchain..." << std::endl;
@@ -450,6 +401,7 @@ bool vrender::render::Renderer::step()
 		std::cout << "[Render] VRENDER Successfully Rebuilt Swapchain" << std::endl;
 	}
 
+	// Acquire Swapchain Image and Validate
 	vrender::render::AcquireSwapchainImageResult image_result = this->swapchain.acquire_image(
 		this->frame_contexts[current_frame].image_available,
 		UINT64_MAX
@@ -466,6 +418,33 @@ bool vrender::render::Renderer::step()
 		return true;
 	}
 
+	// Write Pending Dynamic Frame Data
+	std::vector<vrender::render::Mesh> frame_meshes;
+	if (this->pending_dynamic_indices.size() > 0)
+	{
+		frame_meshes.insert(
+			frame_meshes.end(),
+			this->meshes.begin(),
+			this->meshes.end()
+		);
+		for (size_t i = 0; i < this->pending_dynamic_vertices.size(); i++)
+		{
+			frame_meshes.push_back(this->geometry_arena.create_dynamic_mesh(
+				this->pending_dynamic_vertices[i],
+				this->pending_dynamic_indices[i],
+				this->current_frame
+			));
+		}
+
+		this->pending_dynamic_vertices.clear();
+		this->pending_dynamic_indices.clear();
+	}
+	else
+	{
+		frame_meshes = this->meshes;
+	}
+
+	// Execute Frame
 	uint32_t image = image_result.image_index;
 	this->command_controller.record(
 		this->current_frame,
@@ -473,7 +452,7 @@ bool vrender::render::Renderer::step()
 		vrender::render::FrameDescriptorInputs{
 			
 		},
-		this->meshes
+		frame_meshes
 	);
 	this->command_controller.submit(
 		this->current_frame,
@@ -496,4 +475,11 @@ vrender::render::GeometryArena& vrender::render::Renderer::get_geometry_arena()
 void vrender::render::Renderer::add_mesh(vrender::render::Mesh mesh)
 {
 	this->meshes.push_back(mesh);
+}
+void vrender::render::Renderer::render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices)
+{
+	// TODO: Validate
+
+	this->pending_dynamic_vertices.push_back(vertices);
+	this->pending_dynamic_indices.push_back(indices);
 }
