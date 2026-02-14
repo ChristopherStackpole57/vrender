@@ -25,7 +25,40 @@ vrender::render::memory::Buffer::Buffer(
 }
 vrender::render::memory::Buffer::~Buffer()
 {
+	if (this->token == UINT64_MAX)
+	{
+		return;
+	}
 
+	this->allocator_ptr->free_buffer(this->token);
+}
+
+// NOTE: Buffers do NOT own their VkBuffer, so they MUST NOT destroy it
+vrender::render::memory::Buffer::Buffer(vrender::render::memory::Buffer&& other) noexcept
+	: buffer(other.buffer)
+	, desc(other.desc)
+	, token(other.token)
+	, allocator_ptr(other.allocator_ptr)
+{
+	other.buffer = VK_NULL_HANDLE;
+	other.token = UINT64_MAX;
+}
+vrender::render::memory::Buffer& vrender::render::memory::Buffer::operator=(
+	vrender::render::memory::Buffer&& other
+) noexcept
+{
+	if (this != &other)
+	{
+		this->buffer = other.buffer;
+		this->desc = other.desc;
+		this->token = other.token;
+		this->allocator_ptr = other.allocator_ptr;
+
+		other.buffer = VK_NULL_HANDLE;
+		other.token = UINT64_MAX;
+	}
+
+	return *this;
 }
 
 // API Accessibility

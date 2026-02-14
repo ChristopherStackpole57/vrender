@@ -8,7 +8,7 @@
 // Lifetime Control
 vrender::platform::GLFWWindowBackend::GLFWWindowBackend()
 {
-	std::pair<int, int> window_size{ 480, 270 };
+	std::pair<int, int> window_size{ 1280, 720 };
 
 	// Initialize GLFW
 	if (!glfwInit())

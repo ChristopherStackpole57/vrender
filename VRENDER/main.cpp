@@ -9,6 +9,8 @@
 #include <PlatformLayer/WindowBackends/GLFWWindowBackend.h>
 
 #include <Core/Renderer.h>
+#include <Core/Mesh.h>
+#include <Core/GeometryArena.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
 
@@ -43,11 +45,12 @@ int main()
 	);
 
 	// Configure Window
-	window_provider_ptr->set_title("Platform Agnostic Window");
+	window_provider_ptr->set_title("VRENDER Engine");
 	window_provider_ptr->set_resizable(true);
 
 	// Primary Exection Loop
 	bool run_loop = true;
+	float t = 0;
 	while (run_loop)
 	{
 		// Check for window closure
@@ -59,6 +62,7 @@ int main()
 			break;
 		}
 
+		// Handle Window Events
 		std::vector<vrender::platform::Event> events = window_provider_ptr->poll_events();
 		for (vrender::platform::Event event : events)
 		{
@@ -83,13 +87,39 @@ int main()
 			// Mutate Engine State
 		}
 
+		// Create Rotating Triangle
+		const float c = std::cos(t);
+		const float s = std::sin(t);
+		std::vector<vrender::render::Vertex> vertices = {
+			{{ -0.353f,  0.353f, 0.0f }, { 1, 0, 0 }},
+			{{  0.0f, -0.5f, 0.0f }, { 0, 1, 0 }},
+			{{  0.353f,  0.353f, 0.0f }, { 0, 0, 1 }}
+		};
+		std::vector<uint32_t> indices{
+			0, 1, 2
+		};
+		
+		for (vrender::render::Vertex& vertex : vertices)
+		{
+			float x = vertex.position[0];
+			float y = vertex.position[1];
+
+			vertex.position[0] = x * c - y * s;
+			vertex.position[1] = x * s + y * c;
+		}
+
+		renderer.render_dynamic_mesh(
+			vertices,
+			indices
+		);
+
 		// Render Step
 		if (!renderer.step()) return 0;
 
 		// Clear Resized Flag
 		window_provider_ptr->clear_resize_flag();
 		
-		//run_loop = false;
+		t += 0.01;
 	}
 
 	return 0;
