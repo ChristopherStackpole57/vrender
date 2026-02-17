@@ -99,20 +99,6 @@ static vrender::render::Semaphore build_semaphore(
 
 	std::cout << "[Render] VRENDER Built Semaphore" << std::endl;
 }
-static vrender::render::RenderPass build_render_pass(
-	const vrender::render::LogicalDevice& logical_device,
-	const vrender::render::Swapchain& swapchain
-)
-{
-	vrender::render::RenderPass render_pass(
-		logical_device,
-		vrender::render::misc::basic_render_pass_config(swapchain)
-	);
-
-	std::cout << "[Render] VRENDER Built RenderPass" << std::endl;
-
-	return render_pass;
-}
 static vrender::render::Shader build_shader(
 	const vrender::render::LogicalDevice& logical_device,
 	const std::string path
@@ -134,42 +120,6 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 	});
 
 	return layouts;
-}
-static vrender::render::PipelineLayout build_pipeline_layout(
-	const vrender::render::LogicalDevice& logical_device,
-	const std::vector<vrender::render::DescriptorLayout>& descriptor_layouts,
-	const std::vector<VkPushConstantRange>& push_constants
-)
-{
-	return vrender::render::PipelineLayout(
-		logical_device,
-		descriptor_layouts,
-		push_constants
-	);
-}
-static vrender::render::Pipeline build_pipeline(
-	const vrender::render::LogicalDevice& logical_device,
-	const vrender::render::Swapchain& swapchain,
-	const vrender::render::RenderPass& render_pass,
-	const vrender::render::PipelineLayout& layout,
-	const vrender::render::Shader& vertex,
-	const vrender::render::Shader& fragment
-)
-{
-	return vrender::render::Pipeline(
-		logical_device,
-		vrender::render::config::PipelineConfiguration{
-			.bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS,
-			.extent = swapchain.get_extent(),
-
-			.render_pass = render_pass,
-			.layout = layout,
-			.stages = {
-				vrender::render::config::ShaderPipelineConfiguration{ vertex, vrender::render::config::VERTEX_STAGE, "main" },
-				vrender::render::config::ShaderPipelineConfiguration{ fragment, vrender::render::config::FRAGMENT_STAGE, "main" }
-			}
-		}
-	);
 }
 static vrender::render::CommandController frame_and_command_factory(
 	const vrender::render::LogicalDevice& logical_device,
@@ -242,6 +192,10 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
+
+
+
+
 // Lifetime Control
 vrender::render::Renderer::Renderer(
 	const vrender::platform::WindowProvider& window_provider,
@@ -252,6 +206,8 @@ vrender::render::Renderer::Renderer(
 // Basic
 	: window_provider(window_provider)
 	, window_surface_provider(window_surface_provider)
+	, MAX_FRAMES_IN_FLIGHT(max_frames)
+
 
 	// Core
 	, instance(build_instance_config(surface_provider, instance_config))
@@ -260,36 +216,60 @@ vrender::render::Renderer::Renderer(
 	, logical_device(build_logical_device(physical_device, surface, this->required_extensions))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
 
+
+
 	// Memory
 	, allocator(instance, physical_device, logical_device)
+	, geometry_arena(allocator, MAX_FRAMES_IN_FLIGHT)
+
+
 
 	// Render Specific
-	, render_pass(build_render_pass(logical_device, swapchain))
+	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 
 	, vertex(build_shader(logical_device, "buffer_vert.spv"))
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
-	, descriptor_controller(std::make_unique<vrender::render::RenderPassDescriptorController>(
-		logical_device, 
-		descriptor_layouts
-	))
-
-	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
-	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
 	, persistent_descriptor_pool(
 		logical_device,
 		descriptor_controller->get_pool_sizes().pool_sizes,
 		descriptor_controller->get_pool_sizes().max_sets
 	)
-	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
+	//, descriptor_controller()
+
+	, pipeline_layout(
 		logical_device,
-		physical_device,
-		pipeline,
-		geometry_arena
+		descriptor_layouts,
+		push_constants
+	)
+	, pipeline(
+		logical_device,
+		vrender::render::config::PipelineConfiguration{
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipeline_layout,
+			vrender::render::config::AttachmentFormats{
+			
+			},
+			std::vector<vrender::render::config::ShaderPipelineConfiguration>{
+				vrender::render::config::ShaderPipelineConfiguration{
+					vertex,
+					vrender::render::config::VERTEX_STAGE,
+					"main"
+				},
+				vrender::render::config::ShaderPipelineConfiguration{
+					fragment,
+					vrender::render::config::FRAGMENT_STAGE,
+					"main"
+				}
+			}
+		}
+	)
+	
+	, command_recorder(std::make_unique<vrender::render::DynamicCommandRecorder>(
+		
 	))
 
-	// Generic Render
 	, command_controller(frame_and_command_factory(
 		logical_device,
 		swapchain,
@@ -300,16 +280,12 @@ vrender::render::Renderer::Renderer(
 		command_recorder.get(),
 		descriptor_controller.get()
 	))
-	, MAX_FRAMES_IN_FLIGHT(max_frames)
-	, frame_contexts(build_frame_contexts(logical_device, max_frames))
-	, geometry_arena(allocator, MAX_FRAMES_IN_FLIGHT)
 {
 	// TODO: Clearly document static build function
 }
 vrender::render::Renderer::~Renderer()
 {
 	std::cout << "[Render] VRENDER Closing..." << std::endl;
-	this->framebuffers.clear();
 	this->frame_contexts.clear();
 	this->frame_targets.clear();
 
@@ -320,7 +296,6 @@ vrender::render::Renderer::~Renderer()
 	this->fragment.~Shader();
 	this->pipeline_layout.~PipelineLayout();
 	this->pipeline.~Pipeline();
-	this->render_pass.~RenderPass();
 	this->swapchain.~Swapchain();
 	this->logical_device.~LogicalDevice();
 	this->physical_device.~PhysicalDevice();
@@ -366,7 +341,6 @@ bool vrender::render::Renderer::step()
 			);
 		}
 
-		this->framebuffers.clear();
 		this->frame_contexts.clear();
 		this->frame_targets.clear();
 		this->frame_targets_raw.clear();

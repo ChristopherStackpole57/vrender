@@ -3,9 +3,9 @@
 
 #include <vulkan/vulkan.h>
 
-#include <LegacyRender/PipelineLayout.h>
-#include <LegacyRender/RenderPass.h>
+#include <Core/PipelineLayout.h>
 
+#include <RenderLayer/Configuration/AttachmentFormats.h>
 #include <RenderLayer/Configuration/ShaderPipelineConfiguration.h>
 
 namespace vrender::render::config
@@ -13,10 +13,8 @@ namespace vrender::render::config
 	struct PipelineConfiguration
 	{
 		VkPipelineBindPoint bind_point;
-		VkExtent2D extent;
-
-		const vrender::render::RenderPass& render_pass;
 		const vrender::render::PipelineLayout& layout;
+		const vrender::render::config::AttachmentFormats attachment_formats;
 		std::vector<vrender::render::config::ShaderPipelineConfiguration> stages;
 	};
 }

@@ -4,8 +4,10 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/LogicalDevice.h>
+#include <Core/PipelineLayout.h>
+#include <Core/Vertex.h>
 
-#include <LegacyRender/DescriptorLayout.h>
+#include <Core/DescriptorLayout.h>
 
 #include <RenderLayer/Configuration/PipelineConfiguration.h>
 

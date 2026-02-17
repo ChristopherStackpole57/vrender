@@ -6,9 +6,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <Core/DescriptorLayout.h>
 #include <Core/LogicalDevice.h>
-
-#include <LegacyRender/DescriptorLayout.h>
 
 namespace vrender::render
 {

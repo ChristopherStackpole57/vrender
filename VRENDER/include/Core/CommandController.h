@@ -14,10 +14,10 @@
 #include <Core/Mesh.h>
 #include <Core/Swapchain.h>
 
-#include <LegacyRender/DescriptorLayout.h>
-#include <LegacyRender/DescriptorPool.h>
-#include <LegacyRender/Framebuffer.h>
-#include <LegacyRender/PipelineLayout.h>
+#include <Core/DescriptorLayout.h>
+#include <Core/DescriptorPool.h>
+
+#include <Core/PipelineLayout.h>
 
 namespace vrender::render
 {
@@ -52,8 +52,7 @@ namespace vrender::render
 		void present(uint32_t image_index, vrender::render::FrameContext& frame_context);
 	private:
 		const vrender::render::LogicalDevice* logical_device_ptr;
-		// TODO: Change name to swapchain ptr
-		const vrender::render::Swapchain* swapchain;
+		const vrender::render::Swapchain* swapchain_ptr;
 		const vrender::render::ICommandRecorder* command_recorder;
 		const vrender::render::IDescriptorController* descriptor_controller;
 

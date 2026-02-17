@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/Mesh.h>
+#include <Core/Vertex.h>
 
 #include <Core/Memory/Allocator.h>
 #include <Core/Memory/Buffer.h>
@@ -12,14 +13,6 @@
 
 namespace vrender::render
 {
-	struct Vertex
-	{
-		float position[3];
-		// Normal
-		// Tangent
-		float color[3];
-	};
-
 	class GeometryArena
 	{
 	public:
