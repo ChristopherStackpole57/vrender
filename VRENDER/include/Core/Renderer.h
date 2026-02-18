@@ -13,7 +13,6 @@
 #include <Core/GeometryArena.h>
 #include <Core/ICommandRecorder.h>
 #include <Core/IDescriptorController.h>
-#include <Core/IFrameTarget.h>
 #include <Core/Instance.h>
 #include <Core/LogicalDevice.h>
 #include <Core/PhysicalDevice.h>
@@ -30,6 +29,7 @@
 #include <RenderCycle/DynamicCommandRecorder.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
+#include <RenderLayer/Configuration/FrameDescription.h>
 
 #include <RenderLayer/Utility/PhysicalDeviceEnumeration.h>
 #include <RenderLayer/Utility/QuerySwapchainSupport.h>
@@ -107,9 +107,6 @@ namespace vrender::render
 
 		vrender::render::PipelineLayout pipeline_layout;
 		vrender::render::Pipeline pipeline;
-
-		std::vector<std::unique_ptr<vrender::render::IFrameTarget>> frame_targets;
-		std::vector<const vrender::render::IFrameTarget*> frame_targets_raw;
 
 		std::unique_ptr<vrender::render::ICommandRecorder> command_recorder;
 

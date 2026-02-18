@@ -138,6 +138,7 @@ vrender::render::Pipeline::Pipeline(
 	create_info.layout = config.layout.get_layout();
 	create_info.renderPass = nullptr;
 	create_info.subpass = 0;
+	//create_info.enab
 
 	VkResult creation_result = vkCreateGraphicsPipelines(
 		logical_device.get_logical_device(),

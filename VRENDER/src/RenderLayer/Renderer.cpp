@@ -124,46 +124,11 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 static vrender::render::CommandController frame_and_command_factory(
 	const vrender::render::LogicalDevice& logical_device,
 	const vrender::render::Swapchain& swapchain,
-	const vrender::render::RenderPass& render_pass,
-	std::vector<vrender::render::Framebuffer>& framebuffers,
-	std::vector<std::unique_ptr<vrender::render::IFrameTarget>>& frame_targets,
-	std::vector<const vrender::render::IFrameTarget*>& frame_targets_raw,
 	vrender::render::ICommandRecorder* command_recorder,
-	vrender::render::IDescriptorController* descriptor_controller
+	vrender::render::IDescriptorController* descriptor_controller,
+	const uint32_t max_frames_in_flight
 )
 {
-	// Create framebuffers from render pass and swapchain image views
-	const std::vector<VkImageView> image_views = swapchain.get_image_views();
-	framebuffers.reserve(image_views.size());
-	for (const VkImageView image_view : image_views)
-	{
-		framebuffers.emplace_back(
-			logical_device,
-			render_pass,
-			std::vector<VkImageView>{ image_view },
-			swapchain.get_extent()
-		);
-	}
-	std::cout << "[Render] VRENDER Built " << framebuffers.size() << " Framebuffers" << std::endl;
-
-	// Create frame targets from framebuffers
-	frame_targets.reserve(framebuffers.size());
-	frame_targets_raw.reserve(framebuffers.size());
-	for (const vrender::render::Framebuffer& framebuffer : framebuffers)
-	{
-		frame_targets.emplace_back(std::make_unique<
-			vrender::render::RenderPassFrameTarget
-		>(
-			framebuffer,
-			render_pass
-		));
-
-		frame_targets_raw.push_back(
-			frame_targets.back().get()
-		);
-	}
-	std::cout << "[Render] VRENDER Built " << frame_targets.size() << " Frame Targets" << std::endl;
-
 	// Create Command Controller
 	vrender::render::CommandController command_controller(
 		logical_device,
@@ -171,7 +136,7 @@ static vrender::render::CommandController frame_and_command_factory(
 		swapchain,
 		command_recorder,
 		descriptor_controller,
-		frame_targets_raw
+		max_frames_in_flight
 	);
 
 	return command_controller;
@@ -233,10 +198,9 @@ vrender::render::Renderer::Renderer(
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
 	, persistent_descriptor_pool(
 		logical_device,
-		descriptor_controller->get_pool_sizes().pool_sizes,
-		descriptor_controller->get_pool_sizes().max_sets
+		{},//descriptor_controller->get_pool_sizes().pool_sizes,
+		0//descriptor_controller->get_pool_sizes().max_sets
 	)
-	//, descriptor_controller()
 
 	, pipeline_layout(
 		logical_device,
@@ -267,18 +231,16 @@ vrender::render::Renderer::Renderer(
 	)
 	
 	, command_recorder(std::make_unique<vrender::render::DynamicCommandRecorder>(
-		
+		pipeline,
+		geometry_arena
 	))
 
 	, command_controller(frame_and_command_factory(
 		logical_device,
 		swapchain,
-		render_pass,
-		framebuffers,
-		frame_targets,
-		frame_targets_raw,
 		command_recorder.get(),
-		descriptor_controller.get()
+		descriptor_controller.get(),
+		max_frames
 	))
 {
 	// TODO: Clearly document static build function
@@ -286,9 +248,6 @@ vrender::render::Renderer::Renderer(
 vrender::render::Renderer::~Renderer()
 {
 	std::cout << "[Render] VRENDER Closing..." << std::endl;
-	this->frame_contexts.clear();
-	this->frame_targets.clear();
-
 	this->command_recorder.release();
 
 	this->command_controller.~CommandController();
@@ -342,8 +301,6 @@ bool vrender::render::Renderer::step()
 		}
 
 		this->frame_contexts.clear();
-		this->frame_targets.clear();
-		this->frame_targets_raw.clear();
 
 		this->swapchain.~Swapchain();
 
@@ -359,16 +316,13 @@ bool vrender::render::Renderer::step()
 		this->command_controller = frame_and_command_factory(
 			this->logical_device,
 			this->swapchain,
-			this->render_pass,
-			this->framebuffers,
-			this->frame_targets,
-			this->frame_targets_raw,
 			this->command_recorder.get(),
-			this->descriptor_controller.get()
+			this->descriptor_controller.get(),
+			this->MAX_FRAMES_IN_FLIGHT
 		);
 
 		// Regenerate Frame Contexts
-		this->frame_contexts = build_frame_contexts(this->logical_device, this->framebuffers.size());
+		this->frame_contexts = build_frame_contexts(this->logical_device, this->MAX_FRAMES_IN_FLIGHT);
 
 		// TODO: rebuild descriptors
 
@@ -420,11 +374,18 @@ bool vrender::render::Renderer::step()
 
 	// Execute Frame
 	uint32_t image = image_result.image_index;
+	const VkImageView swapchain_image_view = this->swapchain.get_image_view(image);
+	const VkExtent2D extent = this->swapchain.get_extent();
+
 	this->command_controller.record(
 		this->current_frame,
 		this->frame_contexts[this->current_frame],
 		vrender::render::FrameDescriptorInputs{
 			
+		},
+		vrender::render::config::FrameDescription{
+			.swapchain_image_view = swapchain_image_view,
+			.extent = extent
 		},
 		frame_meshes
 	);

@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/LogicalDevice.h>
-#include <LegacyRender/PipelineLayout.h>
+#include <Core/PipelineLayout.h>
 
 namespace vrender::render
 {

@@ -9,7 +9,6 @@
 #include <Core/FrameContext.h>
 #include <Core/ICommandRecorder.h>
 #include <Core/IDescriptorController.h>
-#include <Core/IFrameTarget.h>
 #include <Core/LogicalDevice.h>
 #include <Core/Mesh.h>
 #include <Core/Swapchain.h>
@@ -18,6 +17,8 @@
 #include <Core/DescriptorPool.h>
 
 #include <Core/PipelineLayout.h>
+
+#include <RenderLayer/Configuration/FrameDescription.h>
 
 namespace vrender::render
 {
@@ -31,7 +32,7 @@ namespace vrender::render
 			const vrender::render::Swapchain& swapchain,
 			const vrender::render::ICommandRecorder* command_recorder,
 			const vrender::render::IDescriptorController* descriptor_controller,
-			const std::vector<const vrender::render::IFrameTarget*> frame_targets
+			const uint32_t max_frames_in_flight
 		);
 		~CommandController();
 
@@ -46,6 +47,7 @@ namespace vrender::render
 			uint32_t frame_index,
 			vrender::render::FrameContext& frame_context,
 			vrender::render::FrameDescriptorInputs inputs,
+			const vrender::render::config::FrameDescription& frame_description,
 			std::vector<vrender::render::Mesh>& meshes
 		);
 		void submit(uint32_t frame_index, vrender::render::FrameContext& frame_context);
@@ -59,7 +61,6 @@ namespace vrender::render
 		std::vector<VkCommandPool> command_pools;
 		std::vector<VkCommandBuffer> command_buffers;
 		std::vector<vrender::render::DescriptorPool> descriptor_pools;
-		std::vector<const vrender::render::IFrameTarget*> frame_targets;
 	};
 }
 
