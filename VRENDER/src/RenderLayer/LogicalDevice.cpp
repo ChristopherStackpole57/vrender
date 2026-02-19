@@ -50,11 +50,12 @@ vrender::render::LogicalDevice::LogicalDevice(
 
 	VkPhysicalDeviceFeatures2 device_features = physical_device.get_features();
 
-	// Enable Synchronization 2
-	VkPhysicalDeviceSynchronization2Features sync2{};
-	sync2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
-	sync2.synchronization2 = VK_TRUE;
-	device_features.pNext = &sync2;
+	// Enable Dynamic Rendering and Synch2
+	VkPhysicalDeviceVulkan13Features features13{};
+	features13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+	features13.dynamicRendering = VK_TRUE;
+	features13.synchronization2 = VK_TRUE;
+	device_features.pNext = &features13;
 
 	VkDeviceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

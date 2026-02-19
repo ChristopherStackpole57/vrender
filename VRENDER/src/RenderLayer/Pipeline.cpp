@@ -130,7 +130,7 @@ vrender::render::Pipeline::Pipeline(
 	VkPipelineDynamicStateCreateInfo dynamic_state{};
 	dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 	dynamic_state.pNext = nullptr;
-	dynamic_state.dynamicStateCount = sizeof(dynamic_state) / sizeof(VkDynamicState);
+	dynamic_state.dynamicStateCount = sizeof(dynamic_states) / sizeof(dynamic_states[0]);
 	dynamic_state.pDynamicStates = dynamic_states;
 
 	create_info.pColorBlendState = &color_blending;
@@ -138,7 +138,6 @@ vrender::render::Pipeline::Pipeline(
 	create_info.layout = config.layout.get_layout();
 	create_info.renderPass = nullptr;
 	create_info.subpass = 0;
-	//create_info.enab
 
 	VkResult creation_result = vkCreateGraphicsPipelines(
 		logical_device.get_logical_device(),

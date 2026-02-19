@@ -9,9 +9,9 @@ namespace vrender::render::config
 {
 	struct AttachmentFormats
 	{
-		std::vector<VkFormat> color_formats;
-		VkFormat depth_format;
-		VkFormat stencil_format;
+		std::vector<VkFormat> color_formats = {};
+		VkFormat depth_format = VK_FORMAT_UNDEFINED;
+		VkFormat stencil_format = VK_FORMAT_UNDEFINED;
 	};
 }
 

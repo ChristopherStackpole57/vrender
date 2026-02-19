@@ -96,6 +96,7 @@ namespace vrender::render
 		std::vector<std::vector<uint32_t>> pending_dynamic_indices;
 
 		std::vector<vrender::render::FrameContext> frame_contexts;
+		std::vector<VkFence> images_in_flight;
 
 		vrender::render::Shader vertex;
 		vrender::render::Shader fragment;

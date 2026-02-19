@@ -213,7 +213,9 @@ vrender::render::Renderer::Renderer(
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipeline_layout,
 			vrender::render::config::AttachmentFormats{
-			
+				.color_formats = {
+					swapchain.get_image_format()
+				},
 			},
 			std::vector<vrender::render::config::ShaderPipelineConfiguration>{
 				vrender::render::config::ShaderPipelineConfiguration{
@@ -244,6 +246,7 @@ vrender::render::Renderer::Renderer(
 	))
 {
 	// TODO: Clearly document static build function
+	this->images_in_flight.resize(this->swapchain.get_images().size());
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -273,11 +276,6 @@ bool vrender::render::Renderer::step()
 		&wait_fence,
 		VK_TRUE,
 		UINT64_MAX
-	);
-	vkResetFences(
-		this->logical_device.get_logical_device(),
-		1,
-		&wait_fence
 	);
 
 	this->geometry_arena.reset_dynamic(current_frame);
@@ -346,6 +344,24 @@ bool vrender::render::Renderer::step()
 		return true;
 	}
 
+	if (this->images_in_flight[image_result.image_index] != VK_NULL_HANDLE)
+	{
+		vkWaitForFences(
+			this->logical_device.get_logical_device(),
+			1,
+			&images_in_flight[image_result.image_index],
+			VK_TRUE,
+			UINT64_MAX
+		);
+	}
+	this->images_in_flight[image_result.image_index] = this->frame_contexts[this->current_frame].in_flight.get_fence();
+
+	vkResetFences(
+		this->logical_device.get_logical_device(),
+		1,
+		&wait_fence
+	);
+
 	// Write Pending Dynamic Frame Data
 	std::vector<vrender::render::Mesh> frame_meshes;
 	if (this->pending_dynamic_indices.size() > 0)
@@ -374,6 +390,7 @@ bool vrender::render::Renderer::step()
 
 	// Execute Frame
 	uint32_t image = image_result.image_index;
+	const VkImage swapchain_image = this->swapchain.get_image(image);
 	const VkImageView swapchain_image_view = this->swapchain.get_image_view(image);
 	const VkExtent2D extent = this->swapchain.get_extent();
 
@@ -384,6 +401,7 @@ bool vrender::render::Renderer::step()
 			
 		},
 		vrender::render::config::FrameDescription{
+			.swapchain_image = swapchain_image,
 			.swapchain_image_view = swapchain_image_view,
 			.extent = extent
 		},

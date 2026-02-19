@@ -91,12 +91,14 @@ int main()
 		const float c = std::cos(t);
 		const float s = std::sin(t);
 		std::vector<vrender::render::Vertex> vertices = {
-			{{ -0.353f,  0.353f, 0.0f }, { 1, 0, 0 }},
-			{{  0.0f, -0.5f, 0.0f }, { 0, 1, 0 }},
-			{{  0.353f,  0.353f, 0.0f }, { 0, 0, 1 }}
+			{{ -0.5f,  0.5f, 0.0f }, {1, 0, 0}},
+			{{ -0.5f, -0.5f, 0.0f }, {0, 1, 0}},
+			{{  0.5f,  0.5f, 0.0f }, {0, 1, 0}},
+			{{  0.5f, -0.5f, 0.0f }, {0, 0, 1}}
 		};
 		std::vector<uint32_t> indices{
-			0, 1, 2
+			0, 1, 2,
+			1, 3, 2
 		};
 		
 		for (vrender::render::Vertex& vertex : vertices)

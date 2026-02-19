@@ -27,7 +27,7 @@ namespace vrender::render::config
 		uint32_t application_version = VK_MAKE_VERSION(1, 0, 0);
 		std::string engine_name = "BasicVulkanEngine";
 		uint32_t engine_version = VK_MAKE_VERSION(1, 0, 0);
-		uint32_t api_version = VK_API_VERSION_1_2;
+		uint32_t api_version = VK_API_VERSION_1_3;
 	};
 }
 

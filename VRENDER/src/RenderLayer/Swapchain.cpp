@@ -238,9 +238,6 @@ const vrender::render::AcquireSwapchainImageResult vrender::render::Swapchain::a
 	};
 }
 
-//		Presentation
-// TODO: Implement, requires synchronization
-
 //		Recreation
 bool vrender::render::Swapchain::needs_recreation(VkResult last_result) const
 {

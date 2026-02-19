@@ -8,15 +8,38 @@ vrender::render::DynamicCommandRecorder::DynamicCommandRecorder(
 	: pipeline_ptr(&pipeline)
 	, geometry_arena_ptr(&geometry_arena)
 {
-
+	this->barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+	this->dependency_info.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
 }
 
 // API Accessibility
 void vrender::render::DynamicCommandRecorder::begin(
 	VkCommandBuffer command_buffer,
 	const vrender::render::config::FrameDescription& config
-) const
+)
 {
+	// Transition Image into Correct Format
+	this->barrier.srcStageMask = VK_PIPELINE_STAGE_2_NONE;
+	this->barrier.srcAccessMask = 0;
+	this->barrier.dstStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+	this->barrier.dstAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+
+	this->barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	this->barrier.newLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+
+	this->barrier.image = config.swapchain_image;
+	this->barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	this->barrier.subresourceRange.baseMipLevel = 0;
+	this->barrier.subresourceRange.levelCount = 1;
+	this->barrier.subresourceRange.baseArrayLayer = 0;
+	this->barrier.subresourceRange.layerCount = 1;
+
+	this->dependency_info.imageMemoryBarrierCount = 1;
+	this->dependency_info.pImageMemoryBarriers = &this->barrier;
+
+	vkCmdPipelineBarrier2(command_buffer, &this->dependency_info);
+
+	// Start Command Binding from Config
 	VkClearValue clear_color{};
 	clear_color.color = { config.clear_color };
 
@@ -110,7 +133,21 @@ void vrender::render::DynamicCommandRecorder::record(
 		);
 	}
 }
-void vrender::render::DynamicCommandRecorder::end(VkCommandBuffer command_buffer) const
+void vrender::render::DynamicCommandRecorder::end(VkCommandBuffer command_buffer)
 {
 	vkCmdEndRendering(command_buffer);
+
+	// Transition Swapchain Image Back to Present
+	this->barrier.srcStageMask = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+	this->barrier.srcAccessMask = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+	this->barrier.dstStageMask = VK_PIPELINE_STAGE_2_NONE;
+	this->barrier.dstAccessMask = 0;
+
+	this->barrier.oldLayout = VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+	this->barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+	this->dependency_info.imageMemoryBarrierCount = 1;
+	this->dependency_info.pImageMemoryBarriers = &barrier;
+
+	vkCmdPipelineBarrier2(command_buffer, &this->dependency_info);
 }

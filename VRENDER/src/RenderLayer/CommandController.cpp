@@ -5,7 +5,7 @@ vrender::render::CommandController::CommandController(
 	const vrender::render::LogicalDevice& logical_device,
 	const uint32_t queue_family_index,
 	const vrender::render::Swapchain& swapchain,
-	const vrender::render::ICommandRecorder* command_recorder,
+	vrender::render::ICommandRecorder* command_recorder,
 	const vrender::render::IDescriptorController* descriptor_controller,
 	const uint32_t max_frames_in_flight
 )
