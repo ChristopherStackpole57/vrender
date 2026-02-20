@@ -25,6 +25,7 @@
 
 #include <Core/DescriptorLayout.h>
 #include <Core/DescriptorPool.h>
+#include <Core/DescriptorSet.h>
 
 #include <RenderCycle/DynamicCommandRecorder.h>
 
@@ -103,7 +104,9 @@ namespace vrender::render
 
 		std::vector<vrender::render::DescriptorLayout> descriptor_layouts;
 		std::vector<VkPushConstantRange> push_constants = {};
+
 		vrender::render::DescriptorPool persistent_descriptor_pool;
+		vrender::render::DescriptorSet global_descriptor_set;
 		std::unique_ptr<vrender::render::IDescriptorController> descriptor_controller;
 
 		vrender::render::PipelineLayout pipeline_layout;

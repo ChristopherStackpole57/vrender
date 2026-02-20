@@ -57,6 +57,15 @@ vrender::render::LogicalDevice::LogicalDevice(
 	features13.synchronization2 = VK_TRUE;
 	device_features.pNext = &features13;
 
+	// Enable Descriptor Indexing
+	VkPhysicalDeviceDescriptorIndexingFeatures indexing{};
+	indexing.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+	indexing.runtimeDescriptorArray = VK_TRUE;
+	indexing.descriptorBindingPartiallyBound = VK_TRUE;
+	indexing.descriptorBindingVariableDescriptorCount = VK_TRUE;
+	indexing.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+	features13.pNext = &indexing;
+
 	VkDeviceCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	create_info.pNext = &device_features;

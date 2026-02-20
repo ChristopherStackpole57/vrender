@@ -16,6 +16,7 @@ add_library(vrender
 "src/RenderLayer/CommandController.cpp"
 "src/RenderLayer/DescriptorLayout.cpp"
 "src/RenderLayer/DescriptorPool.cpp"
+"src/RenderLayer/DescriptorSet.cpp"
 "src/RenderLayer/Fence.cpp"
 "src/RenderLayer/GeometryArena.cpp"
 "src/RenderLayer/Instance.cpp"
@@ -41,7 +42,7 @@ add_library(vrender
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
-)
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -130,6 +131,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/CommandController.cpp"
 "src/RenderLayer/DescriptorLayout.cpp"
 "src/RenderLayer/DescriptorPool.cpp"
+"src/RenderLayer/DescriptorSet.cpp"
 "src/RenderLayer/Fence.cpp"
 "src/RenderLayer/GeometryArena.cpp"
 "src/RenderLayer/Instance.cpp"
@@ -154,7 +156,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
-)
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

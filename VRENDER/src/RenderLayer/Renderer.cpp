@@ -116,10 +116,51 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 	std::vector<vrender::render::DescriptorLayout> layouts;
 
 	layouts.emplace_back(logical_device, std::vector<vrender::render::config::BindingConfiguration>{
-		
+		// Textures
+		// { 0 }
+		// Object Data
+		{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_VERTEX_BIT },
+		// Material Data
+		// { 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_FRAGMENT_BIT },
+		// Lights
+		// { 3 }
+		// Samplers
+		// { 4 }
 	});
 
 	return layouts;
+}
+static vrender::render::DescriptorPool build_descriptor_pool(
+	const vrender::render::LogicalDevice& logical_device,
+	const std::vector<vrender::render::DescriptorLayout>& layouts
+)
+{
+	std::unordered_map<VkDescriptorType, uint32_t> counts;
+
+	for (const vrender::render::DescriptorLayout& layout : layouts)
+	{
+		for (VkDescriptorSetLayoutBinding binding : layout.get_bindings())
+		{
+			counts[binding.descriptorType] += binding.descriptorCount;
+		}
+	}
+
+	std::vector<VkDescriptorPoolSize> pool_sizes;
+	pool_sizes.reserve(counts.size());
+
+	for (auto& [type, count] : counts)
+	{
+		pool_sizes.push_back(VkDescriptorPoolSize{
+			.type = type,
+			.descriptorCount = count
+		});
+	}
+
+	return vrender::render::DescriptorPool(
+		logical_device,
+		pool_sizes,
+		1
+	);
 }
 static vrender::render::CommandController frame_and_command_factory(
 	const vrender::render::LogicalDevice& logical_device,
@@ -196,11 +237,8 @@ vrender::render::Renderer::Renderer(
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
-	, persistent_descriptor_pool(
-		logical_device,
-		{},//descriptor_controller->get_pool_sizes().pool_sizes,
-		0//descriptor_controller->get_pool_sizes().max_sets
-	)
+	, persistent_descriptor_pool(build_descriptor_pool(logical_device, descriptor_layouts))
+	// build bindless registry
 
 	, pipeline_layout(
 		logical_device,

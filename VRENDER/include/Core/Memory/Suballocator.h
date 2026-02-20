@@ -15,14 +15,13 @@ namespace vrender::render::memory
 	{
 		BUMP,
 		FREE_LIST,
-
 	};
 
 	class Suballocator
 	{
 	public:
 		// Lifetime Control
-		Suballocator(SuballocatorStrategy strategy, vrender::render::memory::Buffer* target, uint32_t start, uint32_t size);
+		Suballocator(SuballocatorStrategy strategy, uint32_t start, uint32_t size);
 		~Suballocator();
 
 		Suballocator(const Suballocator&) = delete;
@@ -38,8 +37,6 @@ namespace vrender::render::memory
 	private:
 		// Utility
 		void defragment_blocks();
-
-		vrender::render::memory::Buffer* target;
 
 		// Core
 		SuballocatorStrategy strategy;

@@ -15,10 +15,27 @@ vrender::render::DescriptorLayout::DescriptorLayout(
 	}
 	this->bindings = descriptor_bindings;
 
+	// Bindless Flags
+	std::vector<VkDescriptorBindingFlags> binding_flags;
+	binding_flags.resize(bindings.size());
+	for (int i = 0; i < bindings.size(); i++)
+	{
+		binding_flags[i] =
+			VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
+			VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT |
+			VK_DESCRIPTOR_BINDING_UPDATE_UNUSED_WHILE_PENDING_BIT;
+	}
+
+	VkDescriptorSetLayoutBindingFlagsCreateInfo binding_flags_info{};
+	binding_flags_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+	binding_flags_info.pNext = nullptr;
+	binding_flags_info.bindingCount = static_cast<uint32_t>(binding_flags.size());
+	binding_flags_info.pBindingFlags = binding_flags.data();
+
 	VkDescriptorSetLayoutCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	create_info.pNext = nullptr;
-	create_info.flags = 0;
+	create_info.pNext = &binding_flags_info;
+	create_info.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 	create_info.bindingCount = descriptor_bindings.size();
 	create_info.pBindings = descriptor_bindings.data();
 

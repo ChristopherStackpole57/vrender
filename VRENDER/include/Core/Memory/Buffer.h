@@ -28,6 +28,7 @@ namespace vrender::render::memory
 		// API Accessibility
 		// TODO: Support debug names
 		VkBuffer get_buffer() const;
+		uint32_t get_size() const;
 
 		void write(
 			const void* data,
