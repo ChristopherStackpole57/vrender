@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 
 #include <Core/LogicalDevice.h>
-#include <LegacyRender/PipelineLayout.h>
+#include <Core/PipelineLayout.h>
 
 namespace vrender::render
 {
@@ -18,7 +18,8 @@ namespace vrender::render
 		DescriptorPool(
 			const vrender::render::LogicalDevice& logical_device,
 			const std::vector<VkDescriptorPoolSize> pool_sizes,
-			uint32_t max_sets
+			uint32_t max_sets,
+			VkDescriptorPoolCreateFlags flags = 0
 		);
 		~DescriptorPool();
 

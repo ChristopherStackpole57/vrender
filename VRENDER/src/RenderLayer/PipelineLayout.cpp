@@ -1,4 +1,4 @@
-#include <LegacyRender/PipelineLayout.h>
+#include <Core/PipelineLayout.h>
 
 // Lifetime Control
 vrender::render::PipelineLayout::PipelineLayout(
@@ -23,8 +23,8 @@ vrender::render::PipelineLayout::PipelineLayout(
 	create_info.flags = 0;
 	create_info.setLayoutCount = static_cast<uint32_t>(layouts.size());
 	create_info.pSetLayouts = layouts.data();
-	create_info.pushConstantRangeCount = 0;
-	create_info.pPushConstantRanges = nullptr;
+	create_info.pushConstantRangeCount = static_cast<uint32_t>(push_constants.size());
+	create_info.pPushConstantRanges = push_constants.data();
 
 	VkResult creation_result = vkCreatePipelineLayout(
 		logical_device.get_logical_device(),

@@ -99,20 +99,6 @@ static vrender::render::Semaphore build_semaphore(
 
 	std::cout << "[Render] VRENDER Built Semaphore" << std::endl;
 }
-static vrender::render::RenderPass build_render_pass(
-	const vrender::render::LogicalDevice& logical_device,
-	const vrender::render::Swapchain& swapchain
-)
-{
-	vrender::render::RenderPass render_pass(
-		logical_device,
-		vrender::render::misc::basic_render_pass_config(swapchain)
-	);
-
-	std::cout << "[Render] VRENDER Built RenderPass" << std::endl;
-
-	return render_pass;
-}
 static vrender::render::Shader build_shader(
 	const vrender::render::LogicalDevice& logical_device,
 	const std::string path
@@ -130,90 +116,61 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 	std::vector<vrender::render::DescriptorLayout> layouts;
 
 	layouts.emplace_back(logical_device, std::vector<vrender::render::config::BindingConfiguration>{
-		
+		// Textures
+		// { 0 }
+		// Object Data
+		{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT },
+		// Material Data
+		// { 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_FRAGMENT_BIT },
+		// Lights
+		// { 3 }
+		// Samplers
+		// { 4 }
 	});
 
 	return layouts;
 }
-static vrender::render::PipelineLayout build_pipeline_layout(
+static vrender::render::DescriptorPool build_descriptor_pool(
 	const vrender::render::LogicalDevice& logical_device,
-	const std::vector<vrender::render::DescriptorLayout>& descriptor_layouts,
-	const std::vector<VkPushConstantRange>& push_constants
+	const std::vector<vrender::render::DescriptorLayout>& layouts
 )
 {
-	return vrender::render::PipelineLayout(
-		logical_device,
-		descriptor_layouts,
-		push_constants
-	);
-}
-static vrender::render::Pipeline build_pipeline(
-	const vrender::render::LogicalDevice& logical_device,
-	const vrender::render::Swapchain& swapchain,
-	const vrender::render::RenderPass& render_pass,
-	const vrender::render::PipelineLayout& layout,
-	const vrender::render::Shader& vertex,
-	const vrender::render::Shader& fragment
-)
-{
-	return vrender::render::Pipeline(
-		logical_device,
-		vrender::render::config::PipelineConfiguration{
-			.bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS,
-			.extent = swapchain.get_extent(),
+	std::unordered_map<VkDescriptorType, uint32_t> counts;
 
-			.render_pass = render_pass,
-			.layout = layout,
-			.stages = {
-				vrender::render::config::ShaderPipelineConfiguration{ vertex, vrender::render::config::VERTEX_STAGE, "main" },
-				vrender::render::config::ShaderPipelineConfiguration{ fragment, vrender::render::config::FRAGMENT_STAGE, "main" }
-			}
+	for (const vrender::render::DescriptorLayout& layout : layouts)
+	{
+		for (VkDescriptorSetLayoutBinding binding : layout.get_bindings())
+		{
+			counts[binding.descriptorType] += binding.descriptorCount;
 		}
+	}
+
+	std::vector<VkDescriptorPoolSize> pool_sizes;
+	pool_sizes.reserve(counts.size());
+
+	for (auto& [type, count] : counts)
+	{
+		pool_sizes.push_back(VkDescriptorPoolSize{
+			.type = type,
+			.descriptorCount = count
+		});
+	}
+
+	return vrender::render::DescriptorPool(
+		logical_device,
+		pool_sizes,
+		1,
+		VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT
 	);
 }
 static vrender::render::CommandController frame_and_command_factory(
 	const vrender::render::LogicalDevice& logical_device,
 	const vrender::render::Swapchain& swapchain,
-	const vrender::render::RenderPass& render_pass,
-	std::vector<vrender::render::Framebuffer>& framebuffers,
-	std::vector<std::unique_ptr<vrender::render::IFrameTarget>>& frame_targets,
-	std::vector<const vrender::render::IFrameTarget*>& frame_targets_raw,
 	vrender::render::ICommandRecorder* command_recorder,
-	vrender::render::IDescriptorController* descriptor_controller
+	vrender::render::IDescriptorController* descriptor_controller,
+	const uint32_t max_frames_in_flight
 )
 {
-	// Create framebuffers from render pass and swapchain image views
-	const std::vector<VkImageView> image_views = swapchain.get_image_views();
-	framebuffers.reserve(image_views.size());
-	for (const VkImageView image_view : image_views)
-	{
-		framebuffers.emplace_back(
-			logical_device,
-			render_pass,
-			std::vector<VkImageView>{ image_view },
-			swapchain.get_extent()
-		);
-	}
-	std::cout << "[Render] VRENDER Built " << framebuffers.size() << " Framebuffers" << std::endl;
-
-	// Create frame targets from framebuffers
-	frame_targets.reserve(framebuffers.size());
-	frame_targets_raw.reserve(framebuffers.size());
-	for (const vrender::render::Framebuffer& framebuffer : framebuffers)
-	{
-		frame_targets.emplace_back(std::make_unique<
-			vrender::render::RenderPassFrameTarget
-		>(
-			framebuffer,
-			render_pass
-		));
-
-		frame_targets_raw.push_back(
-			frame_targets.back().get()
-		);
-	}
-	std::cout << "[Render] VRENDER Built " << frame_targets.size() << " Frame Targets" << std::endl;
-
 	// Create Command Controller
 	vrender::render::CommandController command_controller(
 		logical_device,
@@ -221,7 +178,7 @@ static vrender::render::CommandController frame_and_command_factory(
 		swapchain,
 		command_recorder,
 		descriptor_controller,
-		frame_targets_raw
+		max_frames_in_flight
 	);
 
 	return command_controller;
@@ -242,6 +199,10 @@ static std::vector<vrender::render::FrameContext> build_frame_contexts(
 	return frame_contexts;
 }
 
+
+
+
+
 // Lifetime Control
 vrender::render::Renderer::Renderer(
 	const vrender::platform::WindowProvider& window_provider,
@@ -252,6 +213,8 @@ vrender::render::Renderer::Renderer(
 // Basic
 	: window_provider(window_provider)
 	, window_surface_provider(window_surface_provider)
+	, MAX_FRAMES_IN_FLIGHT(max_frames)
+
 
 	// Core
 	, instance(build_instance_config(surface_provider, instance_config))
@@ -260,59 +223,107 @@ vrender::render::Renderer::Renderer(
 	, logical_device(build_logical_device(physical_device, surface, this->required_extensions))
 	, swapchain(build_swapchain(physical_device, logical_device, window_provider, surface))
 
+
+
 	// Memory
 	, allocator(instance, physical_device, logical_device)
+	, geometry_arena(allocator, MAX_FRAMES_IN_FLIGHT)
+
+
 
 	// Render Specific
-	, render_pass(build_render_pass(logical_device, swapchain))
+	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 
-	, vertex(build_shader(logical_device, "buffer_vert.spv"))
+	, vertex(build_shader(logical_device, "bindless_vert.spv"))
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
-	, descriptor_controller(std::make_unique<vrender::render::RenderPassDescriptorController>(
-		logical_device, 
+	, push_constants({
+		VkPushConstantRange{
+			.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+			.offset = 0,
+			.size = sizeof(uint32_t)
+		}
+	})
+	, persistent_descriptor_pool(build_descriptor_pool(logical_device, descriptor_layouts))
+	, bindless_registry(
+		logical_device,
+		persistent_descriptor_pool,
 		descriptor_layouts
-	))
-
-	, pipeline_layout(build_pipeline_layout(logical_device, this->descriptor_layouts, this->push_constants))
-	, pipeline(build_pipeline(logical_device, swapchain, render_pass, pipeline_layout, vertex, fragment))
-	, persistent_descriptor_pool(
-		logical_device,
-		descriptor_controller->get_pool_sizes().pool_sizes,
-		descriptor_controller->get_pool_sizes().max_sets
 	)
-	, command_recorder(std::make_unique<vrender::render::RenderPassCommandRecorder>(
+
+	, pipeline_layout(
 		logical_device,
-		physical_device,
+		descriptor_layouts,
+		push_constants
+	)
+	, pipeline(
+		logical_device,
+		vrender::render::config::PipelineConfiguration{
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipeline_layout,
+			vrender::render::config::AttachmentFormats{
+				.color_formats = {
+					swapchain.get_image_format()
+				},
+			},
+			std::vector<vrender::render::config::ShaderPipelineConfiguration>{
+				vrender::render::config::ShaderPipelineConfiguration{
+					vertex,
+					vrender::render::config::VERTEX_STAGE,
+					"main"
+				},
+				vrender::render::config::ShaderPipelineConfiguration{
+					fragment,
+					vrender::render::config::FRAGMENT_STAGE,
+					"main"
+				}
+			}
+		}
+	)
+
+	, command_recorder(std::make_unique<vrender::render::DynamicCommandRecorder>(
 		pipeline,
 		geometry_arena
 	))
 
-	// Generic Render
 	, command_controller(frame_and_command_factory(
 		logical_device,
 		swapchain,
-		render_pass,
-		framebuffers,
-		frame_targets,
-		frame_targets_raw,
 		command_recorder.get(),
-		descriptor_controller.get()
+		descriptor_controller.get(),
+		max_frames
 	))
-	, MAX_FRAMES_IN_FLIGHT(max_frames)
-	, frame_contexts(build_frame_contexts(logical_device, max_frames))
-	, geometry_arena(allocator, MAX_FRAMES_IN_FLIGHT)
+
+
+
+	// Testing
+	, test_transform_buffer(
+		allocator,
+		sizeof(float[2]),
+		vrender::render::memory::BufferUsageClass::STORAGE,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
 {
 	// TODO: Clearly document static build function
+	this->images_in_flight.resize(this->swapchain.get_images().size());
+
+	float data[2] = { 0.0f, 0.0f };
+	this->test_transform_buffer.write(
+		data,
+		sizeof(data),
+		0
+	);
+
+	this->transform_buffer_token = this->bindless_registry.register_storage_buffer(
+		this->test_transform_buffer,
+		1
+	);
 }
 vrender::render::Renderer::~Renderer()
 {
 	std::cout << "[Render] VRENDER Closing..." << std::endl;
-	this->framebuffers.clear();
-	this->frame_contexts.clear();
-	this->frame_targets.clear();
-
 	this->command_recorder.release();
 
 	this->command_controller.~CommandController();
@@ -320,7 +331,6 @@ vrender::render::Renderer::~Renderer()
 	this->fragment.~Shader();
 	this->pipeline_layout.~PipelineLayout();
 	this->pipeline.~Pipeline();
-	this->render_pass.~RenderPass();
 	this->swapchain.~Swapchain();
 	this->logical_device.~LogicalDevice();
 	this->physical_device.~PhysicalDevice();
@@ -331,6 +341,16 @@ vrender::render::Renderer::~Renderer()
 // Public API
 bool vrender::render::Renderer::step()
 {
+	// testing
+	float data[2] = { 0.5f * std::sin(this->time / 150.f), 0.5f * std::sin(this->time / 225.0f) };
+	this->test_transform_buffer.write(
+		data,
+		sizeof(data),
+		0
+	);
+	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
+	this->time++;
+
 	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
 	VkFence wait_fence = this->frame_contexts[this->current_frame].in_flight.get_fence();
 	vkWaitForFences(
@@ -339,11 +359,6 @@ bool vrender::render::Renderer::step()
 		&wait_fence,
 		VK_TRUE,
 		UINT64_MAX
-	);
-	vkResetFences(
-		this->logical_device.get_logical_device(),
-		1,
-		&wait_fence
 	);
 
 	this->geometry_arena.reset_dynamic(current_frame);
@@ -366,10 +381,7 @@ bool vrender::render::Renderer::step()
 			);
 		}
 
-		this->framebuffers.clear();
 		this->frame_contexts.clear();
-		this->frame_targets.clear();
-		this->frame_targets_raw.clear();
 
 		this->swapchain.~Swapchain();
 
@@ -385,16 +397,13 @@ bool vrender::render::Renderer::step()
 		this->command_controller = frame_and_command_factory(
 			this->logical_device,
 			this->swapchain,
-			this->render_pass,
-			this->framebuffers,
-			this->frame_targets,
-			this->frame_targets_raw,
 			this->command_recorder.get(),
-			this->descriptor_controller.get()
+			this->descriptor_controller.get(),
+			this->MAX_FRAMES_IN_FLIGHT
 		);
 
 		// Regenerate Frame Contexts
-		this->frame_contexts = build_frame_contexts(this->logical_device, this->framebuffers.size());
+		this->frame_contexts = build_frame_contexts(this->logical_device, this->MAX_FRAMES_IN_FLIGHT);
 
 		// TODO: rebuild descriptors
 
@@ -417,6 +426,25 @@ bool vrender::render::Renderer::step()
 		// Skip rendering this frame, next frame will tick swapchain recreation
 		return true;
 	}
+
+	// Wait for Image Fence to Complete
+	if (this->images_in_flight[image_result.image_index] != VK_NULL_HANDLE)
+	{
+		vkWaitForFences(
+			this->logical_device.get_logical_device(),
+			1,
+			&images_in_flight[image_result.image_index],
+			VK_TRUE,
+			UINT64_MAX
+		);
+	}
+	this->images_in_flight[image_result.image_index] = this->frame_contexts[this->current_frame].in_flight.get_fence();
+
+	vkResetFences(
+		this->logical_device.get_logical_device(),
+		1,
+		&wait_fence
+	);
 
 	// Write Pending Dynamic Frame Data
 	std::vector<vrender::render::Mesh> frame_meshes;
@@ -446,12 +474,20 @@ bool vrender::render::Renderer::step()
 
 	// Execute Frame
 	uint32_t image = image_result.image_index;
+	const VkImage swapchain_image = this->swapchain.get_image(image);
+	const VkImageView swapchain_image_view = this->swapchain.get_image_view(image);
+	const VkExtent2D extent = this->swapchain.get_extent();
+
+	std::vector<VkDescriptorSet> frame_descriptor_sets;
+	frame_descriptor_sets.emplace_back(this->bindless_registry.get_descriptor_set());
 	this->command_controller.record(
 		this->current_frame,
-		this->frame_contexts[this->current_frame],
-		vrender::render::FrameDescriptorInputs{
-			
+		vrender::render::config::FrameDescription{
+			.swapchain_image = swapchain_image,
+			.swapchain_image_view = swapchain_image_view,
+			.extent = extent
 		},
+		frame_descriptor_sets,
 		frame_meshes
 	);
 	this->command_controller.submit(

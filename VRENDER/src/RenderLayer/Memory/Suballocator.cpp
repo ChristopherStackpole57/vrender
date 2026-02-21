@@ -3,12 +3,10 @@
 // Lifetime Control
 vrender::render::memory::Suballocator::Suballocator(
 	vrender::render::memory::SuballocatorStrategy strategy,
-	vrender::render::memory::Buffer* target, 
 	uint32_t start, 
 	uint32_t size
 )
 	: strategy(strategy)
-	, target(target)
 	, region_start(start)
 	, region_size(size)
 	, free_blocks({{ 0, size }})

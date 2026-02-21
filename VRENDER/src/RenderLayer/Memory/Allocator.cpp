@@ -45,6 +45,9 @@ static VkBufferUsageFlags buffer_usage_flag_from_desc_enum(vrender::render::memo
 	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::TRANSFER))
 		flags |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
+	if (has_flag(usage_class, vrender::render::memory::BufferUsageClass::STORAGE))
+		flags |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+
 	assert(flags != 0 && "ERROR: BufferUsage must not be NONE");
 
 	return flags;
@@ -311,8 +314,7 @@ vrender::render::memory::AllocationSlot& vrender::render::memory::Allocator::slo
 bool vrender::render::memory::Allocator::token_is_valid(vrender::render::memory::AllocationToken token)
 {
 	vrender::render::memory::AllocationTokenComponents comps = this->decode_token(token);
-	return
-		comps.index < this->slots.size();
+	return comps.index < this->slots.size();
 }
 bool vrender::render::memory::Allocator::token_is_alive(vrender::render::memory::AllocationToken token)
 {

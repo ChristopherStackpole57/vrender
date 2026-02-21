@@ -1,17 +1,18 @@
-#include <LegacyRender/DescriptorPool.h>
+#include <Core/DescriptorPool.h>
 
 // Lifetime Control
 vrender::render::DescriptorPool::DescriptorPool(
 	const vrender::render::LogicalDevice& logical_device,
 	const std::vector<VkDescriptorPoolSize> pool_sizes,
-	uint32_t max_sets
+	uint32_t max_sets,
+	VkDescriptorPoolCreateFlags flags
 )
 	: logical_device_ptr(&logical_device)
 {
 	VkDescriptorPoolCreateInfo create_info{};
 	create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	create_info.pNext = nullptr;
-	create_info.flags = 0;
+	create_info.flags = flags;
 	create_info.maxSets = max_sets;
 	create_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
 	create_info.pPoolSizes = pool_sizes.data();

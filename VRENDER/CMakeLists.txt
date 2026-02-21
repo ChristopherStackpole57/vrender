@@ -14,36 +14,35 @@ add_library(vrender
 "src/PlatformLayer/WindowBackends/SFMLWindowBackend.cpp"
 
 "src/RenderLayer/CommandController.cpp"
+"src/RenderLayer/DescriptorLayout.cpp"
+"src/RenderLayer/DescriptorPool.cpp"
+"src/RenderLayer/DescriptorSet.cpp"
 "src/RenderLayer/Fence.cpp"
-"src/RenderLayer/Framebuffer.cpp"
+"src/RenderLayer/GeometryArena.cpp"
 "src/RenderLayer/Instance.cpp"
 "src/RenderLayer/LogicalDevice.cpp"
-
 "src/RenderLayer/PhysicalDevice.cpp"
+"src/RenderLayer/Pipeline.cpp"
+"src/RenderLayer/PipelineLayout.cpp"
 "src/RenderLayer/Renderer.cpp"
 "src/RenderLayer/Semaphore.cpp"
 "src/RenderLayer/Shader.cpp"
 "src/RenderLayer/Swapchain.cpp"  
 
-"src/RenderLayer/DescriptorLayout.cpp"   
-"src/RenderLayer/DescriptorPool.cpp"
-"src/RenderLayer/Pipeline.cpp"
-"src/RenderLayer/PipelineLayout.cpp"
-"src/RenderLayer/RenderPass.cpp"
-"src/RenderLayer/RenderPassCommandRecorder.cpp"
-"src/RenderLayer/RenderPassDescriptorController.cpp"
-"src/RenderLayer/RenderPassFrameTarget.cpp"
-
 "src/RenderLayer/Memory/Allocator.cpp" 
 "src/RenderLayer/Memory/Buffer.cpp" 
+"src/RenderLayer/Memory/Suballocator.cpp"
 "src/RenderLayer/Memory/VMAImplementation.cpp"
+
+"src/RenderLayer/RenderCycle/DynamicCommandRecorder.cpp"
 
 "src/RenderLayer/Utility/PhysicalDeviceEnumeration.cpp" 
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp"
 "src/RenderLayer/Utility/QueueHandle.h"
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp" "src/RenderLayer/GeometryArena.cpp" "src/RenderLayer/Memory/Suballocator.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -55,6 +54,7 @@ if (MSVC)
 		/wd5026
 		/wd5027
 
+		/diagnostics:caret
 		/permissive-
 		/Zc:__cplusplus
 		/Zc:preprocessor
@@ -130,35 +130,34 @@ target_include_directories(vrender PUBLIC
 
 add_executable(vrender_test main.cpp 
 "src/RenderLayer/CommandController.cpp"
+"src/RenderLayer/DescriptorLayout.cpp"
+"src/RenderLayer/DescriptorPool.cpp"
+"src/RenderLayer/DescriptorSet.cpp"
 "src/RenderLayer/Fence.cpp"
-"src/RenderLayer/Framebuffer.cpp"
+"src/RenderLayer/GeometryArena.cpp"
+"src/RenderLayer/Instance.cpp"
 "src/RenderLayer/LogicalDevice.cpp"
-
 "src/RenderLayer/PhysicalDevice.cpp"
+"src/RenderLayer/Pipeline.cpp"
+"src/RenderLayer/PipelineLayout.cpp"
 "src/RenderLayer/Renderer.cpp" 
 "src/RenderLayer/Semaphore.cpp"
 "src/RenderLayer/Shader.cpp" 
 "src/RenderLayer/Swapchain.cpp"
 
-"src/RenderLayer/DescriptorLayout.cpp"   
-"src/RenderLayer/DescriptorPool.cpp"
-"src/RenderLayer/Pipeline.cpp"
-"src/RenderLayer/PipelineLayout.cpp"
-"src/RenderLayer/RenderPass.cpp"  
-"src/RenderLayer/RenderPassCommandRecorder.cpp"
-"src/RenderLayer/RenderPassDescriptorController.cpp"
-"src/RenderLayer/RenderPassFrameTarget.cpp" 
-
 "src/RenderLayer/Memory/Allocator.cpp" 
-"src/RenderLayer/Memory/Buffer.cpp" 
+"src/RenderLayer/Memory/Buffer.cpp"
+"src/RenderLayer/Memory/Suballocator.cpp"
 "src/RenderLayer/Memory/VMAImplementation.cpp" 
+
+"src/RenderLayer/RenderCycle/DynamicCommandRecorder.cpp"
 
 "src/RenderLayer/Utility/PhysicalDeviceEnumeration.cpp" 
 "src/RenderLayer/Utility/SelectPhysicalDevice.cpp" 
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
-"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"  
- "src/RenderLayer/GeometryArena.cpp" "src/RenderLayer/Memory/Suballocator.cpp")
+"src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

@@ -66,6 +66,10 @@ VkBuffer vrender::render::memory::Buffer::get_buffer() const
 {
 	return this->buffer;
 }
+uint32_t vrender::render::memory::Buffer::get_size() const
+{
+	return this->desc.size;
+}
 
 void vrender::render::memory::Buffer::write(
 	void const* data,
