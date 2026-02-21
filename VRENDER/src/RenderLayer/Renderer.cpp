@@ -119,7 +119,7 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 		// Textures
 		// { 0 }
 		// Object Data
-		{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_VERTEX_BIT },
+		{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT },
 		// Material Data
 		// { 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_FRAGMENT_BIT },
 		// Lights
@@ -159,7 +159,8 @@ static vrender::render::DescriptorPool build_descriptor_pool(
 	return vrender::render::DescriptorPool(
 		logical_device,
 		pool_sizes,
-		1
+		1,
+		VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT
 	);
 }
 static vrender::render::CommandController frame_and_command_factory(
@@ -233,12 +234,23 @@ vrender::render::Renderer::Renderer(
 	// Render Specific
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 
-	, vertex(build_shader(logical_device, "buffer_vert.spv"))
+	, vertex(build_shader(logical_device, "bindless_vert.spv"))
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
+	, push_constants({
+		VkPushConstantRange{
+			.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+			.offset = 0,
+			.size = sizeof(uint32_t)
+		}
+	})
 	, persistent_descriptor_pool(build_descriptor_pool(logical_device, descriptor_layouts))
-	// build bindless registry
+	, bindless_registry(
+		logical_device,
+		persistent_descriptor_pool,
+		descriptor_layouts
+	)
 
 	, pipeline_layout(
 		logical_device,
@@ -269,7 +281,7 @@ vrender::render::Renderer::Renderer(
 			}
 		}
 	)
-	
+
 	, command_recorder(std::make_unique<vrender::render::DynamicCommandRecorder>(
 		pipeline,
 		geometry_arena
@@ -282,9 +294,32 @@ vrender::render::Renderer::Renderer(
 		descriptor_controller.get(),
 		max_frames
 	))
+
+
+
+	// Testing
+	, test_transform_buffer(
+		allocator,
+		sizeof(float[2]),
+		vrender::render::memory::BufferUsageClass::STORAGE,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
 {
 	// TODO: Clearly document static build function
 	this->images_in_flight.resize(this->swapchain.get_images().size());
+
+	float data[2] = { 0.0f, 0.0f };
+	this->test_transform_buffer.write(
+		data,
+		sizeof(data),
+		0
+	);
+
+	this->transform_buffer_token = this->bindless_registry.register_storage_buffer(
+		this->test_transform_buffer,
+		1
+	);
 }
 vrender::render::Renderer::~Renderer()
 {
@@ -306,6 +341,16 @@ vrender::render::Renderer::~Renderer()
 // Public API
 bool vrender::render::Renderer::step()
 {
+	// testing
+	float data[2] = { 0.5f * std::sin(this->time / 150.f), 0.5f * std::sin(this->time / 225.0f) };
+	this->test_transform_buffer.write(
+		data,
+		sizeof(data),
+		0
+	);
+	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
+	this->time++;
+
 	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
 	VkFence wait_fence = this->frame_contexts[this->current_frame].in_flight.get_fence();
 	vkWaitForFences(
@@ -382,6 +427,7 @@ bool vrender::render::Renderer::step()
 		return true;
 	}
 
+	// Wait for Image Fence to Complete
 	if (this->images_in_flight[image_result.image_index] != VK_NULL_HANDLE)
 	{
 		vkWaitForFences(
@@ -432,17 +478,16 @@ bool vrender::render::Renderer::step()
 	const VkImageView swapchain_image_view = this->swapchain.get_image_view(image);
 	const VkExtent2D extent = this->swapchain.get_extent();
 
+	std::vector<VkDescriptorSet> frame_descriptor_sets;
+	frame_descriptor_sets.emplace_back(this->bindless_registry.get_descriptor_set());
 	this->command_controller.record(
 		this->current_frame,
-		this->frame_contexts[this->current_frame],
-		vrender::render::FrameDescriptorInputs{
-			
-		},
 		vrender::render::config::FrameDescription{
 			.swapchain_image = swapchain_image,
 			.swapchain_image_view = swapchain_image_view,
 			.extent = extent
 		},
+		frame_descriptor_sets,
 		frame_meshes
 	);
 	this->command_controller.submit(

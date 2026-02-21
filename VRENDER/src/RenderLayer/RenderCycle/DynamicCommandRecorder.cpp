@@ -102,6 +102,7 @@ void vrender::render::DynamicCommandRecorder::record(
 		this->pipeline_ptr->get_pipeline()
 	);
 
+	// Bind Data Buffers
 	VkBuffer vertex_buffer = this->geometry_arena_ptr->get_vertex_buffer().get_buffer();
 	VkBuffer index_buffer = this->geometry_arena_ptr->get_index_buffer().get_buffer();
 	VkDeviceSize offset = 0;
@@ -120,6 +121,26 @@ void vrender::render::DynamicCommandRecorder::record(
 	);
 
 	// handle descriptor sets; currently bound, will eventually be bindless// bind descriptors
+	vkCmdBindDescriptorSets(
+		command_buffer,
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		this->pipeline_ptr->get_layout()->get_layout(),
+		0,
+		static_cast<uint32_t>(descriptor_sets.size()),
+		descriptor_sets.data(),
+		0,
+		nullptr
+	);
+
+	uint32_t obj_index = 0;
+	vkCmdPushConstants(
+		command_buffer,
+		this->pipeline_ptr->get_layout()->get_layout(),
+		VK_SHADER_STAGE_VERTEX_BIT,
+		0,
+		sizeof(uint32_t),
+		&obj_index
+	);
 
 	for (const vrender::render::Mesh& mesh : meshes)
 	{

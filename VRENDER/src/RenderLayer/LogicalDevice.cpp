@@ -63,6 +63,8 @@ vrender::render::LogicalDevice::LogicalDevice(
 	indexing.runtimeDescriptorArray = VK_TRUE;
 	indexing.descriptorBindingPartiallyBound = VK_TRUE;
 	indexing.descriptorBindingVariableDescriptorCount = VK_TRUE;
+	indexing.descriptorBindingUpdateUnusedWhilePending = VK_TRUE;
+	indexing.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
 	indexing.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 	features13.pNext = &indexing;
 

@@ -13,7 +13,8 @@ namespace vrender::render::memory
 		INDEX =		1 << 1,
 		UNIFORM =	1 << 2,
 		STAGING =	1 << 3,
-		TRANSFER =	1 << 4
+		TRANSFER =	1 << 4,
+		STORAGE =	1 << 5
 	};
 	enum class BufferCPUAccess
 	{

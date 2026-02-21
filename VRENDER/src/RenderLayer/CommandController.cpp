@@ -61,18 +61,6 @@ vrender::render::CommandController::CommandController(
 			throw std::runtime_error("ERROR: Vulkan Was Unable To Created Command Buffer");
 		}
 	}
-
-	// Create Descriptor Pools
-	/*vrender::render::DescriptorPoolRequirements pool_requirements = descriptor_controller->get_pool_sizes();
-	this->descriptor_pools.reserve(max_frames_in_flight);
-	for (uint32_t i = 0; i < max_frames_in_flight; i++)
-	{
-		this->descriptor_pools.emplace_back(
-			logical_device, 
-			pool_requirements.pool_sizes,
-			pool_requirements.max_sets
-		);
-	}*/
 }
 vrender::render::CommandController::~CommandController()
 {
@@ -135,9 +123,8 @@ vrender::render::CommandController& vrender::render::CommandController::operator
 // API Accessibility
 void vrender::render::CommandController::record(
 	uint32_t frame_index,
-	vrender::render::FrameContext& frame_context,
-	vrender::render::FrameDescriptorInputs inputs,
 	const vrender::render::config::FrameDescription& frame_description,
+	const std::vector<VkDescriptorSet>& descriptor_sets,
 	std::vector<vrender::render::Mesh>& meshes
 )
 {
@@ -148,7 +135,6 @@ void vrender::render::CommandController::record(
 
 	const VkCommandPool pool = this->command_pools[frame_index];
 	const VkCommandBuffer buffer = this->command_buffers[frame_index];
-	//const VkDescriptorPool descriptor_pool = this->descriptor_pools[frame_index].get_descriptor_pool();
 
 	// Reset Command Pool
 	vkResetCommandPool(
@@ -156,31 +142,6 @@ void vrender::render::CommandController::record(
 		pool,
 		0
 	);
-
-	// Reset Descriptor Pool
-	/*vkResetDescriptorPool(
-		this->logical_device_ptr->get_logical_device(),
-		descriptor_pool,
-		0
-	);*/
-
-	// Acquire Descriptor Sets
-	/*const vrender::render::FrameDescriptorSets frame_descriptor_sets = this->descriptor_controller->prepare_descriptors(
-		descriptor_pool,
-		inputs
-	);
-	std::vector<VkDescriptorSet> descriptor_sets;
-	descriptor_sets.reserve(frame_descriptor_sets.global_descriptors.size() + frame_descriptor_sets.frame_descriptors.size());
-	descriptor_sets.insert(
-		descriptor_sets.end(),
-		frame_descriptor_sets.global_descriptors.begin(),
-		frame_descriptor_sets.global_descriptors.end()
-	);
-	descriptor_sets.insert(
-		descriptor_sets.end(),
-		frame_descriptor_sets.frame_descriptors.begin(),
-		frame_descriptor_sets.frame_descriptors.end()
-	);*/
 
 	// Begin Command Buffer
 	VkCommandBufferBeginInfo begin_info{};
@@ -196,8 +157,7 @@ void vrender::render::CommandController::record(
 
 	// Run Commands
 	command_recorder->begin(buffer, frame_description);
-	//command_recorder->record(buffer, descriptor_sets, meshes);
-	command_recorder->record(buffer, {}, meshes);
+	command_recorder->record(buffer, descriptor_sets, meshes);
 	command_recorder->end(buffer);
 	
 	// End Command Buffer

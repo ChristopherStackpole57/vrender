@@ -54,6 +54,7 @@ if (MSVC)
 		/wd5026
 		/wd5027
 
+		/diagnostics:caret
 		/permissive-
 		/Zc:__cplusplus
 		/Zc:preprocessor

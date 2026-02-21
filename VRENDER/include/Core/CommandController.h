@@ -15,6 +15,7 @@
 
 #include <Core/DescriptorLayout.h>
 #include <Core/DescriptorPool.h>
+#include <Core/DescriptorSet.h>
 
 #include <Core/PipelineLayout.h>
 
@@ -45,9 +46,8 @@ namespace vrender::render
 		// API Accessibility
 		void record(
 			uint32_t frame_index,
-			vrender::render::FrameContext& frame_context,
-			vrender::render::FrameDescriptorInputs inputs,
 			const vrender::render::config::FrameDescription& frame_description,
+			const std::vector<VkDescriptorSet>& descriptor_sets,
 			std::vector<vrender::render::Mesh>& meshes
 		);
 		void submit(uint32_t frame_index, vrender::render::FrameContext& frame_context);
@@ -60,7 +60,6 @@ namespace vrender::render
 
 		std::vector<VkCommandPool> command_pools;
 		std::vector<VkCommandBuffer> command_buffers;
-		std::vector<vrender::render::DescriptorPool> descriptor_pools;
 	};
 }
 

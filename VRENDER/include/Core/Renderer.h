@@ -27,6 +27,7 @@
 #include <Core/DescriptorPool.h>
 #include <Core/DescriptorSet.h>
 
+#include <RenderCycle/BindlessRegistry.h>
 #include <RenderCycle/DynamicCommandRecorder.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
@@ -106,7 +107,8 @@ namespace vrender::render
 		std::vector<VkPushConstantRange> push_constants = {};
 
 		vrender::render::DescriptorPool persistent_descriptor_pool;
-		vrender::render::DescriptorSet global_descriptor_set;
+		vrender::render::BindlessRegistry bindless_registry;
+
 		std::unique_ptr<vrender::render::IDescriptorController> descriptor_controller;
 
 		vrender::render::PipelineLayout pipeline_layout;
@@ -115,6 +117,13 @@ namespace vrender::render
 		std::unique_ptr<vrender::render::ICommandRecorder> command_recorder;
 
 		vrender::render::CommandController command_controller;
+
+
+
+		// Testing
+		vrender::render::memory::Buffer test_transform_buffer;
+		vrender::render::BRToken transform_buffer_token;
+		uint32_t time = 0;
 	};
 }
 

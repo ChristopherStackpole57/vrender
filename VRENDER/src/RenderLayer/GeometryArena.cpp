@@ -27,13 +27,11 @@ vrender::render::GeometryArena::GeometryArena(
 	)
 	, static_vertex_suballocator(
 		vrender::render::memory::SuballocatorStrategy::FREE_LIST,
-		&this->vertex_buffer,
 		0,
 		this->static_arena_length * sizeof(vrender::render::Vertex)
 	)
 	, static_index_suballocator(
 		vrender::render::memory::SuballocatorStrategy::FREE_LIST,
-		&this->index_buffer,
 		0,
 		this->static_arena_length * sizeof(uint32_t)
 	)
@@ -43,11 +41,10 @@ vrender::render::GeometryArena::GeometryArena(
 
 	this->dynamic_vertex_suballocators.reserve(dynamic_divisions);
 	this->dynamic_index_suballocators.reserve(dynamic_divisions);
-	for (int i = 0; i < dynamic_divisions; i++)
+	for (uint16_t i = 0; i < dynamic_divisions; i++)
 	{
 		this->dynamic_vertex_suballocators.emplace_back(
 			vrender::render::memory::SuballocatorStrategy::BUMP,
-			&this->vertex_buffer,
 			sizeof(vrender::render::Vertex) * (
 				this->static_arena_length + (i * per_dynamic_allocation_size)
 			),
@@ -56,7 +53,6 @@ vrender::render::GeometryArena::GeometryArena(
 
 		this->dynamic_index_suballocators.emplace_back(
 			vrender::render::memory::SuballocatorStrategy::BUMP,
-			&this->index_buffer,
 			sizeof(uint32_t) * (
 				this->static_arena_length + (i * per_dynamic_allocation_size)
 			),
@@ -76,8 +72,8 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_static_mesh(
 )
 {
 	// Find Allocation Locations
-	uint32_t vertex_offset = this->static_vertex_suballocator.allocate(vertices.size() * sizeof(vrender::render::Vertex));
-	uint32_t index_offset = this->static_index_suballocator.allocate(indices.size() * sizeof(uint32_t));
+	uint32_t vertex_offset = this->static_vertex_suballocator.allocate(static_cast<uint32_t>(vertices.size() * sizeof(vrender::render::Vertex)));
+	uint32_t index_offset = this->static_index_suballocator.allocate(static_cast<uint32_t>(indices.size() * sizeof(uint32_t)));
 
 	// Validate Offsets
 	if (vertex_offset == UINT32_MAX || index_offset == UINT32_MAX)
