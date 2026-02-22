@@ -15,7 +15,6 @@ vrender::render::CommandController::CommandController(
 	, descriptor_controller(descriptor_controller)
 {
 	// TODO: validate queue_family_index points to real family
-	// TOOD: add dependency to framebuffers to ensure frames are not in flight
 
 	// Create Command Pools
 	this->command_pools.resize(max_frames_in_flight);
@@ -24,7 +23,6 @@ vrender::render::CommandController::CommandController(
 		VkCommandPoolCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		create_info.pNext = nullptr;
-		// TODO: FIX THESE FLAGS
 		create_info.flags = 0;
 		create_info.queueFamilyIndex = queue_family_index;
 	
@@ -69,7 +67,6 @@ vrender::render::CommandController::~CommandController()
 		return;
 	}
 
-	// TODO: correct clearing
 	for (int i = 0; i < this->command_buffers.size(); i++)
 	{
 		vkFreeCommandBuffers(

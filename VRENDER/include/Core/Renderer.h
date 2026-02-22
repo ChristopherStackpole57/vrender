@@ -62,6 +62,9 @@ namespace vrender::render
 		void add_mesh(vrender::render::Mesh mesh);
 		void render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices);
 	private:
+		// Utility
+		void regenerate_swapchain();
+
 		// Basic
 		const vrender::platform::WindowProvider& window_provider;
 		const vrender::platform::WindowSurfaceProvider& window_surface_provider;

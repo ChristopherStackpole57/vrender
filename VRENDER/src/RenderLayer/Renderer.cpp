@@ -160,7 +160,7 @@ static vrender::render::DescriptorPool build_descriptor_pool(
 		logical_device,
 		pool_sizes,
 		1,
-		VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT
+		VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT | VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT
 	);
 }
 static vrender::render::CommandController frame_and_command_factory(
@@ -324,17 +324,17 @@ vrender::render::Renderer::Renderer(
 vrender::render::Renderer::~Renderer()
 {
 	std::cout << "[Render] VRENDER Closing..." << std::endl;
-	this->command_recorder.release();
+	
+	// Wait for Device Idle
+	vkDeviceWaitIdle(this->logical_device.get_logical_device());
+	
+	// Destroy Objects
+	vkDestroySurfaceKHR(
+		this->instance.get_instance(),
+		this->surface,
+		nullptr
+	);
 
-	this->command_controller.~CommandController();
-	this->vertex.~Shader();
-	this->fragment.~Shader();
-	this->pipeline_layout.~PipelineLayout();
-	this->pipeline.~Pipeline();
-	this->swapchain.~Swapchain();
-	this->logical_device.~LogicalDevice();
-	this->physical_device.~PhysicalDevice();
-	this->instance.~Instance();
 	std::cout << "[Render] VRENDER Finished Closing" << std::endl;
 }
 
@@ -366,48 +366,7 @@ bool vrender::render::Renderer::step()
 	// Handle Window Resize
 	if (this->window_provider.was_resized())
 	{
-		std::cout << "[Render] VRENDER Regenerating Swapchain..." << std::endl;
-
-		// Wait for Fences to Complete
-		for (const vrender::render::FrameContext& frame_context: this->frame_contexts)
-		{
-			const VkFence& fence_ptr = frame_context.in_flight.get_fence();
-			vkWaitForFences(
-				this->logical_device.get_logical_device(),
-				1,
-				&fence_ptr,
-				VK_TRUE,
-				UINT64_MAX
-			);
-		}
-
-		this->frame_contexts.clear();
-
-		this->swapchain.~Swapchain();
-
-		// Regenerate Swapchain
-		this->swapchain = build_swapchain(
-			this->physical_device,
-			this->logical_device,
-			this->window_provider,
-			this->surface
-		);
-
-		// Use Factory to Rebuild Render Chain
-		this->command_controller = frame_and_command_factory(
-			this->logical_device,
-			this->swapchain,
-			this->command_recorder.get(),
-			this->descriptor_controller.get(),
-			this->MAX_FRAMES_IN_FLIGHT
-		);
-
-		// Regenerate Frame Contexts
-		this->frame_contexts = build_frame_contexts(this->logical_device, this->MAX_FRAMES_IN_FLIGHT);
-
-		// TODO: rebuild descriptors
-
-		std::cout << "[Render] VRENDER Successfully Rebuilt Swapchain" << std::endl;
+		this->regenerate_swapchain();
 	}
 
 	// Acquire Swapchain Image and Validate
@@ -514,8 +473,41 @@ void vrender::render::Renderer::add_mesh(vrender::render::Mesh mesh)
 }
 void vrender::render::Renderer::render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices)
 {
-	// TODO: Validate
+	if (vertices.size() == 0 || indices.size() == 0)
+	{
+		return;
+	}
 
 	this->pending_dynamic_vertices.push_back(vertices);
 	this->pending_dynamic_indices.push_back(indices);
+}
+
+// Utility
+void vrender::render::Renderer::regenerate_swapchain()
+{
+	std::cout << "[Render] VRENDER Regenerating Swapchain..." << std::endl;
+
+	// Wait for Device to Idle
+	vkDeviceWaitIdle(this->logical_device.get_logical_device());
+
+	this->swapchain.~Swapchain();
+
+	// Regenerate Swapchain
+	this->swapchain = build_swapchain(
+		this->physical_device,
+		this->logical_device,
+		this->window_provider,
+		this->surface
+	);
+
+	// Use Factory to Rebuild Render Chain
+	this->command_controller = frame_and_command_factory(
+		this->logical_device,
+		this->swapchain,
+		this->command_recorder.get(),
+		this->descriptor_controller.get(),
+		this->MAX_FRAMES_IN_FLIGHT
+	);
+
+	std::cout << "[Render] VRENDER Successfully Rebuilt Swapchain" << std::endl;
 }

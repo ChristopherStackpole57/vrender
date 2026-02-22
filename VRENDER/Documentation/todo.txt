@@ -1,1 +1,7 @@
+- RAII abstration for VkSurfaceKHR
+
 - resource state tracking
+
+- 3d projection pipeline
+- scene management
+- 

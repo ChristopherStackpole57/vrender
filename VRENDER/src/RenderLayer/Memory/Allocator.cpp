@@ -102,7 +102,22 @@ vrender::render::memory::Allocator::Allocator(
 }
 vrender::render::memory::Allocator::~Allocator()
 {
+	for (const vrender::render::memory::AllocationSlot& slot : this->slots)
+	{
+		if (slot.alive)
+		{
+			vmaDestroyBuffer(
+				this->allocator,
+				slot.entry.buffer,
+				slot.entry.allocation
+			);
 
+			vmaFreeMemory(
+				this->allocator,
+				slot.entry.allocation
+			);
+		}
+	}
 }
 
 // API Accessibility

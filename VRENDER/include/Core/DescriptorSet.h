@@ -31,6 +31,9 @@ namespace vrender::render
 
 	private:
 		VkDescriptorSet descriptor_set;
+
+		const vrender::render::LogicalDevice* logical_device_ptr;
+		const vrender::render::DescriptorPool* descriptor_pool_ptr;
 	};
 }
 

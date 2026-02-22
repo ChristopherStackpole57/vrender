@@ -31,6 +31,7 @@ vrender::render::memory::Buffer::~Buffer()
 	}
 
 	this->allocator_ptr->free_buffer(this->token);
+	this->token = UINT64_MAX;
 }
 
 // NOTE: Buffers do NOT own their VkBuffer, so they MUST NOT destroy it

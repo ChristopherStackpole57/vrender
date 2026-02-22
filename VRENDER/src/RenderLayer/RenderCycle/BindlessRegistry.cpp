@@ -92,7 +92,6 @@ vrender::render::BRToken vrender::render::BindlessRegistry::register_storage_buf
 		nullptr
 	);
 
-	// TODO: Associate descriptor with registry
 	return this->acquire_slot_token(vrender::render::BREntry{
 		.buffer = &buffer,
 		.offset = 0,

@@ -62,7 +62,14 @@ vrender::render::GeometryArena::GeometryArena(
 }
 vrender::render::GeometryArena::~GeometryArena()
 {
+	this->vertex_buffer.~Buffer();
+	this->index_buffer.~Buffer();
 
+	this->static_vertex_suballocator.~Suballocator();
+	this->static_index_suballocator.~Suballocator();
+
+	this->dynamic_vertex_suballocators.~vector();
+	this->dynamic_index_suballocators.~vector();
 }
 
 // API Accessibility
