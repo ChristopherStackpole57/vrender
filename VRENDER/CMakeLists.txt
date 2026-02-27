@@ -66,6 +66,10 @@ endif()
 find_package(Vulkan REQUIRED MODULE)
 target_link_libraries(vrender PUBLIC Vulkan::Vulkan)
 
+# Add Archimedes
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/ame)
+target_link_libraries(vrender PRIVATE ame)
+
 # Safely look for GLFW's existence
 set(GLFW_DIR ${CMAKE_SOURCE_DIR}/external/glfw-3.4)
 if (EXISTS ${GLFW_DIR}/CMakeLists.txt)

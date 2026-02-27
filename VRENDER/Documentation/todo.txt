@@ -1,4 +1,6 @@
 - RAII abstration for VkSurfaceKHR
+- finish window abstractions
+- file reader
 
 - resource state tracking
 

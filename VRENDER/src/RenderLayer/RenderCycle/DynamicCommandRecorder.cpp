@@ -132,18 +132,19 @@ void vrender::render::DynamicCommandRecorder::record(
 		nullptr
 	);
 
-	uint32_t obj_index = 0;
-	vkCmdPushConstants(
-		command_buffer,
-		this->pipeline_ptr->get_layout()->get_layout(),
-		VK_SHADER_STAGE_VERTEX_BIT,
-		0,
-		sizeof(uint32_t),
-		&obj_index
-	);
-
+	uint32_t index = 0;
 	for (const vrender::render::Mesh& mesh : meshes)
 	{
+		vkCmdPushConstants(
+			command_buffer,
+			this->pipeline_ptr->get_layout()->get_layout(),
+			VK_SHADER_STAGE_VERTEX_BIT,
+			0,
+			sizeof(index),
+			&index
+		);
+		index++;
+
 		vkCmdDrawIndexed(
 			command_buffer,
 			mesh.index_count,

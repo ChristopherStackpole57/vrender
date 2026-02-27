@@ -300,7 +300,7 @@ vrender::render::Renderer::Renderer(
 	// Testing
 	, test_transform_buffer(
 		allocator,
-		sizeof(float[2]),
+		sizeof(float[4]),
 		vrender::render::memory::BufferUsageClass::STORAGE,
 		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
 		vrender::render::memory::BufferLifetime::PERSISTENT
@@ -309,7 +309,7 @@ vrender::render::Renderer::Renderer(
 	// TODO: Clearly document static build function
 	this->images_in_flight.resize(this->swapchain.get_images().size());
 
-	float data[2] = { 0.0f, 0.0f };
+	float data[4] = { -0.5f, 0.5f, 0.0f, 0.0f };
 	this->test_transform_buffer.write(
 		data,
 		sizeof(data),
@@ -342,7 +342,7 @@ vrender::render::Renderer::~Renderer()
 bool vrender::render::Renderer::step()
 {
 	// testing
-	float data[2] = { 0.5f * std::sin(this->time / 150.f), 0.5f * std::sin(this->time / 225.0f) };
+	float data[4] = { -0.5f, 0.5f, 0.5f * std::sin(this->time / 150.f), 0.5f * std::sin(this->time / 225.0f) };
 	this->test_transform_buffer.write(
 		data,
 		sizeof(data),

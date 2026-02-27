@@ -48,6 +48,27 @@ int main()
 	window_provider_ptr->set_title("VRENDER Engine");
 	window_provider_ptr->set_resizable(true);
 
+	// Create Static Geometry
+	std::vector<vrender::render::Vertex> hexagon_vertices = {
+		{{  0.0f,  0.0f, 0.0f }, {1, 1, 1}},
+		{{ -0.2f,  0.0f, 0.0f }, {1, 0, 0}},
+		{{ -0.1f, -0.1f, 0.0f }, {1, 0, 0}},
+		{{  0.1f, -0.1f, 0.0f }, {0, 1, 0}},
+		{{  0.2f,  0.0f, 0.0f }, {0, 1, 0}},
+		{{  0.1f,  0.1f, 0.0f }, {0, 0, 1}},
+		{{ -0.1f,  0.1f, 0.0f }, {0, 0, 1}}
+	};
+	std::vector<uint32_t> hexagon_indices = {
+		0, 1, 2,
+		0, 2, 3,
+		0, 3, 4,
+		0, 4, 5,
+		0, 5, 6,
+		0, 6, 1
+	};
+	vrender::render::Mesh hexagon = renderer.get_geometry_arena().create_static_mesh(hexagon_vertices, hexagon_indices);
+	renderer.add_mesh(hexagon);
+
 	// Primary Exection Loop
 	bool run_loop = true;
 	float t = 0;
