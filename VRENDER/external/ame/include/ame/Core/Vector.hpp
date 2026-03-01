@@ -35,8 +35,7 @@ namespace ame
 
 		// Vector Operations
 		T Dot(const Vector<T, N>& target) const;
-		template <typename U = T>
-		std::enable_if_t<N == 3, Vector<T, 3>> Cross(const Vector<T, 3>& other) const;
+		Vector<T, N> Cross(const Vector<T, N>& other) const requires(N == 3);
 		T Magnitude() const;
 		Vector<T, N> Normalized() const;
 
@@ -193,9 +192,7 @@ namespace ame
 	}
 
 	template <typename T, std::size_t N>
-	template <typename U>
-	std::enable_if_t<N == 3, Vector<T, 3>>
-	Vector<T, N>::Cross(const Vector<T, 3>& other) const
+	Vector<T, N> Vector<T, N>::Cross(const Vector<T, N>& other) const requires(N == 3)
 	{
 		return Vector<T, 3>
 		{

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <initializer_list>
+#include <iostream>
 
 #include "Vector.hpp"
 
@@ -12,7 +13,7 @@ namespace ame
 {
 	// N x M where N is rows and M is columns
 	template <typename T, std::size_t N, std::size_t M>
-	class Matrix
+	class alignas(16) Matrix
 	{
 	public:
 		// Constructors
@@ -380,14 +381,14 @@ namespace ame
 template <typename T, std::size_t N, std::size_t M>
 std::ostream& operator<<(std::ostream& os, const ame::Matrix<T, N, M> mat)
 {
-	os << N << "x" << M << ":\n";
+	os << N << "x" << M << "\:" << std::endl;
 	for (std::size_t i = 0; i < N; i++)
 	{
 		for (std::size_t j = 0; j < M; j++)
 		{
 			os << mat(i, j) << " ";
 		}
-		os << "\n";
+		os << std::endl;
 	}
 
 	return os;

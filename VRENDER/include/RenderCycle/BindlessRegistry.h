@@ -54,7 +54,9 @@ namespace vrender::render
 		BindlessRegistry& operator=(BindlessRegistry&& other) noexcept;
 
 		// API Accessibility
+		BRToken register_uniform_buffer(const vrender::render::memory::Buffer& buffer, uint32_t binding);
 		BRToken register_storage_buffer(const vrender::render::memory::Buffer& buffer, uint32_t binding);
+		void update_uniform_buffer(vrender::render::BRToken token);
 		void update_storage_buffer(vrender::render::BRToken token);
 		// free
 
@@ -69,6 +71,7 @@ namespace vrender::render
 		bool token_alive(BRToken token);
 
 		vrender::render::DescriptorSet descriptor_set;
+		std::unordered_map<uint32_t, vrender::render::memory::Suballocator> uniform_buffer_suballocators;
 		std::unordered_map<uint32_t, vrender::render::memory::Suballocator> storage_buffer_suballocators;
 
 		const vrender::render::LogicalDevice* logical_device_ptr;

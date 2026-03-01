@@ -68,6 +68,7 @@ target_link_libraries(vrender PUBLIC Vulkan::Vulkan)
 
 # Add Archimedes
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/ame)
+target_include_directories(vrender PUBLIC ${CMAKE_SOURCE_DIR}/external/ame/include)
 target_link_libraries(vrender PRIVATE ame)
 
 # Safely look for GLFW's existence

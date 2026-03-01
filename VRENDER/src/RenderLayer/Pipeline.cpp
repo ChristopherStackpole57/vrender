@@ -87,8 +87,8 @@ vrender::render::Pipeline::Pipeline(
 	rasterizer_state.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer_state.polygonMode = VK_POLYGON_MODE_FILL;
 	rasterizer_state.lineWidth = 1.0f;
-	rasterizer_state.cullMode = VK_CULL_MODE_NONE;
-	rasterizer_state.frontFace = VK_FRONT_FACE_CLOCKWISE;
+	rasterizer_state.cullMode = VK_CULL_MODE_BACK_BIT;
+	rasterizer_state.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 	rasterizer_state.depthBiasEnable = VK_FALSE;
 
 	create_info.pRasterizationState = &rasterizer_state;
@@ -103,7 +103,6 @@ vrender::render::Pipeline::Pipeline(
 	VkPipelineDepthStencilStateCreateInfo depth_stencil{};
 	depth_stencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 	depth_stencil.pNext = nullptr;
-	
 
 	create_info.pDepthStencilState = &depth_stencil;
 	

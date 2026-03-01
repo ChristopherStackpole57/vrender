@@ -14,7 +14,17 @@ vrender::render::BindlessRegistry::BindlessRegistry(
 		const std::vector<VkDescriptorSetLayoutBinding> bindings = layout.get_bindings();
 		for (const VkDescriptorSetLayoutBinding& binding : bindings)
 		{
-			if (binding.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+			if (binding.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
+			{
+				this->uniform_buffer_suballocators.emplace(
+					binding.binding,
+					vrender::render::memory::Suballocator(
+						vrender::render::memory::SuballocatorStrategy::FREE_LIST,
+						0,
+						binding.descriptorCount
+					)
+				);
+			} else if (binding.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER)
 			{
 				this->storage_buffer_suballocators.emplace(
 					binding.binding,
@@ -59,6 +69,47 @@ vrender::render::BindlessRegistry& vrender::render::BindlessRegistry::operator=(
 }
 
 // API Accessibility
+vrender::render::BRToken vrender::render::BindlessRegistry::register_uniform_buffer(
+	const vrender::render::memory::Buffer& buffer,
+	uint32_t binding
+)
+{
+	uint32_t index = this->uniform_buffer_suballocators.at(binding).allocate(1);
+	if (index == UINT32_MAX)
+	{
+		throw std::runtime_error("ERROR: Bindless Buffer Capacity Exhausted");
+	}
+
+	VkDescriptorBufferInfo buffer_info{};
+	buffer_info.buffer = buffer.get_buffer();
+	buffer_info.offset = 0;
+	buffer_info.range = buffer.get_size();
+
+	VkWriteDescriptorSet write{};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.dstSet = this->descriptor_set.get_descriptor_set();
+	write.dstBinding = binding;
+	write.dstArrayElement = index;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.pBufferInfo = &buffer_info;
+
+	vkUpdateDescriptorSets(
+		this->logical_device_ptr->get_logical_device(),
+		1,
+		&write,
+		0,
+		nullptr
+	);
+
+	return this->acquire_slot_token(vrender::render::BREntry{
+		.buffer = &buffer,
+		.offset = 0,
+		.range = buffer.get_size(),
+		.binding = binding,
+		.descriptor_index = index
+	});
+}
 vrender::render::BRToken vrender::render::BindlessRegistry::register_storage_buffer(
 	const vrender::render::memory::Buffer& buffer,
 	uint32_t binding
@@ -99,6 +150,44 @@ vrender::render::BRToken vrender::render::BindlessRegistry::register_storage_buf
 		.binding = binding,
 		.descriptor_index = index
 	});
+}
+void vrender::render::BindlessRegistry::update_uniform_buffer(vrender::render::BRToken token)
+{
+	// Validate Token
+	if (
+		!(this->token_valid(token)) ||
+		!(this->token_alive(token))
+		)
+	{
+		std::cerr << "ERROR: Bindless Registry Requested to Write Out Of Generation Buffer" << std::endl;
+		return;
+	}
+
+	// Write Buffer
+	vrender::render::BREntry& entry = this->slot_from_token(token).entry;
+	const vrender::render::memory::Buffer& buffer = *entry.buffer;
+
+	VkDescriptorBufferInfo buffer_info{};
+	buffer_info.buffer = buffer.get_buffer();
+	buffer_info.offset = 0;
+	buffer_info.range = buffer.get_size();
+
+	VkWriteDescriptorSet write{};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.dstSet = this->descriptor_set.get_descriptor_set();
+	write.dstBinding = entry.binding;
+	write.dstArrayElement = entry.descriptor_index;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.pBufferInfo = &buffer_info;
+
+	vkUpdateDescriptorSets(
+		this->logical_device_ptr->get_logical_device(),
+		1,
+		&write,
+		0,
+		nullptr
+	);
 }
 void vrender::render::BindlessRegistry::update_storage_buffer(vrender::render::BRToken token)
 {

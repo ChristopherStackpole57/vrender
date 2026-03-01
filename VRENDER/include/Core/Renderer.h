@@ -5,6 +5,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <ame/AME.h>
+
 #include <PlatformLayer/WindowBackends/WindowProvider.h>
 #include <PlatformLayer/WindowBackends/WindowSurfaceProvider.h>
 
@@ -127,6 +129,9 @@ namespace vrender::render
 		vrender::render::memory::Buffer test_transform_buffer;
 		vrender::render::BRToken transform_buffer_token;
 		uint32_t time = 0;
+
+		vrender::render::memory::Buffer test_camera_buffer;
+		vrender::render::BRToken camera_buffer_token;
 	};
 }
 

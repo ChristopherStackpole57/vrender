@@ -153,6 +153,7 @@ void vrender::render::DynamicCommandRecorder::record(
 			mesh.vertex_offset_count,
 			0
 		);
+
 	}
 }
 void vrender::render::DynamicCommandRecorder::end(VkCommandBuffer command_buffer)

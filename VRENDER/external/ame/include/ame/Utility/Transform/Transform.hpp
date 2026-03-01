@@ -1,5 +1,7 @@
-#include <include/Core/Vector.hpp>
-#include <include/Core/Matrix.hpp>
+#include <cmath>
+
+#include <ame/Core/Vector.hpp>
+#include <ame/Core/Matrix.hpp>
 
 namespace ame
 {
@@ -8,10 +10,10 @@ namespace ame
 	ame::Matrix<T, 4, 4> Translation(const ame::Vector<T, 3>& translation)
 	{
 		return ame::Matrix<T, 4, 4>{
-			T{ 0 }, T{ 0 }, T{ 0 }, T{ translation[0] },
-			T{ 0 }, T{ 0 }, T{ 0 }, T{ translation[1] },
-			T{ 0 }, T{ 0 }, T{ 0 }, T{ translation[2] },
-			T{ 0 }, T{ 0 }, T{ 0 }, T{ 0 }
+			T{ 1 }, T{ 0 }, T{ 0 }, T{ translation[0] },
+			T{ 0 }, T{ 1 }, T{ 0 }, T{ translation[1] },
+			T{ 0 }, T{ 0 }, T{ 1 }, T{ translation[2] },
+			T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 }
 		};
 	};
 
@@ -22,12 +24,12 @@ namespace ame
 			T{ scale[0] }, T{ 0 }, T{ 0 }, T{ 0 },
 			T{ 0 }, T{ scale[1] }, T{ 0 }, T{ 0 },
 			T{ 0 }, T{ 0 }, T{ scale[2] }, T{ 0 },
-			T{ 0 }, T{ 0 }, T{ 0 }, T{ 0 }
+			T{ 0 }, T{ 0 }, T{ 0 }, T{ 1 }
 		};
 	};
 
 	template <typename T>
-	ame::Matrix<T, 4, 4> Rotation(T& phi, T& theta, T& psi)
+	ame::Matrix<T, 4, 4> Rotation(T phi, T theta, T psi)
 	{
 		T cph = std::cos(phi);
 		T cth = std::cos(theta);
@@ -67,13 +69,13 @@ namespace ame
 		return
 			ame::Scale(scale) *
 			ame::Rotation(rotation[0], rotation[1], rotation[2]) *
-			ame::Scale(scale);
+			ame::Translation(translation);
 	}
 
 	// Normal Matrix
 
 	// Misc. Transforms
-	template <typename T>
+	/*template <typename T>
 	ame::Matrix<T, 4, 4> LookAt(
 		const ame::Vector<T, 3>& eye,
 		const ame::Vector<T, 3>& target,
@@ -83,9 +85,29 @@ namespace ame
 		return Matrix<T, 4, 4>{
 			
 		};
-	}
+	}*/
 
 	// Perspective Projection
+	template <typename T>
+	ame::Matrix<T, 4, 4> Perspective(
+		const T n,
+		const T f,
+		const T aspect,
+		const T fov
+	)
+	{
+		// fov / 2 is assumed to be in degrees
+		T t = 1 / std::tan(
+			fov * T{ 3.141592 } / T{ 180 } / T{ 2 }
+		);
+
+		return ame::Matrix<T, 4, 4>{
+			t / aspect,		T{ 0 },		T{ 0 },				T{ 0 },
+			T{ 0 },			-t,			T{ 0 },				T{ 0 },
+			T{ 0 },			T{ 0 },		f / (n - f),		(f * n) / (n - f),
+			T{ 0 },			T{ 0 },		T{ -1 },			T{ 0 }
+		};
+	}
 	
 	// Orthographic Projection
 	

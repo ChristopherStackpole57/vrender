@@ -4,6 +4,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <ame/AME.h>
+
 #include <PlatformLayer/Utility/Event.h>
 #include <PlatformLayer/Utility/WindowMode.h>
 #include <PlatformLayer/WindowBackends/GLFWWindowBackend.h>
@@ -20,6 +22,8 @@ const bool ENABLE_VALIDATION_LAYERS = false;
 const bool ENABLE_VALIDATION_LAYERS = true;
 #endif
 
+static_assert(sizeof(ame::mat4f) == 64);
+static_assert(alignof(ame::mat4f) == 16);
 int main()
 {
 	/*
@@ -48,26 +52,48 @@ int main()
 	window_provider_ptr->set_title("VRENDER Engine");
 	window_provider_ptr->set_resizable(true);
 
-	// Create Static Geometry
-	std::vector<vrender::render::Vertex> hexagon_vertices = {
-		{{  0.0f,  0.0f, 0.0f }, {1, 1, 1}},
-		{{ -0.2f,  0.0f, 0.0f }, {1, 0, 0}},
-		{{ -0.1f, -0.1f, 0.0f }, {1, 0, 0}},
-		{{  0.1f, -0.1f, 0.0f }, {0, 1, 0}},
-		{{  0.2f,  0.0f, 0.0f }, {0, 1, 0}},
-		{{  0.1f,  0.1f, 0.0f }, {0, 0, 1}},
-		{{ -0.1f,  0.1f, 0.0f }, {0, 0, 1}}
+	// Bind Cube
+	std::vector<vrender::render::Vertex> cube_vertices = {
+		{{ -0.5f, -0.5f, -1.5f }, {0, 1, 0}},
+		{{  0.5f, -0.5f, -1.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f, -1.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f, -1.5f }, {1, 0, 0}},
+		{{  0.5f, -0.5f, -2.5f }, {1, 0, 0}},
+		{{ -0.5f, -0.5f, -2.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f, -2.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f, -2.5f }, {0, 1, 0}},
 	};
-	std::vector<uint32_t> hexagon_indices = {
+	std::vector<uint32_t> cube_indices = {
+		// Front Face
 		0, 1, 2,
-		0, 2, 3,
-		0, 3, 4,
-		0, 4, 5,
-		0, 5, 6,
-		0, 6, 1
+		2, 3, 0,
+
+		// Back Face
+		4, 5, 6,
+		6, 7, 4,
+
+		// Left Face
+		0, 3, 6,
+		6, 5, 0,
+
+		// Right Face
+		2, 1, 4,
+		4, 7, 2,
+
+		// Top Face
+		0, 5, 4,
+		4, 1, 0,
+
+		// Bottom Face
+		3, 2, 7,
+		7, 6, 3
 	};
-	vrender::render::Mesh hexagon = renderer.get_geometry_arena().create_static_mesh(hexagon_vertices, hexagon_indices);
-	renderer.add_mesh(hexagon);
+
+	const vrender::render::Mesh cube_mesh = renderer.get_geometry_arena().create_static_mesh(
+		cube_vertices,
+		cube_indices
+	);
+	renderer.add_mesh(cube_mesh);
 
 	// Primary Exection Loop
 	bool run_loop = true;
@@ -107,34 +133,6 @@ int main()
 
 			// Mutate Engine State
 		}
-
-		// Create Rotating Triangle
-		const float c = std::cos(t);
-		const float s = std::sin(t);
-		std::vector<vrender::render::Vertex> vertices = {
-			{{ -0.25f,  0.25f, 0.0f }, {1, 0, 0}},
-			{{ -0.25f, -0.25f, 0.0f }, {0, 1, 0}},
-			{{  0.25f,  0.25f, 0.0f }, {0, 1, 0}},
-			{{  0.25f, -0.25f, 0.0f }, {0, 0, 1}}
-		};
-		std::vector<uint32_t> indices{
-			0, 1, 2,
-			1, 3, 2
-		};
-		
-		for (vrender::render::Vertex& vertex : vertices)
-		{
-			float x = vertex.position[0];
-			float y = vertex.position[1];
-
-			vertex.position[0] = x * c - y * s;
-			vertex.position[1] = x * s + y * c;
-		}
-
-		renderer.render_dynamic_mesh(
-			vertices,
-			indices
-		);
 
 		// Render Step
 		if (!renderer.step()) return 0;

@@ -116,16 +116,18 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 	std::vector<vrender::render::DescriptorLayout> layouts;
 
 	layouts.emplace_back(logical_device, std::vector<vrender::render::config::BindingConfiguration>{
-		// Textures
-		// { 0 }
+		// Camera Data
+		{ 0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT },
 		// Object Data
 		{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT },
+		// Textures
+		// { 2}
 		// Material Data
-		// { 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_FRAGMENT_BIT },
+		// { 3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_FRAGMENT_BIT },
 		// Lights
-		// { 3 }
-		// Samplers
 		// { 4 }
+		// Samplers
+		// { 5 }
 	});
 
 	return layouts;
@@ -234,7 +236,7 @@ vrender::render::Renderer::Renderer(
 	// Render Specific
 	, frame_contexts(build_frame_contexts(logical_device, max_frames))
 
-	, vertex(build_shader(logical_device, "bindless_vert.spv"))
+	, vertex(build_shader(logical_device, "three_d.spv"))
 	, fragment(build_shader(logical_device, "geo_frag.spv"))
 
 	, descriptor_layouts(build_descriptor_layouts(logical_device))
@@ -300,8 +302,15 @@ vrender::render::Renderer::Renderer(
 	// Testing
 	, test_transform_buffer(
 		allocator,
-		sizeof(float[4]),
+		sizeof(ame::mat4f),
 		vrender::render::memory::BufferUsageClass::STORAGE,
+		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
+		vrender::render::memory::BufferLifetime::PERSISTENT
+	)
+	, test_camera_buffer(
+		allocator,
+		2* sizeof(ame::mat4f),
+		vrender::render::memory::BufferUsageClass::UNIFORM,
 		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
 		vrender::render::memory::BufferLifetime::PERSISTENT
 	)
@@ -309,16 +318,62 @@ vrender::render::Renderer::Renderer(
 	// TODO: Clearly document static build function
 	this->images_in_flight.resize(this->swapchain.get_images().size());
 
-	float data[4] = { -0.5f, 0.5f, 0.0f, 0.0f };
+	ame::mat4 transform = ame::TRS(
+		ame::vec3f{ 0.0f, -0.75f, 0.0f },
+		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 1.0f, 1.0f, 1.0f }
+	);
+	transform = transform.Transpose();
+	
+	std::cout << "transform:\n" << transform << std::endl;
+
 	this->test_transform_buffer.write(
-		data,
-		sizeof(data),
+		transform.data(),
+		sizeof(transform),
 		0
 	);
-
 	this->transform_buffer_token = this->bindless_registry.register_storage_buffer(
 		this->test_transform_buffer,
 		1
+	);
+
+	// Write Camera Data
+	ame::mat4f view = ame::mat4f{
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+	view = view.Transpose();
+
+	std::cout << "view:\n" << view << std::endl;
+
+	this->test_camera_buffer.write(
+		view.data(),
+		sizeof(view),
+		0
+	);
+
+	VkExtent2D extent = this->swapchain.get_extent();
+	ame::mat4f perspective = ame::Perspective(
+		0.1f,
+		100.f,
+		extent.width / (float)extent.height,
+		60.0f
+	);
+	perspective = perspective.Transpose();
+	
+	std::cout << "perspective:\n" << perspective << std::endl;
+
+	this->test_camera_buffer.write(
+		perspective.data(),
+		sizeof(perspective),
+		sizeof(view)
+	);
+
+	this->camera_buffer_token = this->bindless_registry.register_uniform_buffer(
+		this->test_camera_buffer,
+		0
 	);
 }
 vrender::render::Renderer::~Renderer()
@@ -341,15 +396,19 @@ vrender::render::Renderer::~Renderer()
 // Public API
 bool vrender::render::Renderer::step()
 {
-	// testing
-	float data[4] = { -0.5f, 0.5f, 0.5f * std::sin(this->time / 150.f), 0.5f * std::sin(this->time / 225.0f) };
+	ame::mat4 transform = ame::TRS(
+		ame::vec3f{ 0.75f * (float)std::sin(this->time / 750.f), -0.75f, 0.0f },
+		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 1.0f, 1.0f, 1.0f }
+	);
+	transform = transform.Transpose();
 	this->test_transform_buffer.write(
-		data,
-		sizeof(data),
+		transform.data(),
+		sizeof(transform),
 		0
 	);
 	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
-	this->time++;
+	time++;
 
 	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
 	VkFence wait_fence = this->frame_contexts[this->current_frame].in_flight.get_fence();
