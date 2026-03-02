@@ -16,6 +16,7 @@
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
 
+#include <EngineLayer/Core/RenderService.h>
 #include <EngineLayer/Core/RuntimeScheduler.h>
 #include <EngineLayer/Core/ServiceManager.h>
 
@@ -46,11 +47,6 @@ int main()
 		.enable_validation = ENABLE_VALIDATION_LAYERS,
 	};
 	//instance_config.extensions = std::vector<std::string>{};					// Not needed yet
-	vrender::render::Renderer renderer(
-		*window_provider_ptr,
-		*surface_provider_ptr, 
-		instance_config
-	);
 
 	// Configure Window
 	window_provider_ptr->set_title("VRENDER Engine");
@@ -60,7 +56,24 @@ int main()
 
 
 
-	// Render Setup
+	// Engine Setup
+	vrender::engine::RuntimeScheduler runtime_scheduler;
+
+	vrender::engine::Services().RegisterService<vrender::engine::RenderService>(
+		*window_provider_ptr,
+		*surface_provider_ptr,
+		instance_config
+	);
+	runtime_scheduler.SetServiceTickPriority(
+		vrender::engine::Services().Get<vrender::engine::RenderService>(),
+		vrender::engine::SCHEDULE_TICK_LEVEL_FRAMERENDER
+	);
+
+
+
+
+
+	// Asset Setup
 	// Bind Cube
 	std::vector<vrender::render::Vertex> cube_vertices = {
 		{{ -0.5f, -0.5f,  0.5f }, {0, 1, 0}},
@@ -97,23 +110,16 @@ int main()
 		3, 2, 7,
 		7, 6, 3
 	};
-
-	const vrender::render::Mesh cube_mesh = renderer.get_geometry_arena().create_static_mesh(
+	vrender::engine::Services().Get<vrender::engine::RenderService>()->CreateMesh(
 		cube_vertices,
 		cube_indices
 	);
-	renderer.add_mesh(cube_mesh);
 
 
 
 
-
-	// Engine Setup
-	vrender::engine::ServiceManager service_manager;
-	vrender::engine::RuntimeScheduler runtime_scheduler;
-
-
-
+	// Startup Engine Services
+	runtime_scheduler.Start();
 
 	// Primary Exection Loop
 	bool run_loop = true;
@@ -154,8 +160,8 @@ int main()
 			// Mutate Engine State
 		}
 
-		// Render Step
-		if (!renderer.step()) return 0;
+		// Engine Tick
+		runtime_scheduler.Tick(t);
 
 		// Clear Resized Flag
 		window_provider_ptr->clear_resize_flag();

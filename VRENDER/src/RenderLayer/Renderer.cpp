@@ -302,7 +302,7 @@ vrender::render::Renderer::Renderer(
 	// Testing
 	, test_transform_buffer(
 		allocator,
-		sizeof(ame::mat4f),
+		sizeof(ame::mat4f) * 20,
 		vrender::render::memory::BufferUsageClass::STORAGE,
 		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
 		vrender::render::memory::BufferLifetime::PERSISTENT
@@ -390,21 +390,35 @@ vrender::render::Renderer::~Renderer()
 }
 
 // Public API
-bool vrender::render::Renderer::step()
+bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_data)
 {
-	ame::mat4 transform = ame::TRS(
-		ame::vec3f{ 2.75f * (float)std::sin(this->time / 750.f), -0.75f, -5.0f },
-		ame::vec3f{ this->time / 250.0f, this->time / 500.0f, this->time / 1000.0f },
-		ame::vec3f{ 1.0f, 1.0f, 1.0f }
-	);
-	transform = transform.Transpose();
-	this->test_transform_buffer.write(
-		transform.data(),
-		sizeof(transform),
-		0
-	);
+	uint32_t offset = 0;
+	std::vector<vrender::render::Mesh> meshes;
+	meshes.reserve(frame_data.objects.size());
+	for (const vrender::render::RenderObject& object : frame_data.objects)
+	{
+		this->test_transform_buffer.write(
+			object.transform.Transpose().data(),
+			sizeof(object.transform),
+			offset
+		);
+
+		offset += sizeof(object.transform);
+		meshes.push_back(object.mesh);
+	}
+
 	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
 	time++;
+
+
+
+
+
+	//ame::mat4 transform = ame::TRS(
+		//ame::vec3f{ 2.75f * (float)std::sin(this->time / 750.f), -0.75f, -5.0f },
+		//ame::vec3f{ this->time / 250.0f, this->time / 500.0f, this->time / 1000.0f },
+		//ame::vec3f{ 1.0f, 1.0f, 1.0f }
+	//);
 
 	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
 	VkFence wait_fence = this->frame_contexts[this->current_frame].in_flight.get_fence();
@@ -466,8 +480,8 @@ bool vrender::render::Renderer::step()
 	{
 		frame_meshes.insert(
 			frame_meshes.end(),
-			this->meshes.begin(),
-			this->meshes.end()
+			meshes.begin(),
+			meshes.end()
 		);
 		for (size_t i = 0; i < this->pending_dynamic_vertices.size(); i++)
 		{
@@ -483,7 +497,7 @@ bool vrender::render::Renderer::step()
 	}
 	else
 	{
-		frame_meshes = this->meshes;
+		frame_meshes = meshes;
 	}
 
 	// Execute Frame
@@ -521,10 +535,6 @@ bool vrender::render::Renderer::step()
 vrender::render::GeometryArena& vrender::render::Renderer::get_geometry_arena()
 {
 	return this->geometry_arena;
-}
-void vrender::render::Renderer::add_mesh(vrender::render::Mesh mesh)
-{
-	this->meshes.push_back(mesh);
 }
 void vrender::render::Renderer::render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices)
 {

@@ -15,6 +15,7 @@
 #include <RenderLayer/Core/DescriptorPool.h>
 #include <RenderLayer/Core/DescriptorSet.h>
 #include <RenderLayer/Core/FrameContext.h>
+#include <RenderLayer/Core/FrameData.h>
 #include <RenderLayer/Core/GeometryArena.h>
 #include <RenderLayer/Core/ICommandRecorder.h>
 #include <RenderLayer/Core/IDescriptorController.h>
@@ -23,6 +24,7 @@
 #include <RenderLayer/Core/PhysicalDevice.h>
 #include <RenderLayer/Core/Pipeline.h>
 #include <RenderLayer/Core/PipelineLayout.h>
+#include <RenderLayer/Core/RenderObject.h>
 #include <RenderLayer/Core/Shader.h>
 #include <RenderLayer/Core/Swapchain.h>
 
@@ -57,10 +59,9 @@ namespace vrender::render
 		Renderer& operator=(const Renderer&) = delete;
 
 		// Public API
-		bool step();
+		bool step(const vrender::render::FrameData& frame_data);
 
 		vrender::render::GeometryArena& get_geometry_arena();
-		void add_mesh(vrender::render::Mesh mesh);
 		void render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices);
 	private:
 		// Utility
@@ -97,7 +98,6 @@ namespace vrender::render
 
 
 		// Render Cycle Specific
-		std::vector<vrender::render::Mesh> meshes;
 		std::vector<std::vector<vrender::render::Vertex>> pending_dynamic_vertices;
 		std::vector<std::vector<uint32_t>> pending_dynamic_indices;
 

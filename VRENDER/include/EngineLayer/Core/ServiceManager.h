@@ -14,12 +14,12 @@ namespace vrender::engine
 	class ServiceManager
 	{
 	public:
-		template<typename T>
-		T* RegisterService()
+		template <typename T, typename... Args>
+		T* RegisterService(Args&&... args)
 		{
 			static_assert(std::is_base_of<IService, T>::value, "ERROR: ServiceManager Attempted to Register Service That Does Not Derive From IService");
 
-			auto service = std::make_unique<T>();
+			auto service = std::make_unique<T>(std::forward<Args>(args)...);
 			T* service_pointer = service.get();
 
 			registered_services[typeid(T)] = std::move(service);
