@@ -1,4 +1,4 @@
-#include <Core/GeometryArena.h>
+#include <RenderLayer/Core/GeometryArena.h>
 
 // Lifetime Control
 vrender::render::GeometryArena::GeometryArena(

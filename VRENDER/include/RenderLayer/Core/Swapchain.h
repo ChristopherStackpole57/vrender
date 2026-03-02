@@ -6,8 +6,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/LogicalDevice.h>
-#include <Core/Semaphore.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/Semaphore.h>
 
 #include <RenderLayer/Utility/ConfigureSwapchainCreateInfo.h>
 #include <RenderLayer/Utility/QuerySwapchainSupport.h>

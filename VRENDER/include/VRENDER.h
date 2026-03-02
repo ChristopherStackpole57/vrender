@@ -3,8 +3,7 @@
 
 // Control These With Compiler Flags
 
-#include <Core.h>
-#include <LegacyRender.h>
+#include <RenderLayer/Core.h>
 
 using namespace vrender::render;
 

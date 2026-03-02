@@ -1,9 +1,9 @@
 #ifndef RENDER_FRAME_CONTEXT_H
 #define RENDER_FRAME_CONTEXT_H
 
-#include <Core/Fence.h>
-#include <Core/LogicalDevice.h>
-#include <Core/Semaphore.h>
+#include <RenderLayer/Core/Fence.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/Semaphore.h>
 
 namespace vrender::render
 {

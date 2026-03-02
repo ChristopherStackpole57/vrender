@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/Mesh.h>
+#include <RenderLayer/Core/Mesh.h>
 
 #include <RenderLayer/Configuration/FrameDescription.h>
 

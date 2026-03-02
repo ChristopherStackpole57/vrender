@@ -10,11 +10,14 @@
 #include <PlatformLayer/Utility/WindowMode.h>
 #include <PlatformLayer/WindowBackends/GLFWWindowBackend.h>
 
-#include <Core/Renderer.h>
-#include <Core/Mesh.h>
-#include <Core/GeometryArena.h>
+#include <RenderLayer/Core/Renderer.h>
+#include <RenderLayer/Core/Mesh.h>
+#include <RenderLayer/Core/GeometryArena.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
+
+#include <EngineLayer/Core/RuntimeScheduler.h>
+#include <EngineLayer/Core/ServiceManager.h>
 
 #ifdef NDEBUG
 const bool ENABLE_VALIDATION_LAYERS = false;
@@ -33,6 +36,7 @@ int main()
 	execution loop. The surface provider, on the other hand, is necessary for generating a VkSurfaceKHR in the Instance constructor.
 	*/
 
+	// Platform Setup
 	std::shared_ptr<vrender::platform::WindowProvider> window_provider_ptr = std::make_shared<vrender::platform::GLFWWindowBackend>();
 	std::shared_ptr<vrender::platform::WindowSurfaceProvider> surface_provider_ptr = std::dynamic_pointer_cast<
 		vrender::platform::WindowSurfaceProvider
@@ -52,16 +56,21 @@ int main()
 	window_provider_ptr->set_title("VRENDER Engine");
 	window_provider_ptr->set_resizable(true);
 
+
+
+
+
+	// Render Setup
 	// Bind Cube
 	std::vector<vrender::render::Vertex> cube_vertices = {
-		{{ -0.5f, -0.5f, -1.5f }, {0, 1, 0}},
-		{{  0.5f, -0.5f, -1.5f }, {0, 0, 1}},
-		{{  0.5f,  0.5f, -1.5f }, {0, 1, 0}},
-		{{ -0.5f,  0.5f, -1.5f }, {1, 0, 0}},
-		{{  0.5f, -0.5f, -2.5f }, {1, 0, 0}},
-		{{ -0.5f, -0.5f, -2.5f }, {0, 1, 0}},
-		{{ -0.5f,  0.5f, -2.5f }, {0, 0, 1}},
-		{{  0.5f,  0.5f, -2.5f }, {0, 1, 0}},
+		{{ -0.5f, -0.5f,  0.5f }, {0, 1, 0}},
+		{{  0.5f, -0.5f,  0.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f,  0.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f,  0.5f }, {1, 0, 0}},
+		{{  0.5f, -0.5f, -0.5f }, {1, 0, 0}},
+		{{ -0.5f, -0.5f, -0.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f, -0.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f, -0.5f }, {0, 1, 0}},
 	};
 	std::vector<uint32_t> cube_indices = {
 		// Front Face
@@ -94,6 +103,17 @@ int main()
 		cube_indices
 	);
 	renderer.add_mesh(cube_mesh);
+
+
+
+
+
+	// Engine Setup
+	vrender::engine::ServiceManager service_manager;
+	vrender::engine::RuntimeScheduler runtime_scheduler;
+
+
+
 
 	// Primary Exection Loop
 	bool run_loop = true;

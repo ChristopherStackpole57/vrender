@@ -8,7 +8,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/PhysicalDevice.h>
+#include <RenderLayer/Core/PhysicalDevice.h>
 
 #include <RenderLayer/Utility/QueueSelection.h>
 #include <RenderLayer/Utility/QueueHandle.h>

@@ -8,10 +8,10 @@
 #include <vulkan/vulkan.h>
 #include <vma/vk_mem_alloc.h>
 
-#include <Core/Instance.h>
-#include <Core/LogicalDevice.h>
-#include <Core/PhysicalDevice.h>
-#include <Core/Memory/BufferDesc.h>
+#include <RenderLayer/Core/Instance.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/PhysicalDevice.h>
+#include <RenderLayer/Core/Memory/BufferDesc.h>
 
 // Quick note to add to docs:
 /*

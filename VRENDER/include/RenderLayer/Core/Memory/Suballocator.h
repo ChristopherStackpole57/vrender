@@ -4,10 +4,10 @@
 #include <algorithm>
 #include <iostream>
 
-#include <Core/Mesh.h>
+#include <RenderLayer/Core/Mesh.h>
 
-#include <Core/Memory/Allocator.h>
-#include <Core/Memory/Buffer.h>
+#include <RenderLayer/Core/Memory/Allocator.h>
+#include <RenderLayer/Core/Memory/Buffer.h>
 
 namespace vrender::render::memory
 {

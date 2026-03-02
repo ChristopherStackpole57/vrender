@@ -6,18 +6,16 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/FrameContext.h>
-#include <Core/ICommandRecorder.h>
-#include <Core/IDescriptorController.h>
-#include <Core/LogicalDevice.h>
-#include <Core/Mesh.h>
-#include <Core/Swapchain.h>
-
-#include <Core/DescriptorLayout.h>
-#include <Core/DescriptorPool.h>
-#include <Core/DescriptorSet.h>
-
-#include <Core/PipelineLayout.h>
+#include <RenderLayer/Core/DescriptorLayout.h>
+#include <RenderLayer/Core/DescriptorPool.h>
+#include <RenderLayer/Core/DescriptorSet.h>
+#include <RenderLayer/Core/FrameContext.h>
+#include <RenderLayer/Core/ICommandRecorder.h>
+#include <RenderLayer/Core/IDescriptorController.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/Mesh.h>
+#include <RenderLayer/Core/PipelineLayout.h>
+#include <RenderLayer/Core/Swapchain.h>
 
 #include <RenderLayer/Configuration/FrameDescription.h>
 

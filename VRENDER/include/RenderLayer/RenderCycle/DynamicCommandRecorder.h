@@ -5,10 +5,10 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/GeometryArena.h>
-#include <Core/ICommandRecorder.h>
-#include <Core/Mesh.h>
-#include <Core/Pipeline.h>
+#include <RenderLayer/Core/GeometryArena.h>
+#include <RenderLayer/Core/ICommandRecorder.h>
+#include <RenderLayer/Core/Mesh.h>
+#include <RenderLayer/Core/Pipeline.h>
 
 #include <RenderLayer/Configuration/FrameDescription.h>
 

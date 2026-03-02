@@ -42,7 +42,7 @@ add_library(vrender
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
- "src/RenderLayer/RenderCycle/BindlessRegistry.cpp")
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp" "src/EngineLayer/Core/RuntimeScheduler.cpp"  "src/EngineLayer/Core/RenderService.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -162,7 +162,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
- "src/RenderLayer/RenderCycle/BindlessRegistry.cpp")
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp" "src/EngineLayer/Core/RuntimeScheduler.cpp"  "src/EngineLayer/Core/RenderService.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

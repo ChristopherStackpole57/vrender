@@ -6,8 +6,8 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/LogicalDevice.h>
-#include <Core/PipelineLayout.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/PipelineLayout.h>
 
 namespace vrender::render
 {

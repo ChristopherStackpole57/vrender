@@ -3,7 +3,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/PipelineLayout.h>
+#include <RenderLayer/Core/PipelineLayout.h>
 
 #include <RenderLayer/Configuration/AttachmentFormats.h>
 #include <RenderLayer/Configuration/ShaderPipelineConfiguration.h>

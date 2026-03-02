@@ -43,23 +43,11 @@ namespace ame
 		Matrix<T, N, M>& operator/=(T& divisor);
 
 		// Matrix Operations
-		static Matrix<T, N, N> Identity();
+		static Matrix<T, N, M> Identity() requires(N == M);
 
 		Matrix<T, M, N> Transpose() const;
-
-		/*
-		TODO: Fix SFINAE implementation. 
-		Also just because a matrix is square does not mean it is invertible.
-		You need to ensure the determinant of the matrix is non-zero in order for the inverse to be defined.
-		
-		template <typename U = T>
-		std::enable_if_t<N == M, Matrix<T, N, N>>
-			Inverse() const;
-
-		template <typename U = T>
-		std::enable_if_t<N == M, U>
-			Determinant() const;
-		*/
+		Matrix<T, N, M> Inverse() const requires(N == M);
+		T Determinant() const requires(N == M);
 
 		template <std::size_t P>
 		Matrix<T, N, M + P> Augment(const Matrix<T, N, P>& target) const;
@@ -257,8 +245,8 @@ namespace ame
 	}
 
 	// Matrix Operations
-	template <typename T, std::size_t N>
-	static Matrix<T, N, N> Identity()
+	template <typename T, std::size_t N, std::size_t M>
+	Matrix<T, N, M> Matrix<T, N, M>::Identity() requires(N == M)
 	{
 		Matrix<T, N, N> identity;
 		for (std::size_t i = 0; i < N; i++)
@@ -282,16 +270,15 @@ namespace ame
 		return transpose;
 	}
 
-	/*
 	template <typename T, std::size_t N, std::size_t M>
-	template <typename U>
-	std::enable_if_t<N == M, Matrix<T, N, N>>
-	Matrix<T, N, M>::Inverse() const
+	Matrix<T, N, M> Matrix<T, N, M>::Inverse() const requires(N == M)
 	{
+		//static_assert(this->Determinant() != 0);
+
 		// Implements Gauss - Jordan Elimination
 		Matrix<T, N, N> A = *this;							// Copy current matrix for easier manipulation
 		Matrix<T, N, N> I = Matrix<T, N, N>::Identity();	// Identity Matrix
-	
+
 		for (std::size_t col = 0; col < N; col++)
 		{
 			// Find Pivot Row
@@ -332,7 +319,7 @@ namespace ame
 			for (std::size_t row = 0; row < N; row++)
 			{
 				if (row == col) continue;
-				
+
 				T factor = A(row, col);
 				for (std::size_t j = 0; j < N; j++)
 				{
@@ -346,13 +333,10 @@ namespace ame
 	}
 
 	template <typename T, std::size_t N, std::size_t M>
-	template <typename U>
-	std::enable_if_t<N == M, U>
-	Matrix<T, N, M>::Determinant() const
+	T Matrix<T, N, M>::Determinant() const requires(N == M)
 	{
 
 	}
-	*/
 
 	template <typename T, std::size_t N, std::size_t M>
 	template <std::size_t P>

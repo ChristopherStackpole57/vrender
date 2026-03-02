@@ -1,4 +1,4 @@
-#include <Core/Renderer.h>
+#include <RenderLayer/Core/Renderer.h>
 
 // Utility Function
 static vrender::render::config::InstanceConfig build_instance_config(
@@ -319,13 +319,11 @@ vrender::render::Renderer::Renderer(
 	this->images_in_flight.resize(this->swapchain.get_images().size());
 
 	ame::mat4 transform = ame::TRS(
-		ame::vec3f{ 0.0f, -0.75f, 0.0f },
+		ame::vec3f{ 0.0f, -0.75f, -2.0f },
 		ame::vec3f{ 0.0f, 0.0f, 0.0f },
 		ame::vec3f{ 1.0f, 1.0f, 1.0f }
 	);
 	transform = transform.Transpose();
-	
-	std::cout << "transform:\n" << transform << std::endl;
 
 	this->test_transform_buffer.write(
 		transform.data(),
@@ -338,15 +336,13 @@ vrender::render::Renderer::Renderer(
 	);
 
 	// Write Camera Data
-	ame::mat4f view = ame::mat4f{
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	};
+	ame::mat4 view = ame::TRS(
+		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 1.0f, 1.0f, 1.0f }
+	);
+	view.Inverse();
 	view = view.Transpose();
-
-	std::cout << "view:\n" << view << std::endl;
 
 	this->test_camera_buffer.write(
 		view.data(),
@@ -397,8 +393,8 @@ vrender::render::Renderer::~Renderer()
 bool vrender::render::Renderer::step()
 {
 	ame::mat4 transform = ame::TRS(
-		ame::vec3f{ 0.75f * (float)std::sin(this->time / 750.f), -0.75f, 0.0f },
-		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 2.75f * (float)std::sin(this->time / 750.f), -0.75f, -5.0f },
+		ame::vec3f{ this->time / 250.0f, this->time / 500.0f, this->time / 1000.0f },
 		ame::vec3f{ 1.0f, 1.0f, 1.0f }
 	);
 	transform = transform.Transpose();

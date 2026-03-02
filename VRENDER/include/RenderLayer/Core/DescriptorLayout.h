@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/LogicalDevice.h>
+#include <RenderLayer/Core/LogicalDevice.h>
 
 #include <RenderLayer/Configuration/BindingConfiguration.h>
 

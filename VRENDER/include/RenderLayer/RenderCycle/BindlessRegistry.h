@@ -5,12 +5,12 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/DescriptorLayout.h>
-#include <Core/DescriptorPool.h>
-#include <Core/DescriptorSet.h>
+#include <RenderLayer/Core/DescriptorLayout.h>
+#include <RenderLayer/Core/DescriptorPool.h>
+#include <RenderLayer/Core/DescriptorSet.h>
 
-#include <Core/Memory/Buffer.h>
-#include <Core/Memory/Suballocator.h>
+#include <RenderLayer/Core/Memory/Buffer.h>
+#include <RenderLayer/Core/Memory/Suballocator.h>
 
 namespace vrender::render
 {

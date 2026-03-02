@@ -10,27 +10,26 @@
 #include <PlatformLayer/WindowBackends/WindowProvider.h>
 #include <PlatformLayer/WindowBackends/WindowSurfaceProvider.h>
 
-#include <Core/CommandController.h>
-#include <Core/FrameContext.h>
-#include <Core/GeometryArena.h>
-#include <Core/ICommandRecorder.h>
-#include <Core/IDescriptorController.h>
-#include <Core/Instance.h>
-#include <Core/LogicalDevice.h>
-#include <Core/PhysicalDevice.h>
-#include <Core/Pipeline.h>
-#include <Core/PipelineLayout.h>
-#include <Core/Shader.h>
-#include <Core/Swapchain.h>
+#include <RenderLayer/Core/CommandController.h>
+#include <RenderLayer/Core/DescriptorLayout.h>
+#include <RenderLayer/Core/DescriptorPool.h>
+#include <RenderLayer/Core/DescriptorSet.h>
+#include <RenderLayer/Core/FrameContext.h>
+#include <RenderLayer/Core/GeometryArena.h>
+#include <RenderLayer/Core/ICommandRecorder.h>
+#include <RenderLayer/Core/IDescriptorController.h>
+#include <RenderLayer/Core/Instance.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/PhysicalDevice.h>
+#include <RenderLayer/Core/Pipeline.h>
+#include <RenderLayer/Core/PipelineLayout.h>
+#include <RenderLayer/Core/Shader.h>
+#include <RenderLayer/Core/Swapchain.h>
 
-#include <Core/Memory/Allocator.h>
+#include <RenderLayer/Core/Memory/Allocator.h>
 
-#include <Core/DescriptorLayout.h>
-#include <Core/DescriptorPool.h>
-#include <Core/DescriptorSet.h>
-
-#include <RenderCycle/BindlessRegistry.h>
-#include <RenderCycle/DynamicCommandRecorder.h>
+#include <RenderLayer/RenderCycle/BindlessRegistry.h>
+#include <RenderLayer/RenderCycle/DynamicCommandRecorder.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
 #include <RenderLayer/Configuration/FrameDescription.h>

@@ -1,8 +1,8 @@
 #ifndef RENDER_BUFFER_H
 #define RENDER_BUFFER_H
 
-#include <Core/Memory/Allocator.h>
-#include <Core/Memory/BufferDesc.h>
+#include <RenderLayer/Core/Memory/Allocator.h>
+#include <RenderLayer/Core/Memory/BufferDesc.h>
 
 namespace vrender::render::memory
 {

@@ -3,11 +3,10 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Core/LogicalDevice.h>
-#include <Core/PipelineLayout.h>
-#include <Core/Vertex.h>
-
-#include <Core/DescriptorLayout.h>
+#include <RenderLayer/Core/DescriptorLayout.h>
+#include <RenderLayer/Core/LogicalDevice.h>
+#include <RenderLayer/Core/PipelineLayout.h>
+#include <RenderLayer/Core/Vertex.h>
 
 #include <RenderLayer/Configuration/PipelineConfiguration.h>
 
