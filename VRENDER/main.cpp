@@ -110,10 +110,11 @@ int main()
 		3, 2, 7,
 		7, 6, 3
 	};
-	vrender::engine::Services().Get<vrender::engine::RenderService>()->CreateMesh(
+	vrender::render::MeshToken token = vrender::engine::Services().Get<vrender::engine::RenderService>()->CreateMesh(
 		cube_vertices,
 		cube_indices
 	);
+
 
 
 
@@ -159,6 +160,18 @@ int main()
 
 			// Mutate Engine State
 		}
+
+		vrender::engine::Services().Get<vrender::engine::RenderService>()
+			->SubmitRenderObject(
+				vrender::render::RenderObject{
+					.mesh = token,
+					.transform = ame::TRS(
+						ame::vec3f{  1.0f, - 1.0f, - 4.0f },
+						ame::vec3f{ 40.0f,  25.0f,  15.0f },
+						ame::vec3f{  1.0f,   1.0f,   1.0f }
+					)
+				}
+		);
 
 		// Engine Tick
 		runtime_scheduler.Tick(t);

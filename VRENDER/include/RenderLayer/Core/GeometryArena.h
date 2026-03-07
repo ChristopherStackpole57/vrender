@@ -27,11 +27,11 @@ namespace vrender::render
 		GeometryArena& operator=(GeometryArena&& other) noexcept = default;
 
 		// API Accessibility
-		const vrender::render::Mesh create_static_mesh(
+		const vrender::render::MeshToken create_static_mesh(
 			std::vector<vrender::render::Vertex>& vertices,
 			std::vector<uint32_t>& indices	
 		);
-		const vrender::render::Mesh create_dynamic_mesh(
+		const vrender::render::MeshToken create_dynamic_mesh(
 			std::vector<vrender::render::Vertex>& vertices,
 			std::vector<uint32_t>& indices,
 			uint32_t index
@@ -41,7 +41,10 @@ namespace vrender::render
 
 		const vrender::render::memory::Buffer& get_vertex_buffer() const;
 		const vrender::render::memory::Buffer& get_index_buffer() const;
+
+		const vrender::render::Mesh get_mesh(vrender::render::MeshToken token) const;
 	private:
+		// Geometry Suballocation
 		uint32_t static_arena_length = 1024;
 		uint32_t dynamic_arena_total_length = 512;
 
@@ -52,6 +55,18 @@ namespace vrender::render
 		vrender::render::memory::Suballocator static_index_suballocator;
 		std::vector<vrender::render::memory::Suballocator> dynamic_vertex_suballocators;
 		std::vector<vrender::render::memory::Suballocator> dynamic_index_suballocators;
+
+		// Handle Management
+		vrender::render::MeshToken encode_token(uint64_t index, uint64_t generation) const;
+		vrender::render::MeshTokenComponents decode_token(vrender::render::MeshToken token) const;
+		vrender::render::MeshToken acquire_slot_token(vrender::render::MeshEntry entry);
+		vrender::render::MeshSlot& slot_from_token(vrender::render::MeshToken token);
+
+		bool token_valid(vrender::render::MeshToken token) const;
+		bool token_alive(vrender::render::MeshToken token) const;
+
+		std::vector<vrender::render::MeshSlot> slots;
+		std::vector<uint32_t> free_indices;
 	};
 }
 

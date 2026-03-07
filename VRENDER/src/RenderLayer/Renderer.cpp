@@ -404,7 +404,9 @@ bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_dat
 		);
 
 		offset += sizeof(object.transform);
-		meshes.push_back(object.mesh);
+		meshes.push_back(
+			this->geometry_arena.get_mesh(object.mesh)
+		);
 	}
 
 	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
@@ -485,11 +487,13 @@ bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_dat
 		);
 		for (size_t i = 0; i < this->pending_dynamic_vertices.size(); i++)
 		{
-			frame_meshes.push_back(this->geometry_arena.create_dynamic_mesh(
+			vrender::render::MeshToken token = this->geometry_arena.create_dynamic_mesh(
 				this->pending_dynamic_vertices[i],
 				this->pending_dynamic_indices[i],
 				this->current_frame
-			));
+			);
+
+			frame_meshes.emplace_back(this->geometry_arena.get_mesh(token));
 		}
 
 		this->pending_dynamic_vertices.clear();

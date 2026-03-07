@@ -4,6 +4,5 @@
 
 - resource state tracking
 
-- 3d projection pipeline
 - scene management
-- 
+- generic handle generator and usage

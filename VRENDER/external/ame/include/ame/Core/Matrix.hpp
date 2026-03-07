@@ -21,6 +21,9 @@ namespace ame
 		explicit Matrix(const T& value);
 		Matrix(std::initializer_list<T> values);
 
+		Matrix(const Matrix<T, N, M>& other);
+		Matrix<T, N, M>& operator=(const Matrix<T, N, M>& other);
+
 		// Component Access
 		T& operator()(std::size_t n, std::size_t m);
 		const T& operator()(std::size_t n, std::size_t m) const;
@@ -97,6 +100,42 @@ namespace ame
 			this->Data[i] = value;
 			i++;
 		}
+	}
+
+	template <typename T, std::size_t N, std::size_t M>
+	Matrix<T, N, M>::Matrix<T, N, M>(const Matrix<T, N, M>& other)
+	{
+		if (this == &other)
+		{
+			return;
+		}
+
+		for (std::size_t i = 0; i < N; i++)
+		{
+			for (std::size_t j = 0; j < M; j++)
+			{
+				this->Data[this->Index(i, j)] = other(i, j);
+			}
+		}
+	}
+
+	template <typename T, std::size_t N, std::size_t M>
+	Matrix<T, N, M>& Matrix<T, N, M>::operator=(const Matrix<T, N, M>& other)
+	{
+		if (this == &other)
+		{
+			return *this;
+		}
+
+		for (std::size_t i = 0; i < N; i++)
+		{
+			for (std::size_t j = 0; j < M; j++)
+			{
+				this->Data[this->Index(i, j)] = other(i, j);
+			}
+		}
+
+		return *this;
 	}
 
 	// Element Access Definitions

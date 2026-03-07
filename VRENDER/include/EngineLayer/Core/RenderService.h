@@ -26,14 +26,17 @@ namespace vrender::engine
 		void Shutdown() override;
 		void Tick(float dt) override;
 
-		void CreateMesh(
+		vrender::render::MeshToken CreateMesh(
 			std::vector<vrender::render::Vertex> vertices,
 			std::vector<uint32_t> indices
 		);
+
+		void SubmitRenderObject(vrender::render::RenderObject render_object);
+		void SubmitRenderObjects(std::vector<vrender::render::RenderObject>& render_objects);
 	private:
 		vrender::render::Renderer renderer;
 
-		std::vector<vrender::render::Mesh> meshes;
+		std::vector<vrender::render::RenderObject> render_objects;
 	};
 }
 

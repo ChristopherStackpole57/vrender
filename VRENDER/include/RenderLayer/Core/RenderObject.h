@@ -9,8 +9,8 @@ namespace vrender::render
 {
 	struct RenderObject
 	{
-		const vrender::render::Mesh& mesh;
-		const ame::mat4f transform;
+		vrender::render::MeshToken mesh;
+		ame::mat4f transform;
 	};
 }
 
