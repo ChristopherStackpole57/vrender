@@ -12,6 +12,8 @@
 #include <RenderLayer/Core/Memory/Buffer.h>
 #include <RenderLayer/Core/Memory/Suballocator.h>
 
+#include <Utility/Generator.h>
+
 namespace vrender::render
 {
 	struct BREntry
@@ -23,18 +25,7 @@ namespace vrender::render
 		uint32_t binding;
 		uint32_t descriptor_index;
 	};
-	struct BRSlot
-	{
-		BREntry entry;
-		uint32_t generation;
-		bool alive;
-	};
-	typedef uint64_t BRToken;
-	struct BRTokenComponents
-	{
-		uint32_t generation;
-		uint32_t index;
-	};
+	typedef vrender::utility::Handle BRHandle;
 
 	class BindlessRegistry
 	{
@@ -54,30 +45,21 @@ namespace vrender::render
 		BindlessRegistry& operator=(BindlessRegistry&& other) noexcept;
 
 		// API Accessibility
-		BRToken register_uniform_buffer(const vrender::render::memory::Buffer& buffer, uint32_t binding);
-		BRToken register_storage_buffer(const vrender::render::memory::Buffer& buffer, uint32_t binding);
-		void update_uniform_buffer(vrender::render::BRToken token);
-		void update_storage_buffer(vrender::render::BRToken token);
+		BRHandle register_uniform_buffer(const vrender::render::memory::Buffer& buffer, uint32_t binding);
+		BRHandle register_storage_buffer(const vrender::render::memory::Buffer& buffer, uint32_t binding);
+		void update_uniform_buffer(vrender::render::BRHandle handle);
+		void update_storage_buffer(vrender::render::BRHandle handle);
 		// free
 
 		VkDescriptorSet get_descriptor_set() const;
 	private:
-		BRToken encode_token(uint64_t index, uint64_t generation);
-		BRTokenComponents decode_token(BRToken token);
-		BRToken acquire_slot_token(BREntry entry);
-		BRSlot& slot_from_token(BRToken token);
-
-		bool token_valid(BRToken token);
-		bool token_alive(BRToken token);
-
 		vrender::render::DescriptorSet descriptor_set;
 		std::unordered_map<uint32_t, vrender::render::memory::Suballocator> uniform_buffer_suballocators;
 		std::unordered_map<uint32_t, vrender::render::memory::Suballocator> storage_buffer_suballocators;
 
 		const vrender::render::LogicalDevice* logical_device_ptr;
 
-		std::vector<BRSlot> slots;
-		std::vector<uint32_t> free_indices;
+		vrender::utility::Generator<BREntry> generator;
 	};
 }
 

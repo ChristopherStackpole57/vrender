@@ -33,12 +33,12 @@ void vrender::engine::RenderService::Tick(float dt)
 	this->render_objects.clear();
 }
 
-vrender::render::MeshToken vrender::engine::RenderService::CreateMesh(
+vrender::render::MeshHandle vrender::engine::RenderService::CreateMesh(
 	std::vector<vrender::render::Vertex> vertices,
 	std::vector<uint32_t> indices
 )
 {
-	vrender::render::MeshToken mesh = this->renderer.get_geometry_arena().create_static_mesh(
+	vrender::render::MeshHandle mesh = this->renderer.get_geometry_arena().create_static_mesh(
 		vertices,
 		indices
 	);

@@ -9,7 +9,7 @@ namespace vrender::render
 {
 	struct RenderObject
 	{
-		vrender::render::MeshToken mesh;
+		vrender::render::MeshHandle mesh;
 		ame::mat4f transform;
 	};
 }

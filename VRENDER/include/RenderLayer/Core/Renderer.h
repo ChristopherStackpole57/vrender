@@ -126,11 +126,11 @@ namespace vrender::render
 
 		// Testing
 		vrender::render::memory::Buffer test_transform_buffer;
-		vrender::render::BRToken transform_buffer_token;
+		vrender::render::BRHandle transform_buffer_handle;
 		uint32_t time = 0;
 
 		vrender::render::memory::Buffer test_camera_buffer;
-		vrender::render::BRToken camera_buffer_token;
+		vrender::render::BRHandle camera_buffer_handle;
 	};
 }
 

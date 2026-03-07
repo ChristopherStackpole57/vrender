@@ -18,6 +18,7 @@
 
 #include <EngineLayer/Core/RenderService.h>
 #include <EngineLayer/Core/RuntimeScheduler.h>
+#include <EngineLayer/Core/SceneService.h>
 #include <EngineLayer/Core/ServiceManager.h>
 
 #ifdef NDEBUG
@@ -25,6 +26,29 @@ const bool ENABLE_VALIDATION_LAYERS = false;
 #else
 const bool ENABLE_VALIDATION_LAYERS = true;
 #endif
+
+void create_game_scene1()
+{
+	vrender::engine::SceneService* scene_service = vrender::engine::Services().Get<vrender::engine::SceneService>();
+
+	// Floor
+	using namespace vrender::engine;
+
+	InstanceHandle floor = scene_service->CreateInstanceOfMesh("cube");
+	Transform& floor_transform = scene_service->GetInstanceTransform(floor);
+	floor_transform.position = ame::vec3f{ 0.0f, -1.5f, -5.0f };
+	floor_transform.scale = ame::vec3f{ 3.0f, 1.0f, 5.0f };
+
+	InstanceHandle left_wall = scene_service->CreateInstanceOfMesh("cube");
+	Transform& left_wall_transform = scene_service->GetInstanceTransform(left_wall);
+	left_wall_transform.position = ame::vec3f{ -2.0f, 1.0f, -5.0f };
+	left_wall_transform.scale = ame::vec3f{ 1.0f, 4.0f, 5.0f };
+
+	InstanceHandle right_wall = scene_service->CreateInstanceOfMesh("cube");
+	Transform& right_wall_transform = scene_service->GetInstanceTransform(right_wall);
+	right_wall_transform.position = ame::vec3f{ 2.0f, 1.0f, -5.0f };
+	right_wall_transform.scale = ame::vec3f{ 1.0f, 4.0f, 5.0f };
+}
 
 static_assert(sizeof(ame::mat4f) == 64);
 static_assert(alignof(ame::mat4f) == 16);
@@ -64,9 +88,19 @@ int main()
 		*surface_provider_ptr,
 		instance_config
 	);
+	vrender::engine::RenderService* render_service = vrender::engine::Services().Get<vrender::engine::RenderService>();
+	vrender::engine::Services().RegisterService<vrender::engine::SceneService>(
+		render_service
+	);
+	vrender::engine::SceneService* scene_service = vrender::engine::Services().Get<vrender::engine::SceneService>();
+
 	runtime_scheduler.SetServiceTickPriority(
-		vrender::engine::Services().Get<vrender::engine::RenderService>(),
+		render_service,
 		vrender::engine::SCHEDULE_TICK_LEVEL_FRAMERENDER
+	);
+	runtime_scheduler.SetServiceTickPriority(
+		scene_service,
+		vrender::engine::SCHEDULE_TICK_LEVEL_FRAMEPREP
 	);
 
 
@@ -110,10 +144,8 @@ int main()
 		3, 2, 7,
 		7, 6, 3
 	};
-	vrender::render::MeshToken token = vrender::engine::Services().Get<vrender::engine::RenderService>()->CreateMesh(
-		cube_vertices,
-		cube_indices
-	);
+	scene_service->RegisterStaticMesh("cube", cube_vertices, cube_indices);
+	create_game_scene1();
 
 
 
@@ -160,18 +192,6 @@ int main()
 
 			// Mutate Engine State
 		}
-
-		vrender::engine::Services().Get<vrender::engine::RenderService>()
-			->SubmitRenderObject(
-				vrender::render::RenderObject{
-					.mesh = token,
-					.transform = ame::TRS(
-						ame::vec3f{  1.0f, - 1.0f, - 4.0f },
-						ame::vec3f{ 40.0f,  25.0f,  15.0f },
-						ame::vec3f{  1.0f,   1.0f,   1.0f }
-					)
-				}
-		);
 
 		// Engine Tick
 		runtime_scheduler.Tick(t);

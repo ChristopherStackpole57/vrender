@@ -26,7 +26,7 @@ namespace vrender::engine
 		void Shutdown() override;
 		void Tick(float dt) override;
 
-		vrender::render::MeshToken CreateMesh(
+		vrender::render::MeshHandle CreateMesh(
 			std::vector<vrender::render::Vertex> vertices,
 			std::vector<uint32_t> indices
 		);

@@ -49,8 +49,9 @@ namespace vrender::engine
 	// Tick Priority Categories
 	constexpr int SCHEDULE_TICK_LEVEL_PREFRAME = 1;
 	constexpr int SCHEDULE_TICK_LEVEL_BASIC = 0;
-	constexpr int SCHEDULE_TICK_LEVEL_FRAMERENDER = -1;
-	constexpr int SCHEDULE_TICK_LEVEL_POSTFRAME = -2;
+	constexpr int SCHEDULE_TICK_LEVEL_FRAMEPREP = -1;
+	constexpr int SCHEDULE_TICK_LEVEL_FRAMERENDER = -2;
+	constexpr int SCHEDULE_TICK_LEVEL_POSTFRAME = -3;
 
 	// Shutdown Priority Categories
 	constexpr int SCHEDULE_SHUTDOWN_LEVEL_BASIC = 0;

@@ -330,7 +330,7 @@ vrender::render::Renderer::Renderer(
 		sizeof(transform),
 		0
 	);
-	this->transform_buffer_token = this->bindless_registry.register_storage_buffer(
+	this->transform_buffer_handle = this->bindless_registry.register_storage_buffer(
 		this->test_transform_buffer,
 		1
 	);
@@ -367,7 +367,7 @@ vrender::render::Renderer::Renderer(
 		sizeof(view)
 	);
 
-	this->camera_buffer_token = this->bindless_registry.register_uniform_buffer(
+	this->camera_buffer_handle = this->bindless_registry.register_uniform_buffer(
 		this->test_camera_buffer,
 		0
 	);
@@ -402,25 +402,14 @@ bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_dat
 			sizeof(object.transform),
 			offset
 		);
-
 		offset += sizeof(object.transform);
-		meshes.push_back(
-			this->geometry_arena.get_mesh(object.mesh)
-		);
+		
+		const vrender::render::Mesh mesh = this->geometry_arena.get_mesh(object.mesh);
+		meshes.emplace_back(mesh);
 	}
 
-	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
+	this->bindless_registry.update_storage_buffer(this->transform_buffer_handle);
 	time++;
-
-
-
-
-
-	//ame::mat4 transform = ame::TRS(
-		//ame::vec3f{ 2.75f * (float)std::sin(this->time / 750.f), -0.75f, -5.0f },
-		//ame::vec3f{ this->time / 250.0f, this->time / 500.0f, this->time / 1000.0f },
-		//ame::vec3f{ 1.0f, 1.0f, 1.0f }
-	//);
 
 	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
 	VkFence wait_fence = this->frame_contexts[this->current_frame].in_flight.get_fence();
@@ -487,13 +476,13 @@ bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_dat
 		);
 		for (size_t i = 0; i < this->pending_dynamic_vertices.size(); i++)
 		{
-			vrender::render::MeshToken token = this->geometry_arena.create_dynamic_mesh(
+			vrender::render::MeshHandle handle = this->geometry_arena.create_dynamic_mesh(
 				this->pending_dynamic_vertices[i],
 				this->pending_dynamic_indices[i],
 				this->current_frame
 			);
 
-			frame_meshes.emplace_back(this->geometry_arena.get_mesh(token));
+			frame_meshes.emplace_back(this->geometry_arena.get_mesh(handle));
 		}
 
 		this->pending_dynamic_vertices.clear();
@@ -531,6 +520,7 @@ bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_dat
 		this->frame_contexts[this->current_frame]
 	);
 
+	// Prepare for next frame
 	this->current_frame = (this->current_frame + 1) % this->frame_contexts.size();
 
 	return true;

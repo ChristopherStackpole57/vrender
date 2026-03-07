@@ -5,6 +5,8 @@
 
 #include <RenderLayer/Core/Memory/Buffer.h>
 
+#include <Utility/Generator.h>
+
 namespace vrender::render
 {
 	struct Mesh
@@ -24,18 +26,7 @@ namespace vrender::render
 	{
 		vrender::render::Mesh mesh;
 	};
-	struct MeshSlot
-	{
-		MeshEntry entry;
-		uint32_t generation;
-		bool alive;
-	};
-	typedef uint64_t MeshToken;
-	struct MeshTokenComponents
-	{
-		uint32_t generation;
-		uint32_t index;
-	};
+	typedef vrender::utility::Handle MeshHandle;
 }
 
 #endif
