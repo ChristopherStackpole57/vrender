@@ -1,4 +1,4 @@
-#include <Core/GeometryArena.h>
+#include <RenderLayer/Core/GeometryArena.h>
 
 // Lifetime Control
 vrender::render::GeometryArena::GeometryArena(
@@ -73,7 +73,7 @@ vrender::render::GeometryArena::~GeometryArena()
 }
 
 // API Accessibility
-const vrender::render::Mesh vrender::render::GeometryArena::create_static_mesh(
+const vrender::render::MeshHandle vrender::render::GeometryArena::create_static_mesh(
 	std::vector<vrender::render::Vertex>& vertices,
 	std::vector<uint32_t>& indices
 )
@@ -86,7 +86,7 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_static_mesh(
 	if (vertex_offset == UINT32_MAX || index_offset == UINT32_MAX)
 	{
 		std::cerr << "ERROR: VRENDER Could not Allocate Memory for Requested Mesh" << std::endl;
-		return { UINT32_MAX, UINT32_MAX, UINT32_MAX };
+		return vrender::utility::NULL_HANDLE;
 	}
 
 	// Write Data
@@ -102,7 +102,7 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_static_mesh(
 	);
 
 	// Return Mesh
-	return vrender::render::Mesh{
+	vrender::render::Mesh mesh = vrender::render::Mesh{
 		.vertex_offset = vertex_offset,
 		.vertex_offset_count = vertex_offset / sizeof(vrender::render::Vertex),
 		.vertex_count = static_cast<uint32_t>(vertices.size()),
@@ -110,8 +110,12 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_static_mesh(
 		.index_offset_count = index_offset / sizeof(uint32_t),
 		.index_count = static_cast<uint32_t>(indices.size())
 	};
+
+	vrender::render::MeshEntry entry{ mesh };
+	vrender::render::MeshHandle handle = this->generator.acquire_slot_handle(entry);
+	return handle;
 }
-const vrender::render::Mesh vrender::render::GeometryArena::create_dynamic_mesh(
+const vrender::render::MeshHandle vrender::render::GeometryArena::create_dynamic_mesh(
 	std::vector<vrender::render::Vertex>& vertices,
 	std::vector<uint32_t>& indices,
 	uint32_t index
@@ -125,7 +129,7 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_dynamic_mesh(
 	if (vertex_offset == UINT32_MAX || index_offset == UINT32_MAX)
 	{
 		std::cerr << "ERROR: VRENDER Could Not Allocate Memory for Requested Mesh" << std::endl;
-		return { UINT32_MAX, UINT32_MAX, UINT32_MAX };
+		return vrender::utility::NULL_HANDLE;
 	}
 
 	// Write Data
@@ -141,7 +145,7 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_dynamic_mesh(
 	);
 
 	// Return Mesh
-	return vrender::render::Mesh{
+	vrender::render::Mesh mesh = vrender::render::Mesh{
 		.vertex_offset = vertex_offset,
 		.vertex_offset_count = vertex_offset / sizeof(vrender::render::Vertex),
 		.vertex_count = static_cast<uint32_t>(vertices.size()),
@@ -149,6 +153,9 @@ const vrender::render::Mesh vrender::render::GeometryArena::create_dynamic_mesh(
 		.index_offset_count = index_offset / sizeof(uint32_t),
 		.index_count = static_cast<uint32_t>(indices.size())
 	};
+	vrender::render::MeshEntry entry = { mesh };
+
+	return this->generator.acquire_slot_handle(entry);
 }
 
 void vrender::render::GeometryArena::reset_dynamic(uint32_t index)
@@ -169,4 +176,15 @@ const vrender::render::memory::Buffer& vrender::render::GeometryArena::get_verte
 const vrender::render::memory::Buffer& vrender::render::GeometryArena::get_index_buffer() const
 {
 	return this->index_buffer;
+}
+
+const vrender::render::Mesh vrender::render::GeometryArena::get_mesh(vrender::render::MeshHandle handle)
+{
+	if (this->generator.handle_valid(handle) && this->generator.handle_alive(handle))
+	{
+		vrender::utility::HandleComponents components = this->generator.decode_handle(handle);
+		//return this->slots[components.index].entry.mesh;
+		return this->generator.entry_from_handle(handle).mesh;
+	}
+	std::cerr << "ERROR: Geometry Arena Requested Mesh Handle that Is Not Valid or Alive" << std::endl;
 }

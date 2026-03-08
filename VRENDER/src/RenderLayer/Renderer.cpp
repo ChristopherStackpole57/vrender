@@ -1,4 +1,4 @@
-#include <Core/Renderer.h>
+#include <RenderLayer/Core/Renderer.h>
 
 // Utility Function
 static vrender::render::config::InstanceConfig build_instance_config(
@@ -302,7 +302,7 @@ vrender::render::Renderer::Renderer(
 	// Testing
 	, test_transform_buffer(
 		allocator,
-		sizeof(ame::mat4f),
+		sizeof(ame::mat4f) * 20,
 		vrender::render::memory::BufferUsageClass::STORAGE,
 		vrender::render::memory::BufferCPUAccess::WRITE_ONCE,
 		vrender::render::memory::BufferLifetime::PERSISTENT
@@ -319,34 +319,30 @@ vrender::render::Renderer::Renderer(
 	this->images_in_flight.resize(this->swapchain.get_images().size());
 
 	ame::mat4 transform = ame::TRS(
-		ame::vec3f{ 0.0f, -0.75f, 0.0f },
+		ame::vec3f{ 0.0f, -0.75f, -2.0f },
 		ame::vec3f{ 0.0f, 0.0f, 0.0f },
 		ame::vec3f{ 1.0f, 1.0f, 1.0f }
 	);
 	transform = transform.Transpose();
-	
-	std::cout << "transform:\n" << transform << std::endl;
 
 	this->test_transform_buffer.write(
 		transform.data(),
 		sizeof(transform),
 		0
 	);
-	this->transform_buffer_token = this->bindless_registry.register_storage_buffer(
+	this->transform_buffer_handle = this->bindless_registry.register_storage_buffer(
 		this->test_transform_buffer,
 		1
 	);
 
 	// Write Camera Data
-	ame::mat4f view = ame::mat4f{
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 0.0f,
-		0.0f, 0.0f, 1.0f, 0.0f,
-		0.0f, 0.0f, 0.0f, 1.0f
-	};
+	ame::mat4 view = ame::TRS(
+		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 0.0f, 0.0f, 0.0f },
+		ame::vec3f{ 1.0f, 1.0f, 1.0f }
+	);
+	view.Inverse();
 	view = view.Transpose();
-
-	std::cout << "view:\n" << view << std::endl;
 
 	this->test_camera_buffer.write(
 		view.data(),
@@ -371,7 +367,7 @@ vrender::render::Renderer::Renderer(
 		sizeof(view)
 	);
 
-	this->camera_buffer_token = this->bindless_registry.register_uniform_buffer(
+	this->camera_buffer_handle = this->bindless_registry.register_uniform_buffer(
 		this->test_camera_buffer,
 		0
 	);
@@ -394,20 +390,25 @@ vrender::render::Renderer::~Renderer()
 }
 
 // Public API
-bool vrender::render::Renderer::step()
+bool vrender::render::Renderer::step(const vrender::render::FrameData& frame_data)
 {
-	ame::mat4 transform = ame::TRS(
-		ame::vec3f{ 0.75f * (float)std::sin(this->time / 750.f), -0.75f, 0.0f },
-		ame::vec3f{ 0.0f, 0.0f, 0.0f },
-		ame::vec3f{ 1.0f, 1.0f, 1.0f }
-	);
-	transform = transform.Transpose();
-	this->test_transform_buffer.write(
-		transform.data(),
-		sizeof(transform),
-		0
-	);
-	this->bindless_registry.update_storage_buffer(this->transform_buffer_token);
+	uint32_t offset = 0;
+	std::vector<vrender::render::Mesh> meshes;
+	meshes.reserve(frame_data.objects.size());
+	for (const vrender::render::RenderObject& object : frame_data.objects)
+	{
+		this->test_transform_buffer.write(
+			object.transform.Transpose().data(),
+			sizeof(object.transform),
+			offset
+		);
+		offset += sizeof(object.transform);
+		
+		const vrender::render::Mesh mesh = this->geometry_arena.get_mesh(object.mesh);
+		meshes.emplace_back(mesh);
+	}
+
+	this->bindless_registry.update_storage_buffer(this->transform_buffer_handle);
 	time++;
 
 	// Wait for Completion of Current Frame's Fence Before Starting Next Frame
@@ -470,16 +471,18 @@ bool vrender::render::Renderer::step()
 	{
 		frame_meshes.insert(
 			frame_meshes.end(),
-			this->meshes.begin(),
-			this->meshes.end()
+			meshes.begin(),
+			meshes.end()
 		);
 		for (size_t i = 0; i < this->pending_dynamic_vertices.size(); i++)
 		{
-			frame_meshes.push_back(this->geometry_arena.create_dynamic_mesh(
+			vrender::render::MeshHandle handle = this->geometry_arena.create_dynamic_mesh(
 				this->pending_dynamic_vertices[i],
 				this->pending_dynamic_indices[i],
 				this->current_frame
-			));
+			);
+
+			frame_meshes.emplace_back(this->geometry_arena.get_mesh(handle));
 		}
 
 		this->pending_dynamic_vertices.clear();
@@ -487,7 +490,7 @@ bool vrender::render::Renderer::step()
 	}
 	else
 	{
-		frame_meshes = this->meshes;
+		frame_meshes = meshes;
 	}
 
 	// Execute Frame
@@ -517,6 +520,7 @@ bool vrender::render::Renderer::step()
 		this->frame_contexts[this->current_frame]
 	);
 
+	// Prepare for next frame
 	this->current_frame = (this->current_frame + 1) % this->frame_contexts.size();
 
 	return true;
@@ -525,10 +529,6 @@ bool vrender::render::Renderer::step()
 vrender::render::GeometryArena& vrender::render::Renderer::get_geometry_arena()
 {
 	return this->geometry_arena;
-}
-void vrender::render::Renderer::add_mesh(vrender::render::Mesh mesh)
-{
-	this->meshes.push_back(mesh);
 }
 void vrender::render::Renderer::render_dynamic_mesh(std::vector<vrender::render::Vertex> vertices, std::vector<uint32_t> indices)
 {

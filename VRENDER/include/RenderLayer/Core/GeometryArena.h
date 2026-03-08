@@ -1,0 +1,64 @@
+#ifndef RENDER_GEOMETRY_ARENA_H
+#define RENDER_GEOMETRY_ARENA_H
+
+#include <vulkan/vulkan.h>
+
+#include <RenderLayer/Core/Mesh.h>
+#include <RenderLayer/Core/Vertex.h>
+
+#include <RenderLayer/Core/Memory/Allocator.h>
+#include <RenderLayer/Core/Memory/Buffer.h>
+#include <RenderLayer/Core/Memory/BufferDesc.h>
+#include <RenderLayer/Core/Memory/Suballocator.h>
+
+namespace vrender::render
+{
+	class GeometryArena
+	{
+	public:
+		// Lifetime Control
+		GeometryArena(vrender::render::memory::Allocator& allocator, uint32_t dynamic_divisions);
+		~GeometryArena();
+
+		GeometryArena(const GeometryArena&) = delete;
+		GeometryArena& operator=(const GeometryArena&) = delete;
+
+		GeometryArena(GeometryArena&& other) noexcept = default;
+		GeometryArena& operator=(GeometryArena&& other) noexcept = default;
+
+		// API Accessibility
+		const vrender::render::MeshHandle create_static_mesh(
+			std::vector<vrender::render::Vertex>& vertices,
+			std::vector<uint32_t>& indices	
+		);
+		const vrender::render::MeshHandle create_dynamic_mesh(
+			std::vector<vrender::render::Vertex>& vertices,
+			std::vector<uint32_t>& indices,
+			uint32_t index
+		);
+
+		void reset_dynamic(uint32_t index);
+
+		const vrender::render::memory::Buffer& get_vertex_buffer() const;
+		const vrender::render::memory::Buffer& get_index_buffer() const;
+
+		const vrender::render::Mesh get_mesh(vrender::render::MeshHandle handle);
+	private:
+		// Geometry Suballocation
+		uint32_t static_arena_length = 1024;
+		uint32_t dynamic_arena_total_length = 512;
+
+		vrender::render::memory::Buffer vertex_buffer;
+		vrender::render::memory::Buffer index_buffer;
+
+		vrender::render::memory::Suballocator static_vertex_suballocator;
+		vrender::render::memory::Suballocator static_index_suballocator;
+		std::vector<vrender::render::memory::Suballocator> dynamic_vertex_suballocators;
+		std::vector<vrender::render::memory::Suballocator> dynamic_index_suballocators;
+
+		// Handle Management
+		vrender::utility::Generator<vrender::render::MeshEntry> generator;
+	};
+}
+
+#endif

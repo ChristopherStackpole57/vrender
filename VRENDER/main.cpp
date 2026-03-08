@@ -10,17 +10,45 @@
 #include <PlatformLayer/Utility/WindowMode.h>
 #include <PlatformLayer/WindowBackends/GLFWWindowBackend.h>
 
-#include <Core/Renderer.h>
-#include <Core/Mesh.h>
-#include <Core/GeometryArena.h>
+#include <RenderLayer/Core/Renderer.h>
+#include <RenderLayer/Core/Mesh.h>
+#include <RenderLayer/Core/GeometryArena.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
+
+#include <EngineLayer/Core/RenderService.h>
+#include <EngineLayer/Core/RuntimeScheduler.h>
+#include <EngineLayer/Core/SceneService.h>
+#include <EngineLayer/Core/ServiceManager.h>
 
 #ifdef NDEBUG
 const bool ENABLE_VALIDATION_LAYERS = false;
 #else
 const bool ENABLE_VALIDATION_LAYERS = true;
 #endif
+
+void create_game_scene1()
+{
+	vrender::engine::SceneService* scene_service = vrender::engine::Services().Get<vrender::engine::SceneService>();
+
+	// Floor
+	using namespace vrender::engine;
+
+	InstanceHandle floor = scene_service->CreateInstanceOfMesh("cube");
+	Transform& floor_transform = scene_service->GetInstanceTransform(floor);
+	floor_transform.position = ame::vec3f{ 0.0f, -1.5f, -5.0f };
+	floor_transform.scale = ame::vec3f{ 3.0f, 1.0f, 5.0f };
+
+	InstanceHandle left_wall = scene_service->CreateInstanceOfMesh("cube");
+	Transform& left_wall_transform = scene_service->GetInstanceTransform(left_wall);
+	left_wall_transform.position = ame::vec3f{ -2.0f, 1.0f, -5.0f };
+	left_wall_transform.scale = ame::vec3f{ 1.0f, 4.0f, 5.0f };
+
+	InstanceHandle right_wall = scene_service->CreateInstanceOfMesh("cube");
+	Transform& right_wall_transform = scene_service->GetInstanceTransform(right_wall);
+	right_wall_transform.position = ame::vec3f{ 2.0f, 1.0f, -5.0f };
+	right_wall_transform.scale = ame::vec3f{ 1.0f, 4.0f, 5.0f };
+}
 
 static_assert(sizeof(ame::mat4f) == 64);
 static_assert(alignof(ame::mat4f) == 16);
@@ -33,6 +61,7 @@ int main()
 	execution loop. The surface provider, on the other hand, is necessary for generating a VkSurfaceKHR in the Instance constructor.
 	*/
 
+	// Platform Setup
 	std::shared_ptr<vrender::platform::WindowProvider> window_provider_ptr = std::make_shared<vrender::platform::GLFWWindowBackend>();
 	std::shared_ptr<vrender::platform::WindowSurfaceProvider> surface_provider_ptr = std::dynamic_pointer_cast<
 		vrender::platform::WindowSurfaceProvider
@@ -42,26 +71,53 @@ int main()
 		.enable_validation = ENABLE_VALIDATION_LAYERS,
 	};
 	//instance_config.extensions = std::vector<std::string>{};					// Not needed yet
-	vrender::render::Renderer renderer(
-		*window_provider_ptr,
-		*surface_provider_ptr, 
-		instance_config
-	);
 
 	// Configure Window
 	window_provider_ptr->set_title("VRENDER Engine");
 	window_provider_ptr->set_resizable(true);
 
+
+
+
+
+	// Engine Setup
+	vrender::engine::RuntimeScheduler runtime_scheduler;
+
+	vrender::engine::Services().RegisterService<vrender::engine::RenderService>(
+		*window_provider_ptr,
+		*surface_provider_ptr,
+		instance_config
+	);
+	vrender::engine::RenderService* render_service = vrender::engine::Services().Get<vrender::engine::RenderService>();
+	vrender::engine::Services().RegisterService<vrender::engine::SceneService>(
+		render_service
+	);
+	vrender::engine::SceneService* scene_service = vrender::engine::Services().Get<vrender::engine::SceneService>();
+
+	runtime_scheduler.SetServiceTickPriority(
+		render_service,
+		vrender::engine::SCHEDULE_TICK_LEVEL_FRAMERENDER
+	);
+	runtime_scheduler.SetServiceTickPriority(
+		scene_service,
+		vrender::engine::SCHEDULE_TICK_LEVEL_FRAMEPREP
+	);
+
+
+
+
+
+	// Asset Setup
 	// Bind Cube
 	std::vector<vrender::render::Vertex> cube_vertices = {
-		{{ -0.5f, -0.5f, -1.5f }, {0, 1, 0}},
-		{{  0.5f, -0.5f, -1.5f }, {0, 0, 1}},
-		{{  0.5f,  0.5f, -1.5f }, {0, 1, 0}},
-		{{ -0.5f,  0.5f, -1.5f }, {1, 0, 0}},
-		{{  0.5f, -0.5f, -2.5f }, {1, 0, 0}},
-		{{ -0.5f, -0.5f, -2.5f }, {0, 1, 0}},
-		{{ -0.5f,  0.5f, -2.5f }, {0, 0, 1}},
-		{{  0.5f,  0.5f, -2.5f }, {0, 1, 0}},
+		{{ -0.5f, -0.5f,  0.5f }, {0, 1, 0}},
+		{{  0.5f, -0.5f,  0.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f,  0.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f,  0.5f }, {1, 0, 0}},
+		{{  0.5f, -0.5f, -0.5f }, {1, 0, 0}},
+		{{ -0.5f, -0.5f, -0.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f, -0.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f, -0.5f }, {0, 1, 0}},
 	};
 	std::vector<uint32_t> cube_indices = {
 		// Front Face
@@ -88,12 +144,15 @@ int main()
 		3, 2, 7,
 		7, 6, 3
 	};
+	scene_service->RegisterStaticMesh("cube", cube_vertices, cube_indices);
+	create_game_scene1();
 
-	const vrender::render::Mesh cube_mesh = renderer.get_geometry_arena().create_static_mesh(
-		cube_vertices,
-		cube_indices
-	);
-	renderer.add_mesh(cube_mesh);
+
+
+
+
+	// Startup Engine Services
+	runtime_scheduler.Start();
 
 	// Primary Exection Loop
 	bool run_loop = true;
@@ -134,8 +193,8 @@ int main()
 			// Mutate Engine State
 		}
 
-		// Render Step
-		if (!renderer.step()) return 0;
+		// Engine Tick
+		runtime_scheduler.Tick(t);
 
 		// Clear Resized Flag
 		window_provider_ptr->clear_resize_flag();
