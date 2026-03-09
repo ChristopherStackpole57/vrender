@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <RenderLayer/DebugDiagnostics.h>
+#include <RenderLayer/Core/DebugDiagnostics.h>
 
 #include <RenderLayer/Configuration/InstanceConfiguration.h>
 

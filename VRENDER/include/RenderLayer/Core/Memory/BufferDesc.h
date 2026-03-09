@@ -2,7 +2,8 @@
 #define RENDER_BUFFER_DESC_H
 
 #include <vulkan/vulkan.h>
-#include <vma/vk_mem_alloc.h>
+
+#include <RenderLayer/Core/Memory/CPUAccess.h>
 
 namespace vrender::render::memory
 {
@@ -15,12 +16,6 @@ namespace vrender::render::memory
 		STAGING =	1 << 3,
 		TRANSFER =	1 << 4,
 		STORAGE =	1 << 5
-	};
-	enum class BufferCPUAccess
-	{
-		NONE,
-		WRITE_ONCE,
-		WRITE_OFTEN
 	};
 	enum class BufferLifetime
 	{
@@ -51,7 +46,7 @@ namespace vrender::render::memory
 		// Description Schema
 		size_t size;
 		vrender::render::memory::BufferUsageClass usage_class;
-		vrender::render::memory::BufferCPUAccess cpu_access;
+		vrender::render::memory::CPUAccess cpu_access;
 		vrender::render::memory::BufferLifetime lifetime;
 	};
 }

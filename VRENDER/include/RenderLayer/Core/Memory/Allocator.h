@@ -11,7 +11,12 @@
 #include <RenderLayer/Core/Instance.h>
 #include <RenderLayer/Core/LogicalDevice.h>
 #include <RenderLayer/Core/PhysicalDevice.h>
+
+#include <RenderLayer/Core/Memory/CPUAccess.h>
 #include <RenderLayer/Core/Memory/BufferDesc.h>
+#include <RenderLayer/Core/Memory/ImageDesc.h>
+
+#include <Utility/Generator.h>
 
 // Quick note to add to docs:
 /*
@@ -22,6 +27,7 @@ configurations once those are handled later)
 
 namespace vrender::render::memory
 {
+	// Buffer Allocation
 	enum class BufferValidationError
 	{
 		NONE,
@@ -36,16 +42,12 @@ namespace vrender::render::memory
 		bool success;
 		vrender::render::memory::BufferValidationError error;
 	};
-
-	using AllocationToken = uint64_t;
 	struct BufferAllocationResult
 	{
 		VkBuffer buffer;
-		AllocationToken token;
-		// possibly other things
+		AllocationHandle handle;
 	};
-
-	struct AllocationEntry
+	struct BufferAllocationEntry
 	{
 		VmaAllocation allocation;
 		VmaAllocationInfo info;
@@ -53,24 +55,43 @@ namespace vrender::render::memory
 		VkBuffer buffer;
 		VkDeviceSize size;
 
-		vrender::render::memory::BufferCPUAccess cpu_access;
+		vrender::render::memory::CPUAccess cpu_access;
 		vrender::render::memory::BufferLifetime lifetime;
 		bool persistently_mapped;
-
-		std::string debug_name;
 	};
 
-	struct AllocationSlot
+
+
+	// Image Allocation
+	enum class ImageValidationError
 	{
-		AllocationEntry entry;
-		uint32_t generation;
-		bool alive;
+
 	};
-	struct AllocationTokenComponents
+	struct ImageValidationResult
 	{
-		uint32_t index;
-		uint32_t generation;
+		bool success;
+		vrender::render::memory::ImageValidationError error;
 	};
+	struct ImageAllocationResult
+	{
+		VkImage image;
+		AllocationHandle handle;
+	};
+	struct ImageAllocationEntry
+	{
+		VmaAllocation allocation;
+		VmaAllocationInfo info;
+
+		VkImage image;
+		VkDeviceSize size;
+
+		vrender::render::memory::CPUAccess cpu_access;
+	};
+	
+
+
+	// Generic Allocation
+	typedef vrender::utility::Handle AllocationHandle;
 
 	class Allocator
 	{
@@ -88,29 +109,24 @@ namespace vrender::render::memory
 
 		// API Accessibility
 		vrender::render::memory::BufferAllocationResult allocate_buffer(const vrender::render::memory::BufferDesc& desc);
-		void free_buffer(AllocationToken token);
-		void* map_buffer(AllocationToken token);
-		void unmap_buffer(AllocationToken token);
+		void free_buffer(AllocationHandle handle);
+		void* map_buffer(AllocationHandle handle);
+		void unmap_buffer(AllocationHandle handle);
 		void write_buffer(
-			AllocationToken token,
+			AllocationHandle handle,
 			const void* src,
 			size_t size,
 			size_t offset
 		);
+
+		vrender::render::memory::ImageAllocationResult allocate_image(const vrender::render::memory::ImageDesc& image);
+		void free_image(AllocationHandle handle);
 	private:
-		// Utility
-		AllocationToken encode_token(uint64_t index, uint64_t generation);
-		AllocationTokenComponents decode_token(AllocationToken token);
-		AllocationToken acquire_slot_token(AllocationEntry entry);
-		AllocationSlot& slot_from_token(AllocationToken token);
-
-		bool token_is_valid(AllocationToken token);
-		bool token_is_alive(AllocationToken token);
-
 		VmaAllocator allocator;
-		std::vector<AllocationSlot> slots;
-		std::vector<uint32_t> free_indices;
 		const vrender::render::LogicalDevice* logical_device_ptr;
+		
+		vrender::utility::Generator<BufferAllocationEntry> buffer_generator;
+		vrender::utility::Generator<ImageAllocationEntry> image_generator;
 	};
 }
 

@@ -13,21 +13,21 @@ add_library(vrender
 "src/PlatformLayer/WindowBackends/SDLWindowBackend.cpp"
 "src/PlatformLayer/WindowBackends/SFMLWindowBackend.cpp"
 
-"src/RenderLayer/CommandController.cpp"
-"src/RenderLayer/DescriptorLayout.cpp"
-"src/RenderLayer/DescriptorPool.cpp"
-"src/RenderLayer/DescriptorSet.cpp"
-"src/RenderLayer/Fence.cpp"
-"src/RenderLayer/GeometryArena.cpp"
-"src/RenderLayer/Instance.cpp"
-"src/RenderLayer/LogicalDevice.cpp"
-"src/RenderLayer/PhysicalDevice.cpp"
-"src/RenderLayer/Pipeline.cpp"
-"src/RenderLayer/PipelineLayout.cpp"
-"src/RenderLayer/Renderer.cpp"
-"src/RenderLayer/Semaphore.cpp"
-"src/RenderLayer/Shader.cpp"
-"src/RenderLayer/Swapchain.cpp"  
+"src/RenderLayer/Core/CommandController.cpp"
+"src/RenderLayer/Core/DescriptorLayout.cpp"
+"src/RenderLayer/Core/DescriptorPool.cpp"
+"src/RenderLayer/Core/DescriptorSet.cpp"
+"src/RenderLayer/Core/Fence.cpp"
+"src/RenderLayer/Core/GeometryArena.cpp"
+"src/RenderLayer/Core/Instance.cpp"
+"src/RenderLayer/Core/LogicalDevice.cpp"
+"src/RenderLayer/Core/PhysicalDevice.cpp"
+"src/RenderLayer/Core/Pipeline.cpp"
+"src/RenderLayer/Core/PipelineLayout.cpp"
+"src/RenderLayer/Core/Renderer.cpp"
+"src/RenderLayer/Core/Semaphore.cpp"
+"src/RenderLayer/Core/Shader.cpp"
+"src/RenderLayer/Core/Swapchain.cpp"  
 
 "src/RenderLayer/Memory/Allocator.cpp" 
 "src/RenderLayer/Memory/Buffer.cpp" 
@@ -42,7 +42,7 @@ add_library(vrender
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
- "src/RenderLayer/RenderCycle/BindlessRegistry.cpp" "src/EngineLayer/Core/RuntimeScheduler.cpp"  "src/EngineLayer/Core/RenderService.cpp" "src/EngineLayer/Core/SceneService.cpp" )
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp" "src/EngineLayer/Core/RuntimeScheduler.cpp"  "src/EngineLayer/Core/RenderService.cpp" "src/EngineLayer/Core/SceneService.cpp"  "src/RenderLayer/Core/TextureArena.cpp" "src/PlatformLayer/STB_IMPLEMENTATION.cpp" "src/RenderLayer/Memory/Image.cpp")
 
 # Set Compiler Settings
 if (MSVC)
@@ -134,21 +134,21 @@ target_include_directories(vrender PUBLIC
 )
 
 add_executable(vrender_test main.cpp 
-"src/RenderLayer/CommandController.cpp"
-"src/RenderLayer/DescriptorLayout.cpp"
-"src/RenderLayer/DescriptorPool.cpp"
-"src/RenderLayer/DescriptorSet.cpp"
-"src/RenderLayer/Fence.cpp"
-"src/RenderLayer/GeometryArena.cpp"
-"src/RenderLayer/Instance.cpp"
-"src/RenderLayer/LogicalDevice.cpp"
-"src/RenderLayer/PhysicalDevice.cpp"
-"src/RenderLayer/Pipeline.cpp"
-"src/RenderLayer/PipelineLayout.cpp"
-"src/RenderLayer/Renderer.cpp" 
-"src/RenderLayer/Semaphore.cpp"
-"src/RenderLayer/Shader.cpp" 
-"src/RenderLayer/Swapchain.cpp"
+"src/RenderLayer/Core/CommandController.cpp"
+"src/RenderLayer/Core/DescriptorLayout.cpp"
+"src/RenderLayer/Core/DescriptorPool.cpp"
+"src/RenderLayer/Core/DescriptorSet.cpp"
+"src/RenderLayer/Core/Fence.cpp"
+"src/RenderLayer/Core/GeometryArena.cpp"
+"src/RenderLayer/Core/Instance.cpp"
+"src/RenderLayer/Core/LogicalDevice.cpp"
+"src/RenderLayer/Core/PhysicalDevice.cpp"
+"src/RenderLayer/Core/Pipeline.cpp"
+"src/RenderLayer/Core/PipelineLayout.cpp"
+"src/RenderLayer/Core/Renderer.cpp" 
+"src/RenderLayer/Core/Semaphore.cpp"
+"src/RenderLayer/Core/Shader.cpp" 
+"src/RenderLayer/Core/Swapchain.cpp"
 
 "src/RenderLayer/Memory/Allocator.cpp" 
 "src/RenderLayer/Memory/Buffer.cpp"
@@ -162,7 +162,7 @@ add_executable(vrender_test main.cpp
 "src/RenderLayer/Utility/QueueSelection.cpp" 
 "src/RenderLayer/Utility/QuerySwapchainSupport.cpp" 
 "src/RenderLayer/Utility/ConfigureSwapchainCreateInfo.cpp"
- "src/RenderLayer/RenderCycle/BindlessRegistry.cpp" "src/EngineLayer/Core/RuntimeScheduler.cpp"  "src/EngineLayer/Core/RenderService.cpp" "src/EngineLayer/Core/SceneService.cpp" )
+ "src/RenderLayer/RenderCycle/BindlessRegistry.cpp" "src/EngineLayer/Core/RuntimeScheduler.cpp"  "src/EngineLayer/Core/RenderService.cpp" "src/EngineLayer/Core/SceneService.cpp"  "src/RenderLayer/Core/TextureArena.cpp" "src/PlatformLayer/STB_IMPLEMENTATION.cpp" "src/RenderLayer/Memory/Image.cpp")
 target_link_libraries(vrender_test PRIVATE vrender)
 
 if (MSVC)

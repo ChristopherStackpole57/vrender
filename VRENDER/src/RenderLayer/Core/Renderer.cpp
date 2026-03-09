@@ -121,7 +121,7 @@ static std::vector<vrender::render::DescriptorLayout> build_descriptor_layouts(
 		// Object Data
 		{ 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT },
 		// Textures
-		// { 2}
+		{ 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT }
 		// Material Data
 		// { 3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1024, VK_SHADER_STAGE_FRAGMENT_BIT },
 		// Lights

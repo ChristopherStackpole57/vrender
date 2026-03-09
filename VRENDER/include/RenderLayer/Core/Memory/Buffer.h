@@ -2,6 +2,7 @@
 #define RENDER_BUFFER_H
 
 #include <RenderLayer/Core/Memory/Allocator.h>
+#include <RenderLayer/Core/Memory/CPUAccess.h>
 #include <RenderLayer/Core/Memory/BufferDesc.h>
 
 namespace vrender::render::memory
@@ -14,7 +15,7 @@ namespace vrender::render::memory
 			vrender::render::memory::Allocator& allocator,
 			const size_t size,
 			const vrender::render::memory::BufferUsageClass usage_class,
-			const vrender::render::memory::BufferCPUAccess cpu_access,
+			const vrender::render::memory::CPUAccess cpu_access,
 			const vrender::render::memory::BufferLifetime lifetime
 		);
 		~Buffer();
@@ -38,7 +39,7 @@ namespace vrender::render::memory
 	private:
 		VkBuffer buffer;
 		vrender::render::memory::BufferDesc desc;
-		vrender::render::memory::AllocationToken token;
+		vrender::render::memory::AllocationHandle handle;
 
 		vrender::render::memory::Allocator* allocator_ptr;
 	};

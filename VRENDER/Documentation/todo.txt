@@ -4,5 +4,4 @@
 
 - resource state tracking
 
-- scene management
-- generic handle generator and usage
+- PRIORITY: generator needs to clear slots

@@ -5,7 +5,7 @@ vrender::render::memory::Buffer::Buffer(
 	vrender::render::memory::Allocator& allocator,
 	const size_t size,
 	const vrender::render::memory::BufferUsageClass usage_class,
-	const vrender::render::memory::BufferCPUAccess cpu_access,
+	const vrender::render::memory::CPUAccess cpu_access,
 	const vrender::render::memory::BufferLifetime lifetime
 )
 	: allocator_ptr(&allocator)
@@ -21,28 +21,28 @@ vrender::render::memory::Buffer::Buffer(
 	vrender::render::memory::BufferAllocationResult alloc_result = allocator.allocate_buffer(desc);
 	//TODO: Validate
 	this->buffer = alloc_result.buffer;
-	this->token = alloc_result.token;
+	this->handle = alloc_result.handle;
 }
 vrender::render::memory::Buffer::~Buffer()
 {
-	if (this->token == UINT64_MAX)
+	if (this->handle == vrender::utility::NULL_HANDLE)
 	{
 		return;
 	}
 
-	this->allocator_ptr->free_buffer(this->token);
-	this->token = UINT64_MAX;
+	this->allocator_ptr->free_buffer(this->handle);
+	this->handle = vrender::utility::NULL_HANDLE;
 }
 
 // NOTE: Buffers do NOT own their VkBuffer, so they MUST NOT destroy it
 vrender::render::memory::Buffer::Buffer(vrender::render::memory::Buffer&& other) noexcept
 	: buffer(other.buffer)
 	, desc(other.desc)
-	, token(other.token)
+	, handle(other.handle)
 	, allocator_ptr(other.allocator_ptr)
 {
 	other.buffer = VK_NULL_HANDLE;
-	other.token = UINT64_MAX;
+	other.handle = vrender::utility::NULL_HANDLE;
 }
 vrender::render::memory::Buffer& vrender::render::memory::Buffer::operator=(
 	vrender::render::memory::Buffer&& other
@@ -52,11 +52,11 @@ vrender::render::memory::Buffer& vrender::render::memory::Buffer::operator=(
 	{
 		this->buffer = other.buffer;
 		this->desc = other.desc;
-		this->token = other.token;
+		this->handle = other.handle;
 		this->allocator_ptr = other.allocator_ptr;
 
 		other.buffer = VK_NULL_HANDLE;
-		other.token = UINT64_MAX;
+		other.handle = vrender::utility::NULL_HANDLE;
 	}
 
 	return *this;
@@ -83,14 +83,14 @@ void vrender::render::memory::Buffer::write(
 	{
 		throw std::runtime_error("ERROR: Tried to Write Past Bufer Size Limit");
 	}
-	if (this->desc.cpu_access == vrender::render::memory::BufferCPUAccess::NONE)
+	if (this->desc.cpu_access == vrender::render::memory::CPUAccess::NONE)
 	{
 		throw std::runtime_error("ERROR: This Buffer Does Not Allow Writing");
 	}
 
 	// Write Data
 	this->allocator_ptr->write_buffer(
-		this->token,
+		this->handle,
 		data,
 		size,
 		offset

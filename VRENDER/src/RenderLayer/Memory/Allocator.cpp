@@ -7,6 +7,7 @@ struct PlacementInfo
 	VmaMemoryUsage usage;
 };
 
+//		Buffeer Generation
 static vrender::render::memory::BufferValidationResult buffer_desc_valid(const vrender::render::memory::BufferDesc& desc)
 {
 	vrender::render::memory::BufferValidationResult validation_result{};
@@ -53,19 +54,19 @@ static VkBufferUsageFlags buffer_usage_flag_from_desc_enum(vrender::render::memo
 	return flags;
 }
 static PlacementInfo choose_placement(
-	vrender::render::memory::BufferCPUAccess cpu_access
+	vrender::render::memory::CPUAccess cpu_access
 )
 {
 	switch (cpu_access)
 	{
-	case vrender::render::memory::BufferCPUAccess::NONE:
+	case vrender::render::memory::CPUAccess::NONE:
 		return { 0, VMA_MEMORY_USAGE_GPU_ONLY };
-	case vrender::render::memory::BufferCPUAccess::WRITE_ONCE:
+	case vrender::render::memory::CPUAccess::WRITE_ONCE:
 		return {
 			VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT,
 			VMA_MEMORY_USAGE_AUTO
 		};
-	case vrender::render::memory::BufferCPUAccess::WRITE_OFTEN:
+	case vrender::render::memory::CPUAccess::WRITE_OFTEN:
 		return {
 			VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT |
 			VMA_ALLOCATION_CREATE_MAPPED_BIT,
@@ -75,6 +76,14 @@ static PlacementInfo choose_placement(
 
 	throw std::runtime_error("ERROR: Buffer Placement Strategy Could Not Be Chosen; CPU Access State Not Recognized");
 }
+
+//		Image Generation
+static vrender::render::memory::ImageValidationResult image_desc_valid(const vrender::render::memory::ImageDesc& desc)
+{
+
+}
+
+
 
 // Lifetime Control
 vrender::render::memory::Allocator::Allocator(
@@ -102,25 +111,25 @@ vrender::render::memory::Allocator::Allocator(
 }
 vrender::render::memory::Allocator::~Allocator()
 {
-	for (const vrender::render::memory::AllocationSlot& slot : this->slots)
-	{
-		if (slot.alive)
+	this->buffer_generator.for_each_living_entry(
+		[&](const vrender::render::memory::BufferAllocationEntry& entry)
 		{
 			vmaDestroyBuffer(
 				this->allocator,
-				slot.entry.buffer,
-				slot.entry.allocation
+				entry.buffer,
+				entry.allocation
 			);
 
 			vmaFreeMemory(
 				this->allocator,
-				slot.entry.allocation
+				entry.allocation
 			);
 		}
-	}
+	);
 }
 
 // API Accessibility
+//		Buffer Generation
 vrender::render::memory::BufferAllocationResult vrender::render::memory::Allocator::allocate_buffer(const vrender::render::memory::BufferDesc& desc)
 {
 	// Validate Description
@@ -140,7 +149,7 @@ vrender::render::memory::BufferAllocationResult vrender::render::memory::Allocat
 	}
 
 	vrender::render::memory::BufferAllocationResult alloc_result{};
-	vrender::render::memory::AllocationEntry entry{};
+	vrender::render::memory::BufferAllocationEntry entry{};
 
 	entry.cpu_access = desc.cpu_access;
 	entry.lifetime = desc.lifetime;
@@ -176,48 +185,47 @@ vrender::render::memory::BufferAllocationResult vrender::render::memory::Allocat
 	}
 
 	alloc_result.buffer = entry.buffer;
-	alloc_result.token = this->acquire_slot_token(entry);
+	alloc_result.handle = this->buffer_generator.acquire_slot_handle(entry);
 
 	return alloc_result;
 }
-void vrender::render::memory::Allocator::free_buffer(vrender::render::memory::AllocationToken token)
+void vrender::render::memory::Allocator::free_buffer(vrender::render::memory::AllocationHandle handle)
 {
-	if (!this->token_is_valid(token) || !this->token_is_alive(token))
+	if (!this->buffer_generator.handle_valid(handle) || !this->buffer_generator.handle_alive(handle))
 	{
 		std::cerr << "WARNING: Unable to Process Buffer Deletion Because ";
-		if (!this->token_is_valid(token))
+		if (!this->buffer_generator.handle_valid(handle))
 		{
-			std::cerr << "Provided Token is Invald" << std::endl;
+			std::cerr << "Provided Handle is Invald" << std::endl;
 			return;
 		}
 		std::cerr << "Buffer Has Already Been Deleted" << std::endl;
 		return;
 	}
-	AllocationSlot& slot = this->slots[
-		this->decode_token(token).index
-	];
+	vrender::render::memory::BufferAllocationEntry& entry = this->buffer_generator.entry_from_handle(handle);
 
-	// Delete Buffer...
+	// Delete Buffer
 	vmaDestroyBuffer(
 		this->allocator,
-		slot.entry.buffer,
-		slot.entry.allocation
+		entry.buffer,
+		entry.allocation
 	);
 
 	// Update Slot
-	slot.entry = {};
-	slot.generation++;
-	slot.alive = false;
+	// TODO: delete entry
+	//slot.entry = {};
+	//slot.generation++;
+	//slot.alive = false;
 }
-void* vrender::render::memory::Allocator::map_buffer(vrender::render::memory::AllocationToken token)
+void* vrender::render::memory::Allocator::map_buffer(vrender::render::memory::AllocationHandle handle)
 {
-	if (!token_is_valid(token) || !token_is_alive(token))
+	if (!this->buffer_generator.handle_valid(handle) || !this->buffer_generator.handle_alive(handle))
 	{
 		throw std::runtime_error("ERROR: Requested Mapping of Invalid Buffer");
 	}
 
-	vrender::render::memory::AllocationSlot& slot = this->slot_from_token(token);
-	if (slot.entry.cpu_access == vrender::render::memory::BufferCPUAccess::NONE)
+	vrender::render::memory::BufferAllocationEntry& entry = this->buffer_generator.entry_from_handle(handle);
+	if (entry.cpu_access == vrender::render::memory::CPUAccess::NONE)
 	{
 		throw std::runtime_error("ERROR: Attempted to Map GPU Only Buffer");
 	}
@@ -225,36 +233,36 @@ void* vrender::render::memory::Allocator::map_buffer(vrender::render::memory::Al
 	void* data = nullptr;
 	vmaMapMemory(
 		this->allocator,
-		slot.entry.allocation,
+		entry.allocation,
 		&data
 	);
 
 	return data;
 }
-void vrender::render::memory::Allocator::unmap_buffer(vrender::render::memory::AllocationToken token)
+void vrender::render::memory::Allocator::unmap_buffer(vrender::render::memory::AllocationHandle handle)
 {
-	if (!token_is_valid(token) || !token_is_alive(token))
+	if (!this->buffer_generator.handle_valid(handle) || !this->buffer_generator.handle_alive(handle))
 	{
 		throw std::runtime_error("ERROR: Requested Unmapping of Invalid Buffer");
 	}
 
-	vrender::render::memory::AllocationSlot& slot = slot_from_token(token);
-	vmaUnmapMemory(this->allocator, slot.entry.allocation);
+	vrender::render::memory::BufferAllocationEntry& entry = this->buffer_generator.entry_from_handle(handle);
+	vmaUnmapMemory(this->allocator, entry.allocation);
 }
 void vrender::render::memory::Allocator::write_buffer(
-	vrender::render::memory::AllocationToken token,
+	vrender::render::memory::AllocationHandle handle,
 	const void* src,
 	size_t size,
 	size_t offset
 )
 {
-	if (!token_is_valid(token) || !token_is_alive(token))
+	if (!this->buffer_generator.handle_valid(handle) || !this->buffer_generator.handle_alive(handle))
 	{
 		throw std::runtime_error("ERROR: Requested Writing of Invalid Buffer");
 	}
 
-	vrender::render::memory::AllocationSlot& slot = slot_from_token(token);
-	if (slot.entry.cpu_access == vrender::render::memory::BufferCPUAccess::NONE)
+	vrender::render::memory::BufferAllocationEntry& entry = this->buffer_generator.entry_from_handle(handle);
+	if (entry.cpu_access == vrender::render::memory::CPUAccess::NONE)
 	{
 		throw std::runtime_error("ERROR: Attempt to Write GPU Only Buffer");
 	}
@@ -264,79 +272,104 @@ void vrender::render::memory::Allocator::write_buffer(
 	uint8_t* dst = nullptr;
 	vmaMapMemory(
 		this->allocator,
-		slot.entry.allocation,
+		entry.allocation,
 		reinterpret_cast<void**>(&dst)
 	);
 	std::memcpy(dst + offset, src, size);
-	vmaUnmapMemory(this->allocator, slot.entry.allocation);
+	vmaUnmapMemory(this->allocator, entry.allocation);
 }
 
-// Utility
-vrender::render::memory::AllocationToken vrender::render::memory::Allocator::encode_token(
-	uint64_t index,
-	uint64_t generation
-)
+//		Image Generation
+vrender::render::memory::ImageAllocationResult vrender::render::memory::Allocator::allocate_image(const vrender::render::memory::ImageDesc& desc)
 {
-	return (index << 32) | generation;
-}
-vrender::render::memory::AllocationTokenComponents vrender::render::memory::Allocator::decode_token(
-	vrender::render::memory::AllocationToken token
-)
-{
-	return {
-		static_cast<uint32_t>(token >> 32),
-		static_cast<uint32_t>(token)
-	};
-}
-vrender::render::memory::AllocationToken vrender::render::memory::Allocator::acquire_slot_token(
-	vrender::render::memory::AllocationEntry entry
-)
-{
-	uint32_t index;
-	if (this->free_indices.size() == 0)
+	// Validate Description
+	vrender::render::memory::ImageValidationResult validation_result = image_desc_valid(desc);
+	if (validation_result.success == false)
 	{
-		// Must Generate a New Slot
-		this->slots.push_back({
-			entry,
-			0,
-			true
-		});
+#if DEBUG
+		throw std::runtime_error("ERROR: Allocator Recieved Invalid Buffer Description\n\tError: " +
+			std::to_string(static_cast<int>(validation_result.error))
+		);
+#else
+		std::cerr << "ERROR: Allocator Recieved Invalid Buffer Description\n\tError: " <<
+			std::to_string(static_cast<int>(validation_result.error)) << std::endl;
 
-		index = static_cast<uint32_t>(this->slots.size() - 1);
-	}
-	else
-	{
-		index = this->free_indices.back();
-		this->free_indices.pop_back();
-
-		this->slots[index].entry = entry;
-		this->slots[index].generation++;
-		this->slots[index].alive = true;
+		return {};
+#endif
 	}
 
-	uint32_t generation = this->slots[index].generation;
+	vrender::render::memory::ImageAllocationResult alloc_result{};
+	vrender::render::memory::ImageAllocationEntry entry{};
 
-	return encode_token(index, generation);
-}
-vrender::render::memory::AllocationSlot& vrender::render::memory::Allocator::slot_from_token(
-	vrender::render::memory::AllocationToken token
-)
-{
-	vrender::render::memory::AllocationTokenComponents comps = decode_token(token);
-	return this->slots[comps.index];
-}
+	entry.cpu_access = desc.cpu_access;
 
-bool vrender::render::memory::Allocator::token_is_valid(vrender::render::memory::AllocationToken token)
-{
-	vrender::render::memory::AllocationTokenComponents comps = this->decode_token(token);
-	return comps.index < this->slots.size();
-}
-bool vrender::render::memory::Allocator::token_is_alive(vrender::render::memory::AllocationToken token)
-{
-	vrender::render::memory::AllocationTokenComponents comps = this->decode_token(token);
-	AllocationSlot& slot = this->slots[comps.index];
+	// Create Allocation Info from Description
+	PlacementInfo placement_info = choose_placement(desc.cpu_access);
 
-	return 
-		slot.alive &&
-		slot.generation == comps.generation;
+	// Build Allocation Request
+	VmaAllocationCreateInfo alloc_info{};
+	alloc_info.flags = placement_info.flags;
+	alloc_info.usage = placement_info.usage;
+
+	VkImageCreateInfo image_info{};
+	image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+	image_info.pNext = nullptr;
+	image_info.extent.width = desc.width;
+	image_info.extent.height = desc.height;
+	image_info.extent.depth = 1;
+	image_info.mipLevels = desc.mip_levels;
+	image_info.arrayLayers = desc.layers;
+	image_info.format = desc.format;
+	image_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+	image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	image_info.usage = desc.usage;
+	image_info.samples = desc.samples;
+	image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	// Create Allocator and Buffer
+	VkResult creation_result = vmaCreateImage(
+		this->allocator,
+		&image_info,
+		&alloc_info,
+		&entry.image,
+		&entry.allocation,
+		&entry.info
+	);
+	if (creation_result != VK_SUCCESS)
+	{
+		throw std::runtime_error("ERROR: VMA Unable to Create Buffer");
+	}
+
+	alloc_result.image = entry.image;
+	alloc_result.handle = this->image_generator.acquire_slot_handle(entry);
+
+	return alloc_result;
+}
+void vrender::render::memory::Allocator::free_image(AllocationHandle handle)
+{
+	if (!this->image_generator.handle_valid(handle) || !this->image_generator.handle_alive(handle))
+	{
+		std::cerr << "WARNING: Unable to Process Image Deletion Because ";
+		if (!this->image_generator.handle_valid(handle))
+		{
+			std::cerr << "Provided Handle is Invald" << std::endl;
+			return;
+		}
+		std::cerr << "Image Has Already Been Deleted" << std::endl;
+		return;
+	}
+	vrender::render::memory::ImageAllocationEntry& entry = this->image_generator.entry_from_handle(handle);
+
+	// Delete Buffer
+	vmaDestroyImage(
+		this->allocator,
+		entry.image,
+		entry.allocation
+	);
+
+	// Update Slot
+	// TODO: delete entry
+	//slot.entry = {};
+	//slot.generation++;
+	//slot.alive = false;
 }

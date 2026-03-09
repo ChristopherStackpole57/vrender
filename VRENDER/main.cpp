@@ -50,6 +50,7 @@ void create_game_scene1()
 	right_wall_transform.scale = ame::vec3f{ 1.0f, 4.0f, 5.0f };
 }
 
+/*
 static_assert(sizeof(ame::mat4f) == 64);
 static_assert(alignof(ame::mat4f) == 16);
 int main()
@@ -60,6 +61,7 @@ int main()
 	Holding the pointer as window provider allows access to the WindowProvider API which will be interacted with in the primary
 	execution loop. The surface provider, on the other hand, is necessary for generating a VkSurfaceKHR in the Instance constructor.
 	*/
+	/*
 
 	// Platform Setup
 	std::shared_ptr<vrender::platform::WindowProvider> window_provider_ptr = std::make_shared<vrender::platform::GLFWWindowBackend>();
@@ -203,4 +205,82 @@ int main()
 	}
 
 	return 0;
+}
+*/
+
+int main()
+{
+	std::shared_ptr<vrender::platform::WindowProvider> window_provider_ptr = std::make_shared<vrender::platform::GLFWWindowBackend>();
+	std::shared_ptr<vrender::platform::WindowSurfaceProvider> surface_provider_ptr = std::dynamic_pointer_cast<
+		vrender::platform::WindowSurfaceProvider
+	>(window_provider_ptr);
+
+	vrender::render::config::InstanceConfig instance_config{
+		.enable_validation = ENABLE_VALIDATION_LAYERS,
+	};
+	//instance_config.extensions = std::vector<std::string>{};					// Not needed yet
+
+	// Configure Window
+	window_provider_ptr->set_title("VRENDER Engine");
+	window_provider_ptr->set_resizable(true);
+
+	vrender::render::Renderer renderer(
+		*window_provider_ptr,
+		*surface_provider_ptr,
+		instance_config
+	);
+
+	std::vector<vrender::render::Vertex> cube_vertices = {
+		{{ -0.5f, -0.5f,  0.5f }, {0, 1, 0}},
+		{{  0.5f, -0.5f,  0.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f,  0.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f,  0.5f }, {1, 0, 0}},
+		{{  0.5f, -0.5f, -0.5f }, {1, 0, 0}},
+		{{ -0.5f, -0.5f, -0.5f }, {0, 1, 0}},
+		{{ -0.5f,  0.5f, -0.5f }, {0, 0, 1}},
+		{{  0.5f,  0.5f, -0.5f }, {0, 1, 0}},
+	};
+	std::vector<uint32_t> cube_indices = {
+		// Front Face
+		0, 1, 2,
+		2, 3, 0,
+
+		// Back Face
+		4, 5, 6,
+		6, 7, 4,
+
+		// Left Face
+		0, 3, 6,
+		6, 5, 0,
+
+		// Right Face
+		2, 1, 4,
+		4, 7, 2,
+
+		// Top Face
+		0, 5, 4,
+		4, 1, 0,
+
+		// Bottom Face
+		3, 2, 7,
+		7, 6, 3
+	};
+	vrender::render::MeshHandle cube = renderer.get_geometry_arena().create_static_mesh(cube_vertices, cube_indices);
+
+
+	while (true)
+	{
+		renderer.step({
+			.objects = std::vector<vrender::render::RenderObject>{
+				{
+					.mesh = cube,
+					.transform = ame::TRS(
+						ame::vec3f{ 1.0f, -1.0f, -3.0f },
+						ame::vec3f{ 0.0f, 0.0f, 0.0f },
+						ame::vec3f{ 1.0f, 1.0f, 1.0f }
+					)
+				}
+			}
+		});
+	}
 }
